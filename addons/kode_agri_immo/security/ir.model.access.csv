@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ka_immo_famille,ka.immo.famille,model_ka_immo_famille,base.group_user,1,1,1,1
+access_ka_immo,ka.immo,model_ka_immo,base.group_user,1,1,1,1
+access_ka_immo_plan,ka.immo.plan,model_ka_immo_plan,base.group_user,1,1,1,1
+access_ka_immo_dotation,ka.immo.dotation,model_ka_immo_dotation,base.group_user,1,1,1,1
+access_ka_immo_dotation_ligne,ka.immo.dotation.ligne,model_ka_immo_dotation_ligne,base.group_user,1,1,1,1
+access_ka_immo_sortie,ka.immo.sortie,model_ka_immo_sortie,base.group_user,1,1,1,1
+access_ka_immo_parc,ka.immo.parc,model_ka_immo_parc,base.group_user,1,1,1,1

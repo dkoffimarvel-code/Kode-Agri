@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="plan_ligne" model="account.analytic.plan"><field name="name">Ligne de production</field></record>
+    <record id="an_l2_sechage" model="account.analytic.account"><field name="name">Ligne 2 / Séchage</field><field name="code">L2-SECHAGE</field><field name="plan_id" ref="plan_ligne"/></record>
+    <record id="an_l3_sechage" model="account.analytic.account"><field name="name">Ligne 3 / Séchage</field><field name="code">L3-SECHAGE</field><field name="plan_id" ref="plan_ligne"/></record>
+    <record id="an_l2_pressage" model="account.analytic.account"><field name="name">Ligne 2 / Pressage</field><field name="code">L2-PRESSAGE</field><field name="plan_id" ref="plan_ligne"/></record>
+    <record id="famille_eqtrans" model="ka.immo.famille"><field name="code">EQTRANS</field><field name="name">Équipement de transformation</field><field name="methode">lineaire</field><field name="duree">10</field><field name="cpt_immo">2154</field><field name="cpt_amort">28154</field><field name="cpt_dotation">68112</field><field name="creation_facture" eval="True"/></record>
+    <record id="famille_mattrans" model="ka.immo.famille"><field name="code">MATTRANS</field><field name="name">Matériel de transport</field><field name="methode">lineaire</field><field name="duree">5</field><field name="cpt_immo">2184</field><field name="cpt_amort">28184</field><field name="cpt_dotation">68112</field><field name="creation_facture" eval="True"/></record>
+    <record id="famille_bat" model="ka.immo.famille"><field name="code">BATIND</field><field name="name">Bâtiments industriels</field><field name="methode">lineaire</field><field name="duree">20</field><field name="cpt_immo">2131</field><field name="cpt_amort">28131</field><field name="cpt_dotation">68112</field><field name="creation_facture" eval="False"/></record>
+</odoo>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_dotation_form" model="ir.ui.view">
+    <field name="name">ka.immo.dotation.ka.form</field>
+    <field name="model">ka.immo.dotation</field>
+    <field name="arch" type="xml">
+        <form string="Comptabilisation des dotations" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_c">Traitements</span><span class="o_ka_cur">Comptabilisation des dotations</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Comptabilisation des dotations</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-info="state in ('simulee','brouillon')" decoration-success="state in ('comptabilisee')"/>
+                        </div>
+                        <div class="o_ka_sec">Critères</div><div class="o_ka_grid"><div class="o_ka_f"><label for="company_id" string="Société" class="o_ka_req"/><field name="company_id"/></div><div class="o_ka_f"><label for="plan" string="Plan d'amortissement" class="o_ka_req"/><field name="plan"/></div><div class="o_ka_f"><label for="periode" string="Période" class="o_ka_req"/><field name="periode"/></div><div class="o_ka_f"><label for="journal_id" string="Journal"/><field name="journal_id"/></div><div class="o_ka_f"><label for="type_piece" string="Type de pièce"/><field name="type_piece"/></div><div class="o_ka_f"><label for="date_piece" string="Date de pièce" class="o_ka_req"/><field name="date_piece"/></div><div class="o_ka_f"><label for="total" string="Total dotation"/><field name="total" readonly="1"/></div></div><div class="o_ka_h3">Écritures générées (aperçu)</div><field name="line_ids" nolabel="1" readonly="1"><list><field name="compte" string="Compte"/><field name="intitule" string="Intitulé"/><field name="immo_id" string="Immobilisation"/><field name="section" string="Section analytique"/><field name="debit" string="Débit" sum="Total"/><field name="credit" string="Crédit" sum="Total"/></list></field><div class="o_ka_info">La ventilation analytique des dotations des équipements de transformation alimente le coût de revient industriel (module 8). Les sorties génèrent leurs écritures sur le même principe.</div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Simuler" name="action_simuler" type="object" class="o_ka_btn"/><button string="Comptabiliser" name="action_comptabiliser" type="object" class="o_ka_btn o_ka_primary" invisible="state == 'comptabilisee'"/><button string="Consulter les écritures" name="action_ecritures" type="object" class="o_ka_btn"/><button string="Trace du traitement" name="action_trace" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_sortie_form" model="ir.ui.view">
+    <field name="name">ka.immo.sortie.ka.form</field>
+    <field name="model">ka.immo.sortie</field>
+    <field name="arch" type="xml">
+        <form string="Sortie d'immobilisation" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_c">Sorties</span><span class="o_ka_cur">Cessions et mises au rebut</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Sortie d'immobilisation</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state in ('a_valider')" decoration-success="state in ('validee')"/>
+                        </div>
+                        <div class="o_ka_sec">Sortie</div><div class="o_ka_grid"><div class="o_ka_f"><label for="immo_id" string="Immobilisation" class="o_ka_req"/><field name="immo_id"/></div><div class="o_ka_f"><label for="type" string="Type de sortie" class="o_ka_req"/><field name="type"/></div><div class="o_ka_f"><label for="date" string="Date de sortie" class="o_ka_req"/><field name="date"/></div><div class="o_ka_f"><label for="prix" string="Prix de cession" class="o_ka_req"/><field name="prix"/></div><div class="o_ka_f"><label for="vnc" string="VNC résiduelle"/><field name="vnc" readonly="1"/></div><div class="o_ka_f"><label for="plus_value_txt" string="Plus ou moins-value"/><field name="plus_value_txt" readonly="1"/></div><div class="o_ka_f"><label for="partner_id" string="Acquéreur"/><field name="partner_id"/></div></div><div class="o_ka_info">À la validation : sortie du parc, arrêt des dotations, calcul de la VNC et constatation de la plus-value de cession.</div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider la sortie" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state == 'validee'"/><button string="Simuler le résultat de cession" name="action_simuler" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_dotation_tree" model="ir.ui.view">
+    <field name="name">ka.immo.dotation.ka.tree</field>
+    <field name="model">ka.immo.dotation</field>
+    <field name="arch" type="xml"><list string="ka_dotation"><field name="name"/><field name="periode"/><field name="date_piece"/><field name="total"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="view_ka_sortie_tree" model="ir.ui.view">
+    <field name="name">ka.immo.sortie.ka.tree</field>
+    <field name="model">ka.immo.sortie</field>
+    <field name="arch" type="xml"><list string="ka_sortie"><field name="name"/><field name="immo_id"/><field name="type"/><field name="date"/><field name="prix"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_dotation" model="ir.actions.act_window"><field name="name">Comptabilisation des dotations</field><field name="res_model">ka.immo.dotation</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_sortie" model="ir.actions.act_window"><field name="name">Cessions et mises au rebut</field><field name="res_model">ka.immo.sortie</field><field name="view_mode">list,form</field></record>
+</odoo>

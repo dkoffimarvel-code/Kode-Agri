@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_immo_form" model="ir.ui.view">
+    <field name="name">ka.immo.ka.form</field>
+    <field name="model">ka.immo</field>
+    <field name="arch" type="xml">
+        <form string="Immobilisation" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_cur">Immobilisations</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Immobilisation</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="ka_statut_label" widget="badge" decoration-info="ka_statut_label in ('En création')" decoration-warning="ka_statut_label in ('À confirmer')" decoration-success="ka_statut_label in ('En service')" decoration-muted="ka_statut_label in ('Sortie')"/>
+                        </div>
+                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="duree_txt" nolabel="1"/><span class="o_ka_kl">Durée</span></div><div class="o_ka_kpi"><field name="vnc" nolabel="1"/><span class="o_ka_kl">Valeur nette comptable</span></div></div><div class="o_ka_sec">Identification</div><div class="o_ka_grid"><div class="o_ka_f"><label for="name" string="Immobilisation" class="o_ka_req"/><field name="name" readonly="1"/></div><div class="o_ka_f"><label for="intitule" string="Intitulé" class="o_ka_req"/><field name="intitule"/></div><div class="o_ka_f"><label for="famille_id" string="Famille" class="o_ka_req"/><field name="famille_id"/></div><div class="o_ka_f"><label for="site_id" string="Site"/><field name="site_id"/></div><div class="o_ka_f"><label for="valeur" string="Valeur d'acquisition" class="o_ka_req"/><field name="valeur"/></div><div class="o_ka_f"><label for="date_service" string="Date de mise en service" class="o_ka_req"/><field name="date_service"/></div><div class="o_ka_f"><label for="methode" string="Mode d'amortissement" class="o_ka_req"/><field name="methode"/></div><div class="o_ka_f"><label for="duree" string="Durée" class="o_ka_req"/><field name="duree" class="o_ka_u_ans"/></div></div><notebook><page string="Identification"><div class="o_ka_info">Identification de l'immobilisation : famille, site, valeur et date de mise en service.</div></page><page string="Plans"><div class="o_ka_h3">Comptes (proposés par la famille)</div><table class="o_ka_tbl"><thead><tr><th>Type</th><th>Compte</th></tr></thead><tbody><tr><td>Immobilisation</td><td><field name="cpt_immo" nolabel="1" readonly="1"/></td></tr><tr><td>Amortissement cumulé</td><td><field name="cpt_amort" nolabel="1" readonly="1"/></td></tr><tr><td>Dotation</td><td><field name="cpt_dotation" nolabel="1" readonly="1"/></td></tr><tr><td>Section analytique</td><td><field name="analytic_txt" nolabel="1" readonly="1"/></td></tr></tbody></table></page><page string="Comptabilité"><div class="o_ka_info">Les écritures de dotation sont générées à chaque échéance comptabilisée (journal OD).</div></page><page string="Analytique"><div class="o_ka_grid"><div class="o_ka_f"><label for="analytic_id" string="Section analytique"/><field name="analytic_id"/></div></div></page></notebook>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Calculer les dotations" name="action_calculer" type="object" class="o_ka_btn o_ka_primary"/><button string="Sortie" name="action_sortie" type="object" class="o_ka_btn"/><button string="Imprimer la fiche" name="action_imprimer" type="object" class="o_ka_btn"/><div class="o_ka_side_t">Liens</div><button string="Dépense d'origine" name="action_open_facture" type="object" class="o_ka_link"/><button string="Plans d'amortissement" name="action_open_plan" type="object" class="o_ka_link"/><button string="Écritures" name="action_open_ecritures" type="object" class="o_ka_link"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_immo_manuelle_form" model="ir.ui.view">
+    <field name="name">ka.immo.ka.form</field>
+    <field name="model">ka.immo</field>
+    <field name="arch" type="xml">
+        <form string="Immobilisation — création manuelle" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_cur">Immobilisations</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Immobilisation — création manuelle</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="ka_statut_label" widget="badge" decoration-info="ka_statut_label in ('En création')" decoration-warning="ka_statut_label in ('À confirmer')" decoration-success="ka_statut_label in ('En service')" decoration-muted="ka_statut_label in ('Sortie')"/>
+                        </div>
+                        <div class="o_ka_sec">Identification</div><div class="o_ka_grid"><div class="o_ka_f"><label for="intitule" string="Intitulé" class="o_ka_req"/><field name="intitule"/></div><div class="o_ka_f"><label for="famille_id" string="Famille" class="o_ka_req"/><field name="famille_id"/></div><div class="o_ka_f"><label for="valeur" string="Valeur d'acquisition" class="o_ka_req"/><field name="valeur"/></div><div class="o_ka_f"><label for="date_service" string="Date de mise en service" class="o_ka_req"/><field name="date_service"/></div><div class="o_ka_f"><label for="methode" string="Mode d'amortissement"/><field name="methode"/></div><div class="o_ka_f"><label for="duree" string="Durée"/><field name="duree" class="o_ka_u_ans"/></div><div class="o_ka_f"><label for="analytic_id" string="Section analytique"/><field name="analytic_id"/></div><div class="o_ka_f"><label for="partner_id" string="Fournisseur"/><field name="partner_id"/></div></div><div class="o_ka_h3">Comptes (proposés par la famille)</div><table class="o_ka_tbl"><thead><tr><th>Type</th><th>Compte</th></tr></thead><tbody><tr><td>Immobilisation</td><td><field name="cpt_immo" nolabel="1" readonly="1"/></td></tr><tr><td>Amortissement cumulé</td><td><field name="cpt_amort" nolabel="1" readonly="1"/></td></tr><tr><td>Dotation</td><td><field name="cpt_dotation" nolabel="1" readonly="1"/></td></tr></tbody></table><p class="o_ka_note">Les comptes et le mode d'amortissement sont proposés par la famille ; ils restent modifiables sur la fiche.</p>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Créer" name="action_calculer" type="object" class="o_ka_btn o_ka_primary"/><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Calculer les dotations" name="action_calculer" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_immo_depense_form" model="ir.ui.view">
+    <field name="name">ka.immo.ka.form</field>
+    <field name="model">ka.immo</field>
+    <field name="arch" type="xml">
+        <form string="Dépense immobilisable — mise en immobilisation" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_c">Dépenses</span><span class="o_ka_cur">Dépenses</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Dépense immobilisable — mise en immobilisation</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="ka_statut_label" widget="badge" decoration-info="ka_statut_label in ('En création')" decoration-warning="ka_statut_label in ('À confirmer')" decoration-success="ka_statut_label in ('En service')" decoration-muted="ka_statut_label in ('Sortie')"/>
+                        </div>
+                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="duree_txt" nolabel="1"/><span class="o_ka_kl">Durée</span></div><div class="o_ka_kpi"><field name="vnc" nolabel="1"/><span class="o_ka_kl">Valeur nette comptable</span></div></div><div class="o_ka_info">Dépense générée automatiquement à la validation de la facture fournisseur (ligne portant un compte d'immobilisation) et rattachée à sa famille.</div><div class="o_ka_sec">Immobilisation générée</div><div class="o_ka_grid"><div class="o_ka_f"><label for="famille_id" string="Famille"/><field name="famille_id"/></div><div class="o_ka_f"><label for="methode" string="Mode"/><field name="methode" readonly="1"/></div><div class="o_ka_f"><label for="valeur" string="Valeur d'acquisition"/><field name="valeur" readonly="1"/></div><div class="o_ka_f"><label for="date_service" string="Mise en service"/><field name="date_service"/></div><div class="o_ka_f"><label for="analytic_id" string="Section analytique"/><field name="analytic_id"/></div><div class="o_ka_f"><label for="move_id" string="Facture d'origine"/><field name="move_id" readonly="1"/></div></div><div class="o_ka_h3">Facture fournisseur d'origine</div><table class="o_ka_tbl"><thead><tr><th>Ligne de facture</th><th>Montant (FCFA)</th><th>Immobilisable</th><th>Immobilisation</th></tr></thead><tbody><tr><td><field name="ligne_facture" nolabel="1" readonly="1"/></td><td><field name="valeur" nolabel="1" readonly="1"/></td><td><field name="move_line_id" nolabel="1" readonly="1" widget="boolean"/></td><td><field name="name" nolabel="1" readonly="1"/></td></tr></tbody></table>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Confirmer la mise en immobilisation" name="action_confirmer" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'a_confirmer'"/><button string="Consulter la facture" name="action_open_facture" type="object" class="o_ka_btn"/><button string="Éclater la dépense" name="action_eclater" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_immo_plan_form" model="ir.ui.view">
+    <field name="name">ka.immo.ka.form</field>
+    <field name="model">ka.immo</field>
+    <field name="arch" type="xml">
+        <form string="Plan d'amortissement" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_cur">Plans d'amortissement</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Plan d'amortissement</h1><div class="o_ka_sub"><field name="name" nolabel="1" readonly="1"/> — <field name="intitule" nolabel="1" readonly="1"/> · plan comptable · <field name="methode" nolabel="1" readonly="1"/> <field name="duree_txt" nolabel="1" readonly="1"/></div></div>
+                            <field name="plan_badge" widget="badge" decoration-success="plan_badge != 'Prévisionnel'"/>
+                        </div>
+                        <field name="plan_ids" nolabel="1" readonly="1"><list><field name="date" string="Échéance"/><field name="base" string="Base"/><field name="dotation" string="Dotation" sum="Total"/><field name="cumul" string="Cumul"/><field name="vnc" string="VNC"/><field name="statut" string="Statut" widget="badge" decoration-success="statut=='comptabilisee'" decoration-warning="statut=='a_comptabiliser'" decoration-muted="statut=='previsionnelle'"/></list></field><p class="o_ka_note">Chaque échéance comptabilisée passe l'écriture de dotation, ventilée sur la section analytique de l'immobilisation.</p>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Simuler" name="action_calculer" type="object" class="o_ka_btn"/><button string="Comptabiliser l'échéance" name="action_open_ecritures" type="object" class="o_ka_btn o_ka_primary"/><button string="Imprimer le tableau" name="action_imprimer" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_immo_tree" model="ir.ui.view">
+    <field name="name">ka.immo.ka.tree</field>
+    <field name="model">ka.immo</field>
+    <field name="arch" type="xml"><list string="ka_immo"><field name="name"/><field name="intitule"/><field name="famille_id"/><field name="valeur" sum="Total"/><field name="vnc" sum="Total"/><field name="date_service"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_immo" model="ir.actions.act_window"><field name="name">Immobilisations</field><field name="res_model">ka.immo</field><field name="view_mode">list,form</field></record><record id="action_ka_immo_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_immo"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_immo_tree"/></record><record id="action_ka_immo_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_immo"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_immo_form"/></record>
+<record id="action_ka_immo_manuelle" model="ir.actions.act_window"><field name="name">Création manuelle</field><field name="res_model">ka.immo</field><field name="view_mode">list,form</field></record><record id="action_ka_immo_manuelle_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_immo_manuelle"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_immo_tree"/></record><record id="action_ka_immo_manuelle_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_immo_manuelle"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_immo_manuelle_form"/></record>
+<record id="action_ka_immo_depense" model="ir.actions.act_window"><field name="name">Dépenses immobilisables</field><field name="res_model">ka.immo</field><field name="view_mode">list,form</field><field name="domain">[('state','=','a_confirmer')]</field></record><record id="action_ka_immo_depense_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_immo_depense"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_immo_tree"/></record><record id="action_ka_immo_depense_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_immo_depense"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_immo_depense_form"/></record>
+<record id="action_ka_immo_plan" model="ir.actions.act_window"><field name="name">Plans d'amortissement</field><field name="res_model">ka.immo</field><field name="view_mode">list,form</field></record><record id="action_ka_immo_plan_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_immo_plan"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_immo_tree"/></record><record id="action_ka_immo_plan_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_immo_plan"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_immo_plan_form"/></record>
+</odoo>

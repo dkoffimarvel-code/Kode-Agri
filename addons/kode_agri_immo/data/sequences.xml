@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_immo" model="ir.sequence"><field name="name">Immobilisation</field><field name="code">ka.immo</field><field name="prefix">IMMO-</field><field name="padding">4</field><field name="number_next">58</field></record>
+    <record id="seq_immo_sortie" model="ir.sequence"><field name="name">Sortie d'immobilisation</field><field name="code">ka.immo.sortie</field><field name="prefix">CES-</field><field name="padding">4</field><field name="number_next">14</field></record>
+</odoo>

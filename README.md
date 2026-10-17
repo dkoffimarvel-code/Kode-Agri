@@ -20,7 +20,9 @@ Installation : ajouter `addons/` à l'`addons_path`, puis installer `kode_agri_p
 
 | `kode_agri_achats` | **Module 2** : données de base (articles, catégories avec code comptable et section analytique « achats stockés », fournisseurs frais généraux, dépôts, structure), demande d'achat → appel d'offres → commande (génère la commande et la réception Odoo), réception partielle avec reliquat, facture et pièces obligatoires (RG-2.2), transfert intersites, inventaire valorisé, dossiers d'import avec ventilation des frais d'approche (valeur / poids / quantité) et coût complet d'entrée |
 
-Modules 3, 7 et 8 : à venir (même patron de vues).
+| `kode_agri_immo` | **Module 3** : familles d'immobilisations, fiche (manuelle ou issue d'une facture fournisseur à la validation), plan d'amortissement mensuel linéaire ou dégressif avec prorata, comptabilisation des dotations par pièce ventilée sur la section analytique, cessions et mises au rebut (VNC, plus ou moins-value), consultation du parc |
+
+Modules 7 et 8 : à venir (même patron de vues).
 
 **Non testé sur une instance Odoo** : la syntaxe Python/XML et la cohérence champs ↔ vues sont vérifiées
 statiquement, mais le chargement réel dans Odoo 19 reste à valider.
