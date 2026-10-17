@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_generation_form" model="ir.ui.view">
+    <field name="name">ka.generation.ka.form</field>
+    <field name="model">ka.generation</field>
+    <field name="arch" type="xml">
+        <form string="Génération des réceptions et factures" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Fond de tasse</span><span class="o_ka_c">Traitements</span><span class="o_ka_cur">Génération réceptions et factures</span><span class="o_ka_fn">Fonction : YGENRF · traitement spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Génération des réceptions et factures</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-info="state in ('pret','simule')" decoration-success="state in ('termine')"/>
+                        </div>
+                        <div class="o_ka_info">Une réception standard par commande (lot repris), puis factures fournisseurs groupées par fournisseur sur la plage. Interdit : facturer un ticket d'un mois antérieur sur un mois ultérieur (RG-1.7).</div><div class="o_ka_sec">Critères</div><div class="o_ka_grid"><div class="o_ka_f"><label for="date_debut" string="Date début pesée" class="o_ka_req"/><field name="date_debut"/></div><div class="o_ka_f"><label for="date_fin" string="Date fin pesée" class="o_ka_req"/><field name="date_fin"/></div><div class="o_ka_f"><label for="date_comptable" string="Date comptable" class="o_ka_req"/><field name="date_comptable"/></div><div class="o_ka_f"><label for="warehouse_id" string="Site"/><field name="warehouse_id"/></div><div class="o_ka_f"><label for="categorie" string="Catégorie fournisseur"/><field name="categorie"/></div><div class="o_ka_f"><label for="groupage" string="Groupage"/><field name="groupage"/></div><div class="o_ka_f o_ka_check"><field name="avances"/><label for="avances" string="Avances à imputer"/></div><div class="o_ka_f o_ka_check"><field name="primes"/><label for="primes" string="Primes à ventiler"/></div></div><div class="o_ka_sec">Contrôles préalables</div><table class="o_ka_tbl"><thead><tr><th>Contrôle</th><th>Résultat</th></tr></thead><tbody><tr><td>Commandes éligibles sur la plage</td><td><field name="nb_commandes" nolabel="1"/></td></tr><tr><td>Prix appliqué</td><td>Tarif Apromac du mois concerné</td></tr><tr><td>Tickets hors période comptable</td><td><span class="o_ka_tag" invisible="nb_hors_periode &gt; 0">Aucun</span><field name="nb_hors_periode" nolabel="1" invisible="nb_hors_periode == 0"/></td></tr><tr><td>Primes du mois</td><td>Ventilées sur le coût de revient FDT</td></tr></tbody></table><field name="trace" invisible="not trace" readonly="1"/>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Lancer le traitement" name="action_lancer" type="object" class="o_ka_btn o_ka_primary"/><button string="Simulation" name="action_simuler" type="object" class="o_ka_btn"/><button string="Planifier (serveur batch)" name="action_planifier" type="object" class="o_ka_btn"/><button string="Consulter la trace" name="action_trace" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_generation_tree" model="ir.ui.view">
+    <field name="name">ka.generation.ka.tree</field>
+    <field name="model">ka.generation</field>
+    <field name="arch" type="xml"><tree string="ka_generation"><field name="name"/><field name="date_debut"/><field name="date_fin"/><field name="date_comptable"/><field name="state" widget="badge"/></tree></field>
+</record>
+<record id="action_ka_generation" model="ir.actions.act_window">
+    <field name="name">Génération réceptions et factures</field>
+    <field name="res_model">ka.generation</field>
+    <field name="view_mode">tree,form</field>
+</record>
+</odoo>

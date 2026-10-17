@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_planteur" model="ir.sequence"><field name="name">Code planteur</field><field name="code">ka.planteur</field><field name="prefix">PLT-</field><field name="padding">4</field><field name="number_next">1001</field></record>
+    <record id="seq_coop" model="ir.sequence"><field name="name">Code coopérative</field><field name="code">ka.coop</field><field name="prefix">COOP-</field><field name="padding">4</field></record>
+    <record id="seq_avance" model="ir.sequence"><field name="name">Avance de campagne</field><field name="code">ka.avance</field><field name="prefix">AV-</field><field name="padding">4</field></record>
+    <record id="seq_ticket_import" model="ir.sequence"><field name="name">Lot d'import de tickets</field><field name="code">ka.ticket.import</field><field name="prefix">IMP-</field><field name="padding">4</field></record>
+    <record id="seq_generation" model="ir.sequence"><field name="name">Génération réceptions et factures</field><field name="code">ka.generation</field><field name="prefix">GEN-</field><field name="padding">4</field></record>
+    <record id="seq_proposition" model="ir.sequence"><field name="name">Proposition de règlement</field><field name="code">ka.proposition</field><field name="prefix">OVM-</field><field name="padding">4</field></record>
+    <record id="seq_cheque" model="ir.sequence"><field name="name">Chèque fournisseur</field><field name="code">ka.cheque</field><field name="prefix">CHQ-</field><field name="padding">4</field></record>
+</odoo>

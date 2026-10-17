@@ -1,0 +1,23 @@
+{
+    'name': 'Kode Agri — Module 1 : Planteurs et coopératives',
+    'version': '17.0.1.0.0',
+    'category': 'Kode Agri',
+    'summary': "Planteurs, avances, primes, tarifs Apromac, tickets de pesée, réceptions/factures et règlements",
+    'depends': ['kode_agri_base', 'contacts', 'purchase', 'stock', 'account'],
+    'data': [
+        'security/ir.model.access.csv',
+        'data/sequences.xml',
+        'data/demo_ref.xml',
+        'views/tarif_views.xml',
+        'views/partner_views.xml',
+        'views/prime_views.xml',
+        'views/avance_views.xml',
+        'views/ticket_views.xml',
+        'views/generation_views.xml',
+        'views/proposition_views.xml',
+        'views/cheque_views.xml',
+        'views/menus.xml',
+    ],
+    'license': 'LGPL-3',
+    'application': True,
+}

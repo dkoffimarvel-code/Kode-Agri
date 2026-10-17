@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_avance_form" model="ir.ui.view">
+    <field name="name">ka.avance.ka.form</field>
+    <field name="model">ka.avance</field>
+    <field name="arch" type="xml">
+        <form string="Demande d'avance de campagne" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Fond de tasse</span><span class="o_ka_cur">Avances</span><span class="o_ka_fn">Fonction : YAVA · spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Demande d'avance de campagne</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state in ('soumise')" decoration-success="state in ('approuvee','versee','recuperee')" decoration-danger="state in ('refusee')"/>
+                        </div>
+                        <field name="state" widget="statusbar" class="o_ka_pills"/><div class="o_ka_info"><field name="info" nolabel="1"/></div><div class="o_ka_sec">Avance</div><div class="o_ka_grid"><div class="o_ka_f"><label for="partner_id" string="Fournisseur" class="o_ka_req"/><field name="partner_id"/></div><div class="o_ka_f"><label for="nature" string="Nature d'avance" class="o_ka_req"/><field name="nature"/></div><div class="o_ka_f"><label for="amount" string="Montant" class="o_ka_req"/><field name="amount"/></div><div class="o_ka_f"><label for="date_octroi" string="Date d'octroi"/><field name="date_octroi"/></div><div class="o_ka_f"><label for="regle_id" string="Règle de récupération" class="o_ka_req"/><field name="regle_id"/></div><div class="o_ka_f"><label for="plafond" string="Plafond par période"/><field name="plafond"/></div><div class="o_ka_f"><label for="collectif" string="Collectif"/><field name="collectif" readonly="1"/></div><div class="o_ka_f"><label for="warehouse_id" string="Site"/><field name="warehouse_id"/></div></div><div class="o_ka_sec">Circuit de signature</div><field name="signature_ids" nolabel="1"><tree><field name="etape"/><field name="signataire"/><field name="statut" widget="badge" decoration-success="statut=='fait'" decoration-warning="statut=='attente'"/><field name="date"/></tree></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Soumettre à approbation" name="action_soumettre" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'brouillon'"/><button string="Approuver" name="action_approuver" type="object" class="o_ka_btn" invisible="state != 'soumise'"/><button string="Refuser" name="action_refuser" type="object" class="o_ka_btn" invisible="state != 'soumise'"/><button string="Verser" name="action_verser" type="object" class="o_ka_btn" invisible="state != 'approuvee'"/><div class="o_ka_side_t">Liens</div><button string="Compte courant planteur" name="action_open_compte" type="object" class="o_ka_link"/><button string="Échéancier de récupération" name="action_open_compte" type="object" class="o_ka_link"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_avance_tree" model="ir.ui.view">
+    <field name="name">ka.avance.ka.tree</field>
+    <field name="model">ka.avance</field>
+    <field name="arch" type="xml"><tree string="ka_avance"><field name="name"/><field name="partner_id"/><field name="nature"/><field name="amount" sum="Total"/><field name="date_octroi"/><field name="state" widget="badge"/></tree></field>
+</record>
+<record id="action_ka_avance" model="ir.actions.act_window">
+    <field name="name">Avances</field>
+    <field name="res_model">ka.avance</field>
+    <field name="view_mode">tree,form</field>
+</record>
+</odoo>

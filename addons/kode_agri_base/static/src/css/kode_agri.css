@@ -1,0 +1,109 @@
+/* ===== Kode Agri — habillage reproduisant les maquettes du cahier des charges ===== */
+:root {
+    --ka-green: #00855f;
+    --ka-green-dark: #006b4c;
+    --ka-green-bg: #dff3ea;
+    --ka-black: #000;
+    --ka-ink: #14181b;
+    --ka-muted: #4d5b66;
+    --ka-line: #cfd8dd;
+    --ka-head: #e9eef1;
+    --ka-info-bg: #e8f0fa;
+    --ka-info-bar: #0b6bb5;
+    --ka-warn-bg: #fdebd0;
+    --ka-warn-ink: #9a5200;
+    --ka-blue-bg: #dbe9f8;
+    --ka-blue-ink: #0b4f86;
+}
+
+/* --- Barre supérieure noire --- */
+.o_main_navbar { background: var(--ka-black) !important; border-bottom: 0; }
+.o_main_navbar .o_navbar_apps_menu .dropdown-toggle,
+.o_main_navbar .o_menu_brand,
+.o_main_navbar .o_menu_sections .o_nav_entry,
+.o_main_navbar .o_menu_sections .dropdown-toggle { color: #fff !important; }
+.o_ka_navctx { display: flex; align-items: center; gap: .6rem; color: #fff; margin-left: 1rem; font-size: .95rem; }
+.o_ka_navctx .o_ka_brand { font-size: 1.35rem; }
+.o_ka_navctx .o_ka_brand b { color: #1fdc7b; }
+.o_ka_navctx .o_ka_sep { width: 1px; height: 1.6rem; background: #555; margin: 0 .6rem; }
+.o_ka_navctx .o_ka_dot { color: #aaa; }
+
+/* --- Fiche Kode Agri --- */
+.o_form_view.o_ka_form .o_form_sheet_bg { background: #fff; padding: 0; border: 0; }
+.o_form_view.o_ka_form .o_form_sheet { max-width: none; margin: 0; padding: 0; border: 0; box-shadow: none; background: #fff; }
+.o_ka_crumbs { background: #f1f4f6; color: var(--ka-muted); padding: .6rem 1.5rem; font-size: .95rem; display: flex; }
+.o_ka_crumbs span.o_ka_c::after { content: "›"; margin: 0 .55rem; }
+.o_ka_crumbs span.o_ka_cur { font-weight: 700; color: var(--ka-ink); }
+.o_ka_crumbs .o_ka_fn { margin-left: auto; }
+.o_ka_layout { display: flex; align-items: stretch; min-height: 70vh; }
+.o_ka_main { flex: 1 1 auto; padding: 1.5rem 2rem 2rem; min-width: 0; }
+.o_ka_side { flex: 0 0 235px; background: #f1f4f6; border-left: 1px solid var(--ka-line); padding: 1.1rem 1rem; }
+.o_ka_side .o_ka_side_t { text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--ka-muted); font-size: .85rem; margin: .4rem 0 .7rem; }
+.o_ka_side .o_ka_side_t:not(:first-child) { margin-top: 1.6rem; }
+.o_ka_side button.o_ka_btn, .o_ka_side button.o_ka_link { display: block; width: 100%; text-align: left; margin-bottom: .55rem; }
+.o_ka_side button.o_ka_btn { background: #fff; border: 1px solid var(--ka-line); color: var(--ka-ink); padding: .65rem .8rem; border-radius: 2px; font-size: 1rem; }
+.o_ka_side button.o_ka_btn::before { content: "›"; color: var(--ka-green); font-weight: 700; margin-right: .7rem; }
+.o_ka_side button.o_ka_btn.o_ka_primary { background: var(--ka-green); border-color: var(--ka-green); color: #fff; font-weight: 700; }
+.o_ka_side button.o_ka_btn.o_ka_primary::before { color: #fff; }
+.o_ka_side button.o_ka_link { background: none; border: 0; color: var(--ka-green); padding: .15rem .2rem; font-size: 1rem; }
+.o_ka_side button.o_ka_link:hover { text-decoration: underline; }
+
+.o_ka_head { display: flex; justify-content: space-between; align-items: flex-start; }
+.o_ka_head h1 { font-size: 2rem; font-weight: 700; margin: 0; color: #000; }
+.o_ka_sub { color: var(--ka-muted); font-size: 1.25rem; margin: .2rem 0 .6rem; }
+.o_ka_sub .o_field_widget { display: inline; }
+
+/* pastille d'état (badge) */
+.o_ka_head .o_field_badge span { border-radius: 999px; padding: .35rem 1rem; font-weight: 700; font-size: 1rem; background: var(--ka-green-bg); color: #00462f; }
+.o_ka_head .o_field_badge .text-bg-warning { background: var(--ka-warn-bg) !important; color: var(--ka-warn-ink) !important; }
+.o_ka_head .o_field_badge .text-bg-info { background: var(--ka-blue-bg) !important; color: var(--ka-blue-ink) !important; }
+.o_ka_head .o_field_badge .text-bg-success { background: var(--ka-green-bg) !important; color: #00462f !important; }
+.o_ka_head .o_field_badge .text-bg-danger { background: #fbe0e0 !important; color: #8a1c1c !important; }
+
+/* statusbar rendue en pastilles */
+.o_ka_pills .o_statusbar_status { display: flex; gap: .6rem; background: none; border: 0; }
+.o_ka_pills .o_statusbar_status .o_arrow_button { background: #e8ecef !important; color: #7a8791 !important; border: 0 !important; border-radius: 999px !important; padding: .2rem 1rem !important; font-size: 1rem; }
+.o_ka_pills .o_statusbar_status .o_arrow_button::before, .o_ka_pills .o_statusbar_status .o_arrow_button::after { display: none !important; }
+.o_ka_pills .o_statusbar_status .o_arrow_button.o_arrow_button_current { background: var(--ka-green) !important; color: #fff !important; font-weight: 700; }
+.o_ka_pills .o_statusbar_status .o_arrow_button.o_arrow_button_current ~ .o_arrow_button { background: #e8ecef !important; }
+.o_ka_pills .o_statusbar_status .o_arrow_button:not(.o_arrow_button_current):not(.disabled) { background: var(--ka-green-bg) !important; color: var(--ka-green-dark) !important; }
+
+/* KPI */
+.o_ka_kpis { display: flex; gap: 1rem; margin: .8rem 0 1rem; }
+.o_ka_kpi { border: 1px solid var(--ka-line); border-left: 4px solid var(--ka-green); padding: .5rem 1.4rem .5rem .9rem; min-width: 190px; }
+.o_ka_kpi .o_field_widget { font-size: 1.9rem; font-weight: 700; color: #000; display: block; line-height: 1.2; }
+.o_ka_kpi .o_ka_kl { color: var(--ka-muted); font-size: 1rem; }
+
+/* bandeau d'information */
+.o_ka_info { background: var(--ka-info-bg); border-left: 4px solid var(--ka-info-bar); padding: .65rem 1rem; margin: .7rem 0 1.2rem; font-size: 1.02rem; }
+.o_ka_info::before { content: "ⓘ "; color: #3a4750; margin-right: .35rem; }
+
+/* sections et grille de champs */
+.o_ka_sec { font-size: 1.35rem; font-weight: 700; border-bottom: 1px solid var(--ka-line); padding-bottom: .35rem; margin: 1.2rem 0 1rem; }
+.o_ka_sec::before { content: "▾"; color: var(--ka-green); margin-right: .5rem; }
+.o_ka_h3 { font-size: 1.2rem; font-weight: 700; margin: 1.4rem 0 .6rem; }
+.o_ka_grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem 1.2rem; max-width: 1250px; }
+.o_ka_f > label { display: block; color: var(--ka-muted); font-size: .98rem; margin-bottom: .15rem; font-weight: 400; }
+.o_ka_f > label.o_ka_req::after { content: " *"; color: #c0262d; }
+.o_ka_f .o_field_widget { width: 100%; }
+.o_ka_f .o_input, .o_ka_f input, .o_ka_f select { border: 1px solid #b9c4cb; border-radius: 2px; padding: .45rem .6rem; background: #fff; }
+.o_ka_f .o_readonly_modifier { background: #eef2f4; border: 1px solid #b9c4cb; padding: .45rem .6rem; min-height: 2.45rem; }
+.o_ka_f.o_ka_check { display: flex; align-items: center; gap: .6rem; padding-top: 1.4rem; }
+
+/* tableaux (listes et tableaux HTML statiques) */
+.o_ka_main .o_list_renderer table.o_list_table thead th, table.o_ka_tbl thead th { background: var(--ka-head); color: #111; font-weight: 700; border: 1px solid var(--ka-line); padding: .6rem .8rem; }
+.o_ka_main .o_list_renderer table.o_list_table td, table.o_ka_tbl td { border: 1px solid var(--ka-line); padding: .55rem .8rem; }
+table.o_ka_tbl { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+table.o_ka_tbl tbody tr:nth-child(even), .o_ka_main .o_list_renderer tbody tr:nth-child(even) { background: #f8fafb; }
+table.o_ka_tbl .o_ka_num { text-align: right; }
+table.o_ka_tbl tfoot td { background: #edf1f1; font-weight: 700; border-top: 2px solid #9fbdb2; }
+.o_ka_tag { display: inline-block; border-radius: 999px; padding: .1rem .75rem; font-weight: 700; background: var(--ka-green-bg); color: #00462f; }
+.o_ka_tag.o_ka_warn { background: var(--ka-warn-bg); color: var(--ka-warn-ink); }
+.o_ka_tag.o_ka_info { background: var(--ka-blue-bg); color: var(--ka-blue-ink); border-left: 0; padding: .1rem .75rem; margin: 0; }
+.o_ka_tag.o_ka_grey { background: #e8ecef; color: #5a6670; }
+/* badge dans les listes */
+.o_ka_main .o_list_renderer .o_field_badge span { border-radius: 999px; padding: .1rem .75rem; font-weight: 700; }
+
+/* onglets */
+.o_ka_main .o_notebook .nav-tabs .nav-link { color: var(--ka-muted); font-size: 1.1rem; border: 0; }
+.o_ka_main .o_notebook .nav-tabs .nav-link.active { color: var(--ka-green); font-weight: 700; border-bottom: 3px solid var(--ka-green); background: none; }

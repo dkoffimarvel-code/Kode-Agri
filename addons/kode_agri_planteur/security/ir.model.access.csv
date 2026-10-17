@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ka_tarif,ka.tarif,model_ka_tarif,base.group_user,1,1,1,1
+access_ka_tarif_bareme,ka.tarif.bareme,model_ka_tarif_bareme,base.group_user,1,1,1,1
+access_ka_parcelle,ka.parcelle,model_ka_parcelle,base.group_user,1,1,1,1
+access_ka_prime_type,ka.prime.type,model_ka_prime_type,base.group_user,1,1,1,1
+access_ka_avance,ka.avance,model_ka_avance,base.group_user,1,1,1,1
+access_ka_avance_regle,ka.avance.regle,model_ka_avance_regle,base.group_user,1,1,1,1
+access_ka_avance_signature,ka.avance.signature,model_ka_avance_signature,base.group_user,1,1,1,1
+access_ka_ticket_import,ka.ticket.import,model_ka_ticket_import,base.group_user,1,1,1,1
+access_ka_ticket,ka.ticket,model_ka_ticket,base.group_user,1,1,1,1
+access_ka_generation,ka.generation,model_ka_generation,base.group_user,1,1,1,1
+access_ka_proposition,ka.proposition,model_ka_proposition,base.group_user,1,1,1,1
+access_ka_proposition_line,ka.proposition.line,model_ka_proposition_line,base.group_user,1,1,1,1
+access_ka_cheque,ka.cheque,model_ka_cheque,base.group_user,1,1,1,1
+access_ka_cheque_line,ka.cheque.line,model_ka_cheque_line,base.group_user,1,1,1,1

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- XOF affiché « FCFA » après le montant, comme dans les maquettes -->
+    <record id="base.XOF" model="res.currency">
+        <field name="symbol">FCFA</field>
+        <field name="position">after</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>
