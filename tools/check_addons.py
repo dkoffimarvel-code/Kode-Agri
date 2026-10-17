@@ -141,10 +141,82 @@ def verifier_manifestes():
     return ordre
 
 
+def verifier_definitions():
+    """Erreurs de définition de modèles qu'Odoo détecte au chargement (avant toute vue) : méthodes compute/inverse
+    manquantes, inverse de One2many absent, devise des champs Monetary, chemins de @api.depends, related incohérents."""
+    classes = []   # (modèle, nom_classe, champs{nom:(type, args, kwargs)}, méthodes{nom:[depends]})
+    for py in glob.glob('kode_agri_*/models/*.py'):
+        for cls in [n for n in ast.walk(ast.parse(open(py).read())) if isinstance(n, ast.ClassDef)]:
+            nom = inh = None
+            for st in cls.body:
+                if isinstance(st, ast.Assign) and isinstance(st.targets[0], ast.Name):
+                    t = st.targets[0].id
+                    if t == '_name':
+                        nom = st.value.value
+                    if t == '_inherit':
+                        inh = st.value.value if isinstance(st.value, ast.Constant) else [e.value for e in st.value.elts]
+            modele = nom or (inh if isinstance(inh, str) else None)
+            if not modele:
+                continue
+            ch, me = {}, {}
+            for st in cls.body:
+                if isinstance(st, ast.Assign) and isinstance(st.value, ast.Call) and isinstance(st.targets[0], ast.Name) \
+                        and isinstance(st.value.func, ast.Attribute) and st.value.func.attr in CHAMPS:
+                    kw = {k.arg: (k.value.value if isinstance(k.value, ast.Constant) else None) for k in st.value.keywords}
+                    args = [a.value for a in st.value.args if isinstance(a, ast.Constant)]
+                    ch[st.targets[0].id] = (st.value.func.attr, args, kw, '%s:%d' % (py, st.lineno))
+                if isinstance(st, ast.FunctionDef):
+                    deps = []
+                    for d in st.decorator_list:
+                        if isinstance(d, ast.Call) and getattr(d.func, 'attr', '') in ('depends', 'constrains', 'onchange'):
+                            deps += [a.value for a in d.args if isinstance(a, ast.Constant)]
+                    me[st.name] = deps
+            classes.append((modele, inh if isinstance(inh, list) else ([inh] if isinstance(inh, str) and nom else []), ch, me, py))
+    champs, methodes, bases = {}, {}, {}
+    for modele, inh, ch, me, _py in classes:
+        champs.setdefault(modele, {}).update(ch)
+        methodes.setdefault(modele, {}).update(me)
+        bases.setdefault(modele, set()).update(inh)
+
+    def tous(modele, table, vu=None):
+        vu = vu or set()
+        out = dict(table.get(modele, {}))
+        for b in bases.get(modele, ()):
+            if b not in vu:
+                vu.add(b)
+                out.update(tous(b, table, vu))
+        return out
+    # les mixins hérités fournissent mail.thread / ka.document : on les considère connus
+    COMMUNS = {'message_ids', 'message_follower_ids', 'activity_ids', 'create_date', 'write_date', 'create_uid', 'write_uid', 'id', 'display_name'}
+    STD_MONETAIRE = {'account.move', 'account.move.line', 'product.template', 'purchase.order.line', 'purchase.order'}
+    for modele in champs:
+        mes_champs, mes_methodes = tous(modele, champs), tous(modele, methodes)
+        meth_std = {'_compute_display_name'}
+        for nom, (typ, args, kw, loc) in champs[modele].items():
+            for k in ('compute', 'inverse', 'search'):
+                m = kw.get(k)
+                if m and m not in mes_methodes and m not in meth_std:
+                    erreurs.append('MÉTHODE MANQUANTE %s.%s : %s=%s (%s)' % (modele, nom, k, m, loc))
+            if typ == 'Monetary' and not kw.get('related'):
+                devise = kw.get('currency_field') or 'currency_id'
+                if devise not in mes_champs and not (devise == 'currency_id' and modele in STD_MONETAIRE):
+                    erreurs.append('DEVISE INCONNUE %s.%s : champ monétaire sans %s (%s)' % (modele, nom, devise, loc))
+            if typ == 'One2many' and len(args) >= 2 and args[0] in champs and args[0].startswith('ka.'):
+                if args[1] not in tous(args[0], champs):
+                    erreurs.append('INVERSE MANQUANT %s.%s : %s.%s (%s)' % (modele, nom, args[0], args[1], loc))
+            if typ in ('Many2one', 'One2many', 'Many2many') and args and args[0].startswith('ka.') and args[0] not in champs:
+                erreurs.append('MODÈLE LIÉ INCONNU %s.%s -> %s (%s)' % (modele, nom, args[0], loc))
+        for nom, deps in mes_methodes.items():
+            for d in deps:
+                if d.split('.')[0] not in mes_champs and d.split('.')[0] not in COMMUNS and modele in champs and modele.startswith('ka.'):
+                    erreurs.append('DEPENDS INCONNU %s.%s : %s' % (modele, nom, d))
+
+
 if __name__ == '__main__':
     champs, methodes, bases = lire_modeles()
     ordre = verifier_manifestes()
     verifier_vues(champs, methodes, bases)
+    verifier_definitions()
     for py in glob.glob('kode_agri_*/**/*.py', recursive=True):
         compile(open(py).read(), py, 'exec')
     print("Ordre d'installation :", ' → '.join(ordre))

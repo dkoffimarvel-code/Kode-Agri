@@ -68,9 +68,15 @@ class KaLettrageLigne(models.Model):
     date = fields.Date(related='aml_id.date', string='Date', store=True)
     piece = fields.Char(related='aml_id.move_name', string='Pièce')
     intitule = fields.Char(related='aml_id.name', string='Intitulé')
-    debit = fields.Float(related='aml_id.debit', string='Débit', digits=(14, 0), store=True)
-    credit = fields.Float(related='aml_id.credit', string='Crédit', digits=(14, 0), store=True)
+    # Float calculés (et non liés) : account.move.line.debit est un champ Monetary, un champ lié doit avoir le même type
+    debit = fields.Float(compute='_compute_montants', string='Débit', digits=(14, 0), store=True)
+    credit = fields.Float(compute='_compute_montants', string='Crédit', digits=(14, 0), store=True)
     lettre = fields.Char(compute='_compute_lettre', string='Lettre', store=False)
+
+    @api.depends('aml_id.debit', 'aml_id.credit')
+    def _compute_montants(self):
+        for x in self:
+            x.debit, x.credit = x.aml_id.debit, x.aml_id.credit
 
     @api.depends('aml_id.matching_number')
     def _compute_lettre(self):
