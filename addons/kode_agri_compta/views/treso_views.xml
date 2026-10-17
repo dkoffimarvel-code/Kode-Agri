@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_treso_form" model="ir.ui.view">
+    <field name="name">ka.treso.ka.form</field>
+    <field name="model">ka.treso</field>
+    <field name="arch" type="xml">
+        <form string="Prévisions de trésorerie — vue mensuelle" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Trésorerie</span><span class="o_ka_cur">Prévisions de trésorerie</span><span class="o_ka_fn">Fonction : YTRESO · état spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Prévisions de trésorerie — vue mensuelle</h1><div class="o_ka_sub"><field name="titre" nolabel="1" readonly="1"/></div></div>
+                            
+                        </div>
+                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="depart_txt" nolabel="1"/><span class="o_ka_kl">Solde de départ</span></div><div class="o_ka_kpi"><field name="final_txt" nolabel="1"/><span class="o_ka_kl">Solde prévisionnel</span></div><div class="o_ka_kpi"><field name="variation_txt" nolabel="1"/><span class="o_ka_kl">Variation nette</span></div></div><div class="o_ka_info">Chaque rubrique agrège les échéances déjà validées dans Kode Agri (factures, engagements, emprunts, taxes). Montants en millions de FCFA.</div><field name="table_html" nolabel="1" readonly="1"/>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Actualiser" name="action_actualiser" type="object" class="o_ka_btn o_ka_primary"/><button string="Vue hebdomadaire" name="action_hebdo" type="object" class="o_ka_btn"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/><button string="Imprimer" name="action_imprimer" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_treso_hebdo_form" model="ir.ui.view">
+    <field name="name">ka.treso.ka.form</field>
+    <field name="model">ka.treso</field>
+    <field name="arch" type="xml">
+        <form string="Prévisions de trésorerie — vue hebdomadaire" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Trésorerie</span><span class="o_ka_cur">Prévisions de trésorerie</span><span class="o_ka_fn">Fonction : YTRESO · état spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Prévisions de trésorerie — vue hebdomadaire</h1><div class="o_ka_sub"><field name="titre" nolabel="1" readonly="1"/></div></div>
+                            
+                        </div>
+                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="depart_txt" nolabel="1"/><span class="o_ka_kl">Solde de départ</span></div><div class="o_ka_kpi"><field name="final_txt" nolabel="1"/><span class="o_ka_kl">Solde prévisionnel</span></div><div class="o_ka_kpi"><field name="variation_txt" nolabel="1"/><span class="o_ka_kl">Variation nette</span></div></div><div class="o_ka_info">Chaque rubrique agrège les échéances déjà validées dans Kode Agri (factures, engagements, emprunts, taxes). Montants en millions de FCFA.</div><field name="table_html" nolabel="1" readonly="1"/>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Actualiser" name="action_actualiser" type="object" class="o_ka_btn o_ka_primary"/><button string="Vue mensuelle" name="action_mensuelle" type="object" class="o_ka_btn"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/><button string="Imprimer" name="action_imprimer" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_treso_ligne_tree" model="ir.ui.view"><field name="name">ka.treso.ligne.tree</field><field name="model">ka.treso.ligne</field><field name="arch" type="xml"><list string="Prévisions manuelles" editable="bottom"><field name="date"/><field name="rubrique"/><field name="libelle"/><field name="montant" sum="Total"/></list></field></record>
+<record id="action_ka_treso_ligne" model="ir.actions.act_window"><field name="name">Prévisions manuelles</field><field name="res_model">ka.treso.ligne</field><field name="view_mode">list</field></record>
+<record id="action_ka_treso" model="ir.actions.act_window"><field name="name">Prévisions de trésorerie</field><field name="res_model">ka.treso</field><field name="res_id" ref="treso_1"/><field name="view_mode">form</field><field name="view_id" ref="view_ka_treso_form"/></record>
+</odoo>

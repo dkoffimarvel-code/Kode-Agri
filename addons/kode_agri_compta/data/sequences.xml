@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_ka_rapprochement" model="ir.sequence"><field name="name">ka.rapprochement</field><field name="code">ka.rapprochement</field><field name="prefix">RAP-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_ka_regul" model="ir.sequence"><field name="name">ka.regul</field><field name="code">ka.regul</field><field name="prefix">REG-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="param_tol_prix" model="ir.config_parameter"><field name="key">kode_agri.tolerance_prix</field><field name="value">2</field></record>
+    <record id="param_tol_qty" model="ir.config_parameter"><field name="key">kode_agri.tolerance_quantite</field><field name="value">0</field></record>
+    <record id="treso_1" model="ka.treso"/>
+    <record id="cron_extourne" model="ir.cron"><field name="name">Kode Agri — Extourne automatique des régularisations</field><field name="model_id" ref="model_ka_regul"/><field name="state">code</field><field name="code">model.cron_extourner()</field><field name="interval_number">1</field><field name="interval_type">days</field></record>
+</odoo>

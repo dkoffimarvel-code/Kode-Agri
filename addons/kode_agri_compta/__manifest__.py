@@ -1,0 +1,20 @@
+{
+    'name': 'Kode Agri — Module 7 : Comptabilité et finance',
+    'version': '19.0.1.0.0',
+    'category': 'Kode Agri',
+    'summary': "Facture export en devise, rapprochement à trois niveaux, lettrage, prévisions de trésorerie, régularisations d'arrêté, schémas d'écritures",
+    'depends': ['kode_agri_vente', 'kode_agri_achats', 'kode_agri_frais', 'account', 'purchase'],
+    'data': [
+        'security/ir.model.access.csv',
+        'data/sequences.xml',
+        'data/schemas.xml',
+        'views/facture_views.xml',
+        'views/rapprochement_views.xml',
+        'views/lettrage_views.xml',
+        'views/treso_views.xml',
+        'views/regul_views.xml',
+        'views/menus.xml',
+    ],
+    'license': 'LGPL-3',
+    'application': True,
+}

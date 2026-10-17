@@ -22,7 +22,9 @@ Installation : ajouter `addons/` à l'`addons_path`, puis installer `kode_agri_p
 
 | `kode_agri_immo` | **Module 3** : familles d'immobilisations, fiche (manuelle ou issue d'une facture fournisseur à la validation), plan d'amortissement mensuel linéaire ou dégressif avec prorata, comptabilisation des dotations par pièce ventilée sur la section analytique, cessions et mises au rebut (VNC, plus ou moins-value), consultation du parc |
 
-Modules 7 et 8 : à venir (même patron de vues).
+| `kode_agri_compta` | **Module 7** : facture de vente export en devise, contrôle à trois niveaux commande / réception / facture avec tolérances (RG-7.1), lettrage automatique, prévisions de trésorerie en six rubriques (vues mensuelle et hebdomadaire), régularisations d'arrêté CCA / PCA / CAP / PAR avec extourne automatique (RG-7.5) et provisions, schémas d'écritures du cahier en données de paramétrage |
+
+Module 8 : à venir (même patron de vues).
 
 **Non testé sur une instance Odoo** : la syntaxe Python/XML et la cohérence champs ↔ vues sont vérifiées
 statiquement, mais le chargement réel dans Odoo 19 reste à valider.

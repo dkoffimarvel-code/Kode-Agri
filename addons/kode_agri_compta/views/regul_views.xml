@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_regul_form" model="ir.ui.view">
+    <field name="name">ka.regul.ka.form</field>
+    <field name="model">ka.regul</field>
+    <field name="arch" type="xml">
+        <form string="Régularisations d'arrêté" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Arrêtés</span><span class="o_ka_cur">Régularisations</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Régularisations d'arrêté</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state in ('brouillon')" decoration-success="state in ('comptabilisee','extournee')"/>
+                        </div>
+                        <div class="o_ka_info">Toute charge ou produit constaté d'avance, charge à payer ou produit à recevoir comptabilisé à la clôture est automatiquement contre-passé à l'ouverture suivante, à la même date et pour le même montant (RG-7.5).</div><div class="o_ka_sec">Régularisation</div><div class="o_ka_grid"><div class="o_ka_f"><label for="type" string="Nature" class="o_ka_req"/><field name="type"/></div><div class="o_ka_f"><label for="libelle" string="Libellé" class="o_ka_req"/><field name="libelle"/></div><div class="o_ka_f"><label for="date_cloture" string="Date de clôture" class="o_ka_req"/><field name="date_cloture"/></div><div class="o_ka_f"><label for="date_extourne" string="Date d'extourne"/><field name="date_extourne" readonly="1"/></div><div class="o_ka_f"><label for="compte_charge_id" string="Compte de charge ou de produit" class="o_ka_req"/><field name="compte_charge_id"/></div><div class="o_ka_f"><label for="compte_regul_id" string="Compte de régularisation" class="o_ka_req"/><field name="compte_regul_id"/></div><div class="o_ka_f"><label for="montant" string="Montant" class="o_ka_req"/><field name="montant"/></div><div class="o_ka_f"><label for="journal_id" string="Journal"/><field name="journal_id"/></div></div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Comptabiliser" name="action_comptabiliser" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'brouillon'"/><button string="Extourner" name="action_extourner" type="object" class="o_ka_btn" invisible="state != 'comptabilisee'"/><button string="Reprise de provision" name="action_reprise" type="object" class="o_ka_btn" invisible="state != 'comptabilisee'"/><button string="Consulter les écritures" name="action_ecritures" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_regul_tree" model="ir.ui.view">
+    <field name="name">ka.regul.ka.tree</field>
+    <field name="model">ka.regul</field>
+    <field name="arch" type="xml"><list string="ka_regul"><field name="name"/><field name="type"/><field name="libelle"/><field name="date_cloture"/><field name="montant" sum="Total"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_regul" model="ir.actions.act_window"><field name="name">Régularisations d'arrêté</field><field name="res_model">ka.regul</field><field name="view_mode">list,form</field></record>
+<record id="view_ka_schema_tree" model="ir.ui.view"><field name="name">ka.schema.tree</field><field name="model">ka.schema</field><field name="arch" type="xml"><list string="Schémas d'écritures"><field name="rubrique"/><field name="operation"/><field name="debit"/><field name="credit"/><field name="regle"/></list></field></record>
+<record id="view_ka_schema_search" model="ir.ui.view"><field name="name">ka.schema.search</field><field name="model">ka.schema</field><field name="arch" type="xml"><search><field name="operation"/><field name="rubrique"/><group><filter name="g_dom" string="Domaine" context="{'group_by': 'domaine'}"/><filter name="g_rub" string="Rubrique" context="{'group_by': 'rubrique'}"/></group></search></field></record>
+<record id="action_ka_schema" model="ir.actions.act_window"><field name="name">Schémas d'écritures</field><field name="res_model">ka.schema</field><field name="view_mode">list,form</field><field name="context">{'search_default_g_dom': 1, 'search_default_g_rub': 1}</field></record>
+</odoo>

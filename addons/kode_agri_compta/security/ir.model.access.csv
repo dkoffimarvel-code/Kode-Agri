@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ka_rapprochement,ka.rapprochement,model_ka_rapprochement,base.group_user,1,1,1,1
+access_ka_rapprochement_ligne,ka.rapprochement.ligne,model_ka_rapprochement_ligne,base.group_user,1,1,1,1
+access_ka_lettrage,ka.lettrage,model_ka_lettrage,base.group_user,1,1,1,1
+access_ka_lettrage_ligne,ka.lettrage.ligne,model_ka_lettrage_ligne,base.group_user,1,1,1,1
+access_ka_treso,ka.treso,model_ka_treso,base.group_user,1,1,1,1
+access_ka_treso_ligne,ka.treso.ligne,model_ka_treso_ligne,base.group_user,1,1,1,1
+access_ka_regul,ka.regul,model_ka_regul,base.group_user,1,1,1,1
+access_ka_schema,ka.schema,model_ka_schema,base.group_user,1,1,1,1

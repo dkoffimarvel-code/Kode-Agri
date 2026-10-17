@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<menuitem id="menu_ka_compta_root" name="Comptabilité Kode Agri" sequence="47"/>
+<menuitem id="menu_ka_ventes_f" name="Factures de vente" parent="menu_ka_compta_root" sequence="10"/>
+<menuitem id="menu_ka_fv" name="Factures de vente — export" parent="menu_ka_ventes_f" action="action_ka_facture_vente" sequence="10"/>
+<menuitem id="menu_ka_achats_c" name="Contrôle des achats" parent="menu_ka_compta_root" sequence="20"/>
+<menuitem id="menu_ka_rap" name="Contrôle facture à trois niveaux" parent="menu_ka_achats_c" action="action_ka_rapprochement" sequence="10"/>
+<menuitem id="menu_ka_let" name="Lettrage" parent="menu_ka_compta_root" sequence="30"/>
+<menuitem id="menu_ka_let_a" name="Lettrage automatique" parent="menu_ka_let" action="action_ka_lettrage" sequence="10"/>
+<menuitem id="menu_ka_tres" name="Trésorerie" parent="menu_ka_compta_root" sequence="40"/>
+<menuitem id="menu_ka_tres_p" name="Prévisions de trésorerie" parent="menu_ka_tres" action="action_ka_treso" sequence="10"/>
+<menuitem id="menu_ka_tres_m" name="Prévisions manuelles" parent="menu_ka_tres" action="action_ka_treso_ligne" sequence="20"/>
+<menuitem id="menu_ka_arr" name="Arrêtés" parent="menu_ka_compta_root" sequence="50"/>
+<menuitem id="menu_ka_regul" name="Régularisations" parent="menu_ka_arr" action="action_ka_regul" sequence="10"/>
+<menuitem id="menu_ka_cfg" name="Paramétrage comptable" parent="menu_ka_compta_root" sequence="90"/>
+<menuitem id="menu_ka_schema" name="Schémas d'écritures" parent="menu_ka_cfg" action="action_ka_schema" sequence="10"/>
+
+</odoo>
