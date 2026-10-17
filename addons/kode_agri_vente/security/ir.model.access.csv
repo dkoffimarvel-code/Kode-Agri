@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ka_client_spec,ka.client.spec,model_ka_client_spec,base.group_user,1,1,1,1
+access_ka_contrat,ka.contrat,model_ka_contrat,base.group_user,1,1,1,1
+access_ka_contrat_spec,ka.contrat.spec,model_ka_contrat_spec,base.group_user,1,1,1,1
+access_ka_sous_contrat,ka.sous.contrat,model_ka_sous_contrat,base.group_user,1,1,1,1
+access_ka_sc_frais,ka.sc.frais,model_ka_sc_frais,base.group_user,1,1,1,1
+access_ka_sc_achat,ka.sc.achat,model_ka_sc_achat,base.group_user,1,1,1,1
+access_ka_conteneur,ka.conteneur,model_ka_conteneur,base.group_user,1,1,1,1
+access_ka_conteneur_colis,ka.conteneur.colis,model_ka_conteneur_colis,base.group_user,1,1,1,1
+access_ka_voyage,ka.voyage,model_ka_voyage,base.group_user,1,1,1,1
+access_ka_voyage_line,ka.voyage.line,model_ka_voyage_line,base.group_user,1,1,1,1
+access_ka_livraison,ka.livraison,model_ka_livraison,base.group_user,1,1,1,1

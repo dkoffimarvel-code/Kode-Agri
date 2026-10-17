@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_ka_client" model="ir.sequence"><field name="name">ka.client</field><field name="code">ka.client</field><field name="prefix">CLI-</field><field name="padding">4</field><field name="number_next">412</field></record>
+    <record id="seq_ka_contrat" model="ir.sequence"><field name="name">ka.contrat</field><field name="code">ka.contrat</field><field name="prefix">CV-</field><field name="padding">4</field><field name="number_next">61</field></record>
+    <record id="seq_ka_voyage" model="ir.sequence"><field name="name">ka.voyage</field><field name="code">ka.voyage</field><field name="prefix">OV-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_ka_conteneur" model="ir.sequence"><field name="name">ka.conteneur</field><field name="code">ka.conteneur</field><field name="prefix">CTN-</field><field name="padding">4</field><field name="number_next">188</field></record>
+    <record id="seq_ka_livraison" model="ir.sequence"><field name="name">ka.livraison</field><field name="code">ka.livraison</field><field name="prefix">BL-</field><field name="padding">4</field><field name="number_next">188</field></record>
+    <record id="seq_ka_palette" model="ir.sequence"><field name="name">ka.palette</field><field name="code">ka.palette</field><field name="prefix">PAL-</field><field name="padding">4</field><field name="number_next">451</field></record>
+</odoo>

@@ -28,18 +28,24 @@ class KaGradeSeuil(models.Model):
 
     grade_id = fields.Many2one('ka.grade', required=True, ondelete='cascade')
     test = fields.Selection(TESTS, required=True)
-    operateur = fields.Selection([('ge', '≥'), ('le', '≤'), ('client', 'Selon client')], default='ge', required=True)
+    operateur = fields.Selection([('ge', '≥'), ('le', '≤'), ('between', 'Entre'), ('client', 'Selon client')],
+                                 default='ge', required=True)
     valeur = fields.Float(digits=(8, 2))
+    valeur2 = fields.Float(string='Borne haute', digits=(8, 2))
     texte = fields.Char(compute='_compute_texte')
 
-    @api.depends('operateur', 'valeur')
+    @api.depends('operateur', 'valeur', 'valeur2')
     def _compute_texte(self):
         for s in self:
             if s.operateur == 'client':
                 s.texte = 'Selon client'
             else:
-                v = ('%.2f' % s.valeur).replace('.', ',') if s.test in TESTS_PCT else '%d' % s.valeur
-                s.texte = '%s %s' % ('≥' if s.operateur == 'ge' else '≤', v)
+                def fmt(x):
+                    return ('%.2f' % x).replace('.', ',') if s.test in TESTS_PCT else '%d' % x
+                if s.operateur == 'between':
+                    s.texte = '%s – %s' % (fmt(s.valeur), fmt(s.valeur2))
+                else:
+                    s.texte = '%s %s' % ('≥' if s.operateur == 'ge' else '≤', fmt(s.valeur))
 
     def conforme(self, valeur):
         self.ensure_one()
@@ -47,4 +53,6 @@ class KaGradeSeuil(models.Model):
             return True
         if valeur is None or valeur is False:
             return False
+        if self.operateur == 'between':
+            return self.valeur <= valeur <= self.valeur2
         return valeur >= self.valeur if self.operateur == 'ge' else valeur <= self.valeur

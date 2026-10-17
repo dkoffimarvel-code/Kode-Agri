@@ -1,0 +1,21 @@
+{
+    'name': 'Kode Agri — Module 5 : Logistique et vente',
+    'version': '19.0.1.0.0',
+    'category': 'Kode Agri',
+    'summary': "Fiche client, contrats Spot / Long terme, sous-contrats, voyages, empotage, export, transfert port, départ navire",
+    'depends': ['kode_agri_production', 'sale', 'stock', 'purchase', 'account'],
+    'data': [
+        'security/ir.model.access.csv',
+        'data/sequences.xml',
+        'data/reference.xml',
+        'views/client_views.xml',
+        'views/contrat_views.xml',
+        'views/sous_contrat_views.xml',
+        'views/voyage_views.xml',
+        'views/conteneur_views.xml',
+        'views/livraison_views.xml',
+        'views/menus.xml',
+    ],
+    'license': 'LGPL-3',
+    'application': True,
+}

@@ -115,3 +115,9 @@ table.o_ka_tbl tfoot td { background: #edf1f1; font-weight: 700; border-top: 2px
 .o_ka_kpi .o_field_widget[class*="o_ka_u_"]::after { position: static; transform: none; margin-left: .3rem; font-size: 1.3rem; color: #14181b; }
 .o_ka_note { color: var(--ka-muted); margin: .4rem 0 1rem; }
 .o_ka_f .o_field_float input, .o_ka_f .o_field_integer input { text-align: left; }
+
+/* unités complémentaires et lignes de cases à cocher (documents requis, liasse) */
+.o_ka_u_jours::after { content: "jours"; } .o_ka_u_eurt::after { content: "EUR/t"; }
+.o_ka_docs { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.1rem; margin: .8rem 0 1rem; color: var(--ka-ink); }
+.o_ka_docs .o_ka_doc { display: inline-flex; align-items: center; gap: .35rem; }
+.o_ka_docs .o_ka_doc label { margin: 0; }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="base.EUR" model="res.currency"><field name="symbol">EUR</field><field name="position">after</field><field name="active" eval="True"/></record>
+    <record id="base.USD" model="res.currency"><field name="symbol">USD</field><field name="position">after</field><field name="active" eval="True"/></record>
+    <record id="param_colis_palette" model="ir.config_parameter"><field name="key">kode_agri.colis_palette</field><field name="value">16</field></record>
+    <record id="param_colis_vrac" model="ir.config_parameter"><field name="key">kode_agri.colis_vrac</field><field name="value">17</field></record>
+    <record id="loc_terre_plein" model="stock.location"><field name="name">Terre-plein AKF — Abidjan</field><field name="usage">internal</field><field name="location_id" ref="stock.stock_location_stock"/></record>
+    <record id="loc_port" model="stock.location"><field name="name">Port d'Abidjan</field><field name="usage">internal</field><field name="location_id" ref="stock.stock_location_stock"/></record>
+    <record id="partner_douane" model="res.partner"><field name="name">Douane / Trésor — Côte d'Ivoire</field><field name="is_company" eval="True"/><field name="supplier_rank">1</field></record>
+    <record id="product_tct" model="product.product"><field name="name">TCT</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_ts_douane" model="product.product"><field name="name">TS douane</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_agios" model="product.product"><field name="name">Agios trésor</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_gestion_credit" model="product.product"><field name="name">Gestion crédit</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_parafiscalite" model="product.product"><field name="name">Redevance parafiscale export</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_stockage_franchise" model="product.product"><field name="name">Stockage franchise</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_forfait_franchise" model="product.product"><field name="name">Forfait de franchise du terre-plein</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_stockage_hors_franchise" model="product.product"><field name="name">Stockage hors franchise</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_frais_transit" model="product.product"><field name="name">Frais de transit</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_transport" model="product.product"><field name="name">Transport de conteneurs</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+    <record id="product_immobilisation" model="product.product"><field name="name">Immobilisation camion</field><field name="type">service</field><field name="sale_ok" eval="False"/><field name="purchase_ok" eval="True"/></record>
+</odoo>
