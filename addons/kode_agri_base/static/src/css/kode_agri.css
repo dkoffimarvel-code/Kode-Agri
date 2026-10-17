@@ -22,10 +22,8 @@
 .o_main_navbar .o_menu_brand,
 .o_main_navbar .o_menu_sections .o_nav_entry,
 .o_main_navbar .o_menu_sections .dropdown-toggle { color: #fff !important; }
-.o_ka_navctx { display: flex; align-items: center; gap: .6rem; color: #fff; margin-left: 1rem; font-size: .95rem; }
-.o_ka_navctx .o_ka_brand { font-size: 1.35rem; }
-.o_ka_navctx .o_ka_brand b { color: #1fdc7b; }
-.o_ka_navctx .o_ka_sep { width: 1px; height: 1.6rem; background: #555; margin: 0 .6rem; }
+.o_main_navbar::before { content: "Kode Agri"; color: #fff; font-size: 1.3rem; padding: 0 1rem 0 .8rem; margin-right: .6rem; border-right: 1px solid #555; }
+.o_ka_navctx { display: flex; align-items: center; gap: .5rem; color: #fff; margin-right: 1rem; font-size: .95rem; white-space: nowrap; }
 .o_ka_navctx .o_ka_dot { color: #aaa; }
 
 /* --- Fiche Kode Agri --- */

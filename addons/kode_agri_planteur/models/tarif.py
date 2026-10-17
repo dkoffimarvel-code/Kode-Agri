@@ -67,5 +67,7 @@ class KaTarifBareme(models.Model):
         for rec in self:
             rec.lieu_label = labels.get(rec.lieu, '')
 
-    def name_get(self):
-        return [(b.id, '%s — %s FCFA/kg' % (b.name, int(b.prix_kg))) for b in self]
+    @api.depends('name', 'prix_kg')
+    def _compute_display_name(self):
+        for b in self:
+            b.display_name = '%s — %s FCFA/kg' % (b.name or '', int(b.prix_kg))

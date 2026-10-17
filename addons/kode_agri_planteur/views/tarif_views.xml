@@ -13,7 +13,7 @@
                             <div><h1>Tarifs d'achat — prix Apromac</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
                             <field name="state" widget="badge" decoration-success="state in ('actif')" decoration-warning="state in ('ferme','inactif')"/>
                         </div>
-                        <div class="o_ka_info">Le prix Apromac est défini chaque mois. Le ticket est facturé au tarif du mois de pesée selon le lieu de livraison porté par la commande.</div><div class="o_ka_sec">Critères du tarif</div><div class="o_ka_grid"><div class="o_ka_f"><label for="code" string="Code tarif" class="o_ka_req"/><field name="code" readonly="1"/></div><div class="o_ka_f"><label for="product_id" string="Article"/><field name="product_id"/></div><div class="o_ka_f"><label for="date_start" string="Date début validité" class="o_ka_req"/><field name="date_start"/></div><div class="o_ka_f"><label for="date_end" string="Date fin validité" class="o_ka_req"/><field name="date_end"/></div><div class="o_ka_f"><label for="critere" string="Critère"/><field name="critere"/></div><div class="o_ka_f"><label for="uom_label" string="Unité"/><field name="uom_label" readonly="1"/></div><div class="o_ka_f"><label for="currency_id" string="Devise"/><field name="currency_id"/></div></div><div class="o_ka_h3">Barèmes du mois</div><field name="bareme_ids" nolabel="1"><tree editable="bottom"><field name="name" string="Barème"/><field name="lieu" string="Lieu de livraison"/><field name="prix_kg" string="Prix au kg humide"/></tree></field>
+                        <div class="o_ka_info">Le prix Apromac est défini chaque mois. Le ticket est facturé au tarif du mois de pesée selon le lieu de livraison porté par la commande.</div><div class="o_ka_sec">Critères du tarif</div><div class="o_ka_grid"><div class="o_ka_f"><label for="code" string="Code tarif" class="o_ka_req"/><field name="code" readonly="1"/></div><div class="o_ka_f"><label for="product_id" string="Article"/><field name="product_id"/></div><div class="o_ka_f"><label for="date_start" string="Date début validité" class="o_ka_req"/><field name="date_start"/></div><div class="o_ka_f"><label for="date_end" string="Date fin validité" class="o_ka_req"/><field name="date_end"/></div><div class="o_ka_f"><label for="critere" string="Critère"/><field name="critere"/></div><div class="o_ka_f"><label for="uom_label" string="Unité"/><field name="uom_label" readonly="1"/></div><div class="o_ka_f"><label for="currency_id" string="Devise"/><field name="currency_id"/></div></div><div class="o_ka_h3">Barèmes du mois</div><field name="bareme_ids" nolabel="1"><list editable="bottom"><field name="name" string="Barème"/><field name="lieu" string="Lieu de livraison"/><field name="prix_kg" string="Prix au kg humide"/></list></field>
                     </div>
                     <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Créer" name="action_creer" type="object" class="o_ka_btn o_ka_primary"/><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Dupliquer le mois" name="action_dupliquer_mois" type="object" class="o_ka_btn"/><button string="Fermer la période" name="action_fermer" type="object" class="o_ka_btn"/></aside>
                 </div>
@@ -24,11 +24,11 @@
 <record id="view_ka_tarif_tree" model="ir.ui.view">
     <field name="name">ka.tarif.ka.tree</field>
     <field name="model">ka.tarif</field>
-    <field name="arch" type="xml"><tree string="ka_tarif"><field name="code"/><field name="date_start"/><field name="date_end"/><field name="state" widget="badge" decoration-success="state=='actif'"/></tree></field>
+    <field name="arch" type="xml"><list string="ka_tarif"><field name="code"/><field name="date_start"/><field name="date_end"/><field name="state" widget="badge" decoration-success="state=='actif'"/></list></field>
 </record>
 <record id="action_ka_tarif" model="ir.actions.act_window">
     <field name="name">Tarifs d'achat — prix Apromac</field>
     <field name="res_model">ka.tarif</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">list,form</field>
 </record>
 </odoo>

@@ -117,7 +117,11 @@ class KaTicket(models.Model):
                              string='Statut')
     purchase_id = fields.Many2one('purchase.order', string="Commande d'achat", readonly=True, copy=False)
 
-    _sql_constraints = [('name_uniq', 'unique(name, date_pesee)', 'Ce ticket de pesée existe déjà.')]
+    @api.constrains('name', 'date_pesee')
+    def _check_unique_ticket(self):
+        for t in self:
+            if self.search_count([('name', '=', t.name), ('date_pesee', '=', t.date_pesee), ('id', '!=', t.id)]):
+                raise UserError(_('Ce ticket de pesée existe déjà.'))
 
     @api.model_create_multi
     def create(self, vals_list):

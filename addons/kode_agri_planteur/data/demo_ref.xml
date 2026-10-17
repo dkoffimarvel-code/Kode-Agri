@@ -3,7 +3,8 @@
     <record id="product_fdt_hevea" model="product.product">
         <field name="name">Fond de tasse Hevea</field>
         <field name="default_code">FDT-HEVEA</field>
-        <field name="detailed_type">product</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
         <field name="tracking">lot</field>
         <field name="purchase_ok" eval="True"/>
         <field name="sale_ok" eval="False"/>

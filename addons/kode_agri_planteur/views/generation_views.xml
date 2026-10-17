@@ -24,11 +24,11 @@
 <record id="view_ka_generation_tree" model="ir.ui.view">
     <field name="name">ka.generation.ka.tree</field>
     <field name="model">ka.generation</field>
-    <field name="arch" type="xml"><tree string="ka_generation"><field name="name"/><field name="date_debut"/><field name="date_fin"/><field name="date_comptable"/><field name="state" widget="badge"/></tree></field>
+    <field name="arch" type="xml"><list string="ka_generation"><field name="name"/><field name="date_debut"/><field name="date_fin"/><field name="date_comptable"/><field name="state" widget="badge"/></list></field>
 </record>
 <record id="action_ka_generation" model="ir.actions.act_window">
     <field name="name">Génération réceptions et factures</field>
     <field name="res_model">ka.generation</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">list,form</field>
 </record>
 </odoo>

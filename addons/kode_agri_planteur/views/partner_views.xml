@@ -10,12 +10,12 @@
                 <div class="o_ka_layout">
                     <div class="o_ka_main">
                         <div class="o_ka_head">
-                            <div><h1>Fournisseur — planteur / coopérative</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <div><h1>Fournisseur — planteur / coopérative</h1><div class="o_ka_sub"><field name="ka_code" nolabel="1" readonly="1"/> — <field name="name" nolabel="1" readonly="1"/></div></div>
                             <field name="ka_statut" widget="badge" decoration-success="ka_statut in ('actif')"/>
                         </div>
                         <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="ka_nb_apports" nolabel="1"/><span class="o_ka_kl">Apports de la campagne</span></div><div class="o_ka_kpi"><field name="ka_solde_avance" nolabel="1"/><span class="o_ka_kl">Solde d'avance</span></div></div><div class="o_ka_sec">Identification</div><div class="o_ka_grid"><div class="o_ka_f"><label for="ka_code" string="Code planteur" class="o_ka_req"/><field name="ka_code" readonly="1"/></div><div class="o_ka_f"><label for="name" string="Raison sociale" class="o_ka_req"/><field name="name"/></div><div class="o_ka_f"><label for="ka_categorie" string="Catégorie fournisseur" class="o_ka_req"/><field name="ka_categorie"/></div><div class="o_ka_f"><label for="ka_code_acces" string="Code d'accès"/><field name="ka_code_acces"/></div><div class="o_ka_f"><label for="ka_cooperative_id" string="Coopérative de rattachement"/><field name="ka_cooperative_id"/></div><div class="o_ka_f"><label for="phone" string="Téléphone"/><field name="phone"/></div><div class="o_ka_f"><label for="ka_mode_reglement" string="Mode de règlement" class="o_ka_req"/><field name="ka_mode_reglement"/></div><div class="o_ka_f"><label for="ka_bareme_id" string="Prix Apromac"/><field name="ka_bareme_id"/></div></div><notebook>
-    <page string="Conditions d'apport"><div class="o_ka_h3">Parcelles d'origine (EUDR)</div><field name="ka_parcelle_ids" nolabel="1"><tree editable="bottom"><field name="name" string="Référence"/><field name="surface" string="Surface (ha)"/><field name="latitude"/><field name="longitude"/><field name="clone"/><field name="statut_eudr" widget="badge" decoration-success="statut_eudr=='conforme'" decoration-warning="statut_eudr=='a_verifier'" decoration-danger="statut_eudr=='non_conforme'"/></tree></field></page>
-    <page string="Compte courant"><div class="o_ka_h3">Avances de campagne</div><field name="ka_avance_ids" nolabel="1" readonly="1"><tree><field name="name"/><field name="nature"/><field name="amount"/><field name="date_octroi"/><field name="state" widget="badge"/></tree></field></page>
+    <page string="Conditions d'apport"><div class="o_ka_h3">Parcelles d'origine (EUDR)</div><field name="ka_parcelle_ids" nolabel="1"><list editable="bottom"><field name="name" string="Référence"/><field name="surface" string="Surface (ha)"/><field name="latitude"/><field name="longitude"/><field name="clone"/><field name="statut_eudr" widget="badge" decoration-success="statut_eudr=='conforme'" decoration-warning="statut_eudr=='a_verifier'" decoration-danger="statut_eudr=='non_conforme'"/></list></field></page>
+    <page string="Compte courant"><div class="o_ka_h3">Avances de campagne</div><field name="ka_avance_ids" nolabel="1" readonly="1"><list><field name="name"/><field name="nature"/><field name="amount"/><field name="date_octroi"/><field name="state" widget="badge"/></list></field></page>
     <page string="Parcelles EUDR"><div class="o_ka_info">Le statut EUDR de la livraison et du lot est l'ET logique des statuts des parcelles d'origine (RG-1.12) ; il est propagé au mélange, aux OF et aux colis.</div></page>
     <page string="Comptabilité"><div class="o_ka_grid"><div class="o_ka_f"><label for="property_account_payable_id" string="Compte fournisseur"/><field name="property_account_payable_id"/></div><div class="o_ka_f"><label for="property_account_position_id" string="Position fiscale"/><field name="property_account_position_id"/></div><div class="o_ka_f"><label for="property_supplier_payment_term_id" string="Conditions de paiement"/><field name="property_supplier_payment_term_id"/></div></div></page>
 </notebook>
@@ -29,15 +29,15 @@
 <record id="view_ka_planteur_tree" model="ir.ui.view">
     <field name="name">res.partner.ka.tree</field>
     <field name="model">res.partner</field>
-    <field name="arch" type="xml"><tree string="ka_planteur"><field name="ka_code"/><field name="name"/><field name="ka_categorie"/><field name="ka_cooperative_id"/><field name="phone"/><field name="ka_mode_reglement"/><field name="ka_solde_avance"/></tree></field>
+    <field name="arch" type="xml"><list string="ka_planteur"><field name="ka_code"/><field name="name"/><field name="ka_categorie"/><field name="ka_cooperative_id"/><field name="phone"/><field name="ka_mode_reglement"/><field name="ka_solde_avance"/></list></field>
 </record>
 <record id="action_ka_planteur" model="ir.actions.act_window">
     <field name="name">Planteurs et coopératives</field>
     <field name="res_model">res.partner</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">list,form</field>
     <field name="domain">[('ka_categorie', '=', 'planteur_coop')]</field>
     <field name="context">{'default_ka_categorie': 'planteur_coop', 'default_supplier_rank': 1}</field>
 </record>
-<record id="action_ka_planteur_tree" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_planteur"/><field name="sequence">1</field><field name="view_mode">tree</field><field name="view_id" ref="view_ka_planteur_tree"/></record>
+<record id="action_ka_planteur_tree" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_planteur"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_planteur_tree"/></record>
 <record id="action_ka_planteur_form" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_planteur"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_planteur_form"/></record>
 </odoo>
