@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_panier_form" model="ir.ui.view">
+    <field name="name">ka.panier.ka.form</field>
+    <field name="model">ka.panier</field>
+    <field name="arch" type="xml">
+        <form string="Déclaration de panier" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Production</span><span class="o_ka_c">Suivi</span><span class="o_ka_cur">Déclaration des paniers</span><span class="o_ka_fn">Fonction : YPAN · spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Déclaration de panier</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-success="state in ('valide','cloture')" decoration-info="state in ('controle')" decoration-warning="state in ('ouvert')"/>
+                        </div>
+                        <field name="state" widget="statusbar" class="o_ka_pills" statusbar_visible="ouvert,controle,valide,cloture"/><div class="o_ka_kpis"><div class="o_ka_kpi"><field name="poids_balles" nolabel="1"/><span class="o_ka_kl">Poids des balles</span></div><div class="o_ka_kpi"><field name="nb_balles" nolabel="1"/><span class="o_ka_kl">Balles</span></div><div class="o_ka_kpi"><field name="balles_restantes" nolabel="1"/><span class="o_ka_kl">Balles restantes</span></div></div><div class="o_ka_sec">Déclaration panier</div><div class="o_ka_grid"><div class="o_ka_f"><label for="name" string="N° panier" class="o_ka_req"/><field name="name"/></div><div class="o_ka_f"><label for="chrono" string="N° chronologique"/><field name="chrono" readonly="1"/></div><div class="o_ka_f"><label for="date_production" string="Date de production"/><field name="date_production"/></div><div class="o_ka_f"><label for="sechoir_id" string="Séchoir"/><field name="sechoir_id"/></div><div class="o_ka_f"><label for="cycle_min" string="Cycle de séchage (min)"/><field name="cycle_min"/></div><div class="o_ka_f"><label for="nb_pains" string="Nombre de pains"/><field name="nb_pains"/></div><div class="o_ka_f"><label for="nb_balles" string="Nombre de balles"/><field name="nb_balles"/></div><div class="o_ka_f"><label for="poids_balles" string="Poids des balles (kg)"/><field name="poids_balles" readonly="1"/></div><div class="o_ka_f"><label for="temp_bruleur1" string="Température brûleur 1"/><field name="temp_bruleur1"/></div><div class="o_ka_f"><label for="temp_bruleur2" string="Température brûleur 2"/><field name="temp_bruleur2"/></div><div class="o_ka_f"><label for="temp_balles" string="Température des balles"/><field name="temp_balles"/></div><div class="o_ka_f"><label for="heure_sortie" string="Heure de sortie du séchoir"/><field name="heure_sortie"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité"/><field name="tracabilite" readonly="1" widget="badge" decoration-success="tracabilite=='eudr'" decoration-danger="tracabilite=='non_eudr'"/></div><div class="o_ka_f"><label for="qc_label" string="Contrôle qualité"/><field name="qc_label" readonly="1" widget="badge" decoration-success="1"/></div><div class="o_ka_f"><label for="user_id" string="Utilisateur"/><field name="user_id" readonly="1"/></div></div><notebook><page string="Colis rattachés"><field name="colis_line_ids" nolabel="1" readonly="1"><list><field name="colis_id" string="Lot (colis)"/><field name="balles" string="Balles utilisées"/><field name="balles_restantes" string="Balles restantes"/></list></field></page><page string="Contrôles qualité"><field name="qc_ids" nolabel="1" readonly="1"><list><field name="name"/><field name="p0"/><field name="pri"/><field name="resultat" widget="badge"/><field name="state" widget="badge"/></list></field></page><page string="Notes"><field name="notes" nolabel="1"/></page></notebook>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Passer au contrôle" name="action_passer_controle" type="object" class="o_ka_btn"/><button string="Annuler le contrôle" name="action_annuler_controle" type="object" class="o_ka_btn"/><button string="Valider" name="action_valider" type="object" class="o_ka_btn o_ka_primary"/><button string="Annuler" name="action_annuler" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_panier_tree" model="ir.ui.view">
+    <field name="name">ka.panier.ka.tree</field>
+    <field name="model">ka.panier</field>
+    <field name="arch" type="xml"><list string="ka_panier"><field name="chrono"/><field name="name"/><field name="of_id"/><field name="date_production"/><field name="sechoir_id"/><field name="nb_balles" sum="Balles"/><field name="balles_restantes"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_panier" model="ir.actions.act_window"><field name="name">Déclaration des paniers</field><field name="res_model">ka.panier</field><field name="view_mode">list,form</field></record>
+</odoo>

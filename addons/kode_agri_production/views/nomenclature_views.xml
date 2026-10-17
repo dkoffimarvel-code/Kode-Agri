@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_bom_form" model="ir.ui.view">
+    <field name="name">mrp.bom.ka.form</field>
+    <field name="model">mrp.bom</field>
+    <field name="arch" type="xml">
+        <form string="Nomenclature et gamme — article TSR" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Production</span><span class="o_ka_c">Données techniques</span><span class="o_ka_cur">Nomenclatures</span><span class="o_ka_fn">Fonction : GESBOM / GESROU</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Nomenclature et gamme — article TSR</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="ka_etat" widget="badge" decoration-success="ka_etat in ('validee')"/>
+                        </div>
+                        <div class="o_ka_info">Avec la gestion du titre, le composant fond de tasse s'exprime en quantité active (caoutchouc sec) : 1 kg de TSR consomme 1 kg actif, soit environ 1,67 kg humide pour un titre (DRC) de 60 %. Le numéro d'opération déclenche la consommation en post-déduction.</div><div class="o_ka_sec">Nomenclature</div><div class="o_ka_grid"><div class="o_ka_f"><label for="product_tmpl_id" string="Article composé" class="o_ka_req"/><field name="product_tmpl_id"/></div><div class="o_ka_f"><label for="code" string="Code nomenclature" class="o_ka_req"/><field name="code"/></div><div class="o_ka_f"><label for="product_qty" string="Quantité de référence"/><field name="product_qty"/></div><div class="o_ka_f"><label for="ka_gamme" string="Gamme"/><field name="ka_gamme"/></div></div><field name="bom_line_ids" nolabel="1"><list><field name="product_id" string="Composant"/><field name="product_qty" string="Quantité"/><field name="product_uom_id" string="Unité"/><field name="operation_id" string="Opération"/></list></field><div class="o_ka_h3">Gamme GAM-TSR-01 — enchaînement des opérations</div><field name="operation_ids" nolabel="1"><list><field name="sequence" string="Opération"/><field name="ka_code_poste" string="Poste de charge"/><field name="name" string="Intitulé"/><field name="ka_centre" string="Centre de charge"/><field name="ka_temps_h" string="Temps opératoire"/><field name="ka_cadence" string="Cadence"/></list></field><p class="o_ka_note">Le temps opératoire, combiné aux taux du poste ou du centre de charge (main-d'œuvre, machine, frais), permet à Kode Agri de calculer le coût standard de l'OF et de planifier la production selon la capacité.</p>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Copier la nomenclature" name="action_copier" type="object" class="o_ka_btn"/><button string="Calculer le coût standard" name="action_cout_standard" type="object" class="o_ka_btn o_ka_primary"/><button string="Gamme GAM-TSR-01" name="action_cout_standard" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="action_ka_bom" model="ir.actions.act_window"><field name="name">Nomenclatures</field><field name="res_model">mrp.bom</field><field name="view_mode">list,form</field></record><record id="action_ka_bom_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_bom"/><field name="sequence">1</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_bom_form"/></record>
+</odoo>

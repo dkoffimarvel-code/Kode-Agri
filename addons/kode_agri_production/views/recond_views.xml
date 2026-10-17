@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_recond_texture_form" model="ir.ui.view">
+    <field name="name">ka.recond.ka.form</field>
+    <field name="model">ka.recond</field>
+    <field name="arch" type="xml">
+        <form string="Changement de stock — reconditionnement texture" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Stocks</span><span class="o_ka_c">Changements</span><span class="o_ka_cur">Changements de statut</span><span class="o_ka_fn">Fonction : YRECOND · spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Changement de stock — reconditionnement texture</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state in ('a_valider')" decoration-success="state in ('valide')"/>
+                        </div>
+                        <div class="o_ka_info">Ordre créé par le contrôleur qualité sur le lot. La validation lève le motif de déclassement et fait passer le colis du statut Q (sous-statut Points blancs) au statut A. Le code article est conservé.</div><div class="o_ka_sec">Lot concerné</div><div class="o_ka_grid"><div class="o_ka_f"><label for="lot_id" string="Lot (colis)" class="o_ka_req"/><field name="lot_id"/></div><div class="o_ka_f"><label for="product_id" string="Article"/><field name="product_id" readonly="1"/></div><div class="o_ka_f"><label for="qty" string="Quantité"/><field name="qty" readonly="1" class="o_ka_u_kg"/></div><div class="o_ka_f"><label for="statut_label" string="Statut actuel"/><field name="statut_label" readonly="1" widget="badge" decoration-warning="1"/></div><div class="o_ka_f"><label for="motif" string="Motif de déclassement"/><field name="motif" readonly="1"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité"/><field name="tracabilite" readonly="1" widget="badge" decoration-success="tracabilite=='eudr'" decoration-danger="tracabilite=='non_eudr'"/></div></div><div class="o_ka_sec">Actions de correction</div><div class="o_ka_grid"><div class="o_ka_f"><label for="action_menee" string="Action menée" class="o_ka_req"/><field name="action_menee"/></div><div class="o_ka_f"><label for="controleur_id" string="Contrôleur qualité" class="o_ka_req"/><field name="controleur_id"/></div><div class="o_ka_f"><label for="recontrole" string="Recontrôle texture" class="o_ka_req"/><field name="recontrole"/></div><div class="o_ka_f"><label for="date_controle" string="Date de contrôle"/><field name="date_controle"/></div></div><div class="o_ka_sec">Résultat de la validation</div><div class="o_ka_grid"><div class="o_ka_f"><label for="statut_apres" string="Statut après validation"/><field name="statut_apres" readonly="1" widget="badge" decoration-success="1"/></div><div class="o_ka_f"><label for="motif_apres" string="Motif de déclassement"/><field name="motif_apres" readonly="1"/></div><div class="o_ka_f"><label for="article_apres" string="Article"/><field name="article_apres" readonly="1"/></div><div class="o_ka_f o_ka_check"><field name="sortie_quarantaine"/><label for="sortie_quarantaine" string="Sortie de quarantaine"/></div></div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider le reconditionnement" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'a_valider'"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_recond_specs_form" model="ir.ui.view">
+    <field name="name">ka.recond.ka.form</field>
+    <field name="model">ka.recond</field>
+    <field name="arch" type="xml">
+        <form string="Reconditionnement pour spécifications" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Qualité</span><span class="o_ka_c">Reconditionnement</span><span class="o_ka_cur">Ordres de reclassement</span><span class="o_ka_fn">Fonction : YRECOND · spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Reconditionnement pour spécifications</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state in ('a_valider')" decoration-success="state in ('valide')"/>
+                        </div>
+                        <div class="o_ka_info">La validation met à jour les résultats du lot, historise les anciennes valeurs et lance un OF de reclassement sur le même lot : la traçabilité au lot de fond de tasse d'origine est conservée.</div><div class="o_ka_sec">Lot concerné</div><div class="o_ka_grid"><div class="o_ka_f"><label for="lot_id" string="Lot (colis)" class="o_ka_req"/><field name="lot_id"/></div><div class="o_ka_f"><label for="product_id" string="Article initial"/><field name="product_id" readonly="1"/></div><div class="o_ka_f"><label for="qty" string="Quantité"/><field name="qty" readonly="1" class="o_ka_u_kg"/></div><div class="o_ka_f"><label for="controleur_id" string="Contrôleur qualité"/><field name="controleur_id"/></div></div><div class="o_ka_h3">Résultats d'analyse</div><field name="line_ids" nolabel="1"><list editable="bottom" create="0" delete="0"><field name="test" string="Test" readonly="1"/><field name="ancien" string="Anciens résultats (historisés)"/><field name="nouveau" string="Nouveaux résultats"/></list></field><div class="o_ka_sec">Résultat de la validation</div><div class="o_ka_grid"><div class="o_ka_f"><label for="grade_label" string="Grade déterminé"/><field name="grade_label" readonly="1" widget="badge" decoration-success="1"/></div><div class="o_ka_f"><label for="nouvel_article_id" string="Nouvel article"/><field name="nouvel_article_id" readonly="1"/></div><div class="o_ka_f"><label for="of_reclassement_id" string="OF de reclassement"/><field name="of_reclassement_id" readonly="1"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité"/><field name="tracabilite" readonly="1" widget="badge" decoration-success="tracabilite=='eudr'" decoration-danger="tracabilite=='non_eudr'"/></div></div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider le reconditionnement" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'a_valider'"/><button string="Historique des résultats" name="action_historique" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_recond_tree" model="ir.ui.view">
+    <field name="name">ka.recond.ka.tree</field>
+    <field name="model">ka.recond</field>
+    <field name="arch" type="xml"><list string="ka_recond"><field name="name"/><field name="type"/><field name="lot_id"/><field name="product_id"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_recond_texture" model="ir.actions.act_window"><field name="name">Changements de statut</field><field name="res_model">ka.recond</field><field name="view_mode">list,form</field><field name="domain">[('type','=','texture')]</field><field name="context">{'default_type': 'texture'}</field></record><record id="action_ka_recond_texture_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_recond_texture"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_recond_tree"/></record><record id="action_ka_recond_texture_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_recond_texture"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_recond_texture_form"/></record>
+<record id="action_ka_recond_specs" model="ir.actions.act_window"><field name="name">Ordres de reclassement</field><field name="res_model">ka.recond</field><field name="view_mode">list,form</field><field name="domain">[('type','=','specs')]</field><field name="context">{'default_type': 'specs'}</field></record><record id="action_ka_recond_specs_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_recond_specs"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_recond_tree"/></record><record id="action_ka_recond_specs_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_recond_specs"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_recond_specs_form"/></record>
+</odoo>

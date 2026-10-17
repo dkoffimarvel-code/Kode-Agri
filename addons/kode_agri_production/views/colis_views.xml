@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_colis_form" model="ir.ui.view">
+    <field name="name">ka.colis.ka.form</field>
+    <field name="model">ka.colis</field>
+    <field name="arch" type="xml">
+        <form string="Suivi de production — déclaration de colis" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Production</span><span class="o_ka_c">Suivi</span><span class="o_ka_cur">Suivi de production</span><span class="o_ka_fn">Fonction : FUNMTRACK</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Suivi de production — déclaration de colis</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="badge_label" widget="badge" decoration-warning="texture != 'conforme'" decoration-success="texture == 'conforme'"/>
+                        </div>
+                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="qty" nolabel="1"/><span class="o_ka_kl">Poids du colis</span></div><div class="o_ka_kpi"><field name="composition" nolabel="1"/><span class="o_ka_kl">Balles</span></div><div class="o_ka_kpi"><field name="nb_paniers" nolabel="1"/><span class="o_ka_kl">Paniers consommés</span></div></div><div class="o_ka_info">Étape 3 — le colis (un lot) consomme les balles d'un ou plusieurs paniers. Un défaut constaté le place en statut Q avec le sous-statut du défaut.</div><div class="o_ka_sec">Produit déclaré</div><div class="o_ka_grid"><div class="o_ka_f"><label for="product_id" string="Article" class="o_ka_req"/><field name="product_id"/></div><div class="o_ka_f"><label for="qty" string="Quantité" class="o_ka_req"/><field name="qty" class="o_ka_u_kg"/></div><div class="o_ka_f"><label for="name" string="Lot (colis)" class="o_ka_req"/><field name="name" readonly="1"/></div><div class="o_ka_f"><label for="statut_id" string="Statut" class="o_ka_req"/><field name="statut_id"/></div><div class="o_ka_f"><label for="motif" string="Motif de déclassement"/><field name="motif"/></div><div class="o_ka_f"><label for="composition" string="Composition"/><field name="composition" readonly="1"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité"/><field name="tracabilite" readonly="1" widget="badge" decoration-success="tracabilite=='eudr'" decoration-danger="tracabilite=='non_eudr'"/></div><div class="o_ka_f"><label for="location_id" string="Emplacement"/><field name="location_id"/></div></div><notebook><page string="Paniers consommés"><field name="panier_line_ids" nolabel="1"><list editable="bottom"><field name="chrono" string="N° chrono"/><field name="panier_id" string="N° panier"/><field name="sechoir_id" string="Séchoir"/><field name="balles_avant" string="Balles avant"/><field name="balles" string="Balles utilisées" sum="Total balles consommées"/><field name="balles_restantes" string="Balles restantes"/></list></field></page><page string="Composants"><div class="o_ka_info">Le colis consomme 36 balles de 35 kg issues d'un ou plusieurs paniers validés de l'OF.</div></page><page string="Qualité"><div class="o_ka_info">Le contrôle qualité du colis est rattaché au lot (spécification laboratoire, libération).</div></page></notebook>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider la déclaration" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'brouillon'"/><button string="Annuler" name="action_annuler" type="object" class="o_ka_btn"/><button string="Imprimer l'étiquette" name="action_etiquette" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_colis_tree" model="ir.ui.view">
+    <field name="name">ka.colis.ka.tree</field>
+    <field name="model">ka.colis</field>
+    <field name="arch" type="xml"><list string="ka_colis"><field name="name"/><field name="of_id"/><field name="product_id"/><field name="qty"/><field name="statut_id"/><field name="tracabilite" widget="badge"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_colis" model="ir.actions.act_window"><field name="name">Suivi de production</field><field name="res_model">ka.colis</field><field name="view_mode">list,form</field></record>
+</odoo>

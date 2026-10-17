@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_spec_form" model="ir.ui.view">
+    <field name="name">ka.spec.ka.form</field>
+    <field name="model">ka.spec</field>
+    <field name="arch" type="xml">
+        <form string="Saisie des résultats d'analyse — spécification colis" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Qualité</span><span class="o_ka_c">Analyses</span><span class="o_ka_cur">Résultats d'analyse</span><span class="o_ka_fn">Fonction : YSPEC · fiche technique TSR</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Saisie des résultats d'analyse — spécification colis</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state in ('a_specifier')" decoration-success="state in ('specifie')"/>
+                        </div>
+                        <div class="o_ka_info">Le défaut de texture prime sur les spécifications. À la validation, un OF de reclassement « 1 pour 1 » transforme le TSR non spécifié en article définitif (même lot, traçabilité conservée).</div><div class="o_ka_h3">Résultats laboratoire</div><field name="line_ids" nolabel="1"><list editable="bottom" create="0" delete="0"><field name="test" string="Test" readonly="1"/><field name="resultat" string="Résultat"/><field name="unite" string="Unité"/><field name="seuil" string="Seuil TSR10"/><field name="conformite" string="Conformité" widget="badge" decoration-success="conformite=='conforme'" decoration-danger="conformite=='non_conforme'" decoration-warning="conformite=='a_saisir'"/></list></field><div class="o_ka_sec">Résultat du classement</div><div class="o_ka_grid"><div class="o_ka_f"><label for="texture" string="Texture"/><field name="texture"/></div><div class="o_ka_f"><label for="grade_label" string="Grade déterminé"/><field name="grade_label" readonly="1" widget="badge" decoration-success="1"/></div><div class="o_ka_f"><label for="product_id" string="Article créé"/><field name="product_id"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité"/><field name="tracabilite" readonly="1" widget="badge" decoration-success="tracabilite=='eudr'" decoration-danger="tracabilite=='non_eudr'"/></div></div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider la spécification" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'a_specifier'"/><button string="Imprimer le certificat" name="action_certificat" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_spec_tree" model="ir.ui.view">
+    <field name="name">ka.spec.ka.tree</field>
+    <field name="model">ka.spec</field>
+    <field name="arch" type="xml"><list string="ka_spec"><field name="lot_id"/><field name="grade_label"/><field name="texture"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_spec" model="ir.actions.act_window"><field name="name">Résultats d'analyse</field><field name="res_model">ka.spec</field><field name="view_mode">list,form</field></record>
+</odoo>

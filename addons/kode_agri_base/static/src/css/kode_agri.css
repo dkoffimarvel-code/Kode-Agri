@@ -105,3 +105,13 @@ table.o_ka_tbl tfoot td { background: #edf1f1; font-weight: 700; border-top: 2px
 /* onglets */
 .o_ka_main .o_notebook .nav-tabs .nav-link { color: var(--ka-muted); font-size: 1.1rem; border: 0; }
 .o_ka_main .o_notebook .nav-tabs .nav-link.active { color: var(--ka-green); font-weight: 700; border-bottom: 3px solid var(--ka-green); background: none; }
+
+/* unités affichées dans les champs numériques (kg, %, g, pt) */
+.o_field_widget[class*="o_ka_u_"] { position: relative; }
+.o_field_widget[class*="o_ka_u_"]::after { position: absolute; right: .8rem; top: 50%; transform: translateY(-50%); color: #4d5b66; pointer-events: none; }
+.o_ka_u_kg::after { content: "kg"; } .o_ka_u_pct::after { content: "%"; } .o_ka_u_g::after { content: "g"; } .o_ka_u_pt::after { content: "pt"; }
+.o_field_widget[class*="o_ka_u_"] input { padding-right: 2.2rem; text-align: left; }
+.o_field_widget.o_readonly_modifier[class*="o_ka_u_"]::after { position: static; transform: none; margin-left: .3rem; }
+.o_ka_kpi .o_field_widget[class*="o_ka_u_"]::after { position: static; transform: none; margin-left: .3rem; font-size: 1.3rem; color: #14181b; }
+.o_ka_note { color: var(--ka-muted); margin: .4rem 0 1rem; }
+.o_ka_f .o_field_float input, .o_ka_f .o_field_integer input { text-align: left; }

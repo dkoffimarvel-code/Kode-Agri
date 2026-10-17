@@ -1,0 +1,22 @@
+{
+    'name': 'Kode Agri — Module 4 : Production et qualité',
+    'version': '19.0.1.0.0',
+    'category': 'Kode Agri',
+    'summary': "OF de mélange / production / essai, paniers, colis, spécification laboratoire, reconditionnement, contrôles qualité",
+    'depends': ['kode_agri_planteur', 'mrp', 'stock'],
+    'data': [
+        'security/ir.model.access.csv',
+        'data/sequences.xml',
+        'data/reference.xml',
+        'views/nomenclature_views.xml',
+        'views/of_views.xml',
+        'views/panier_views.xml',
+        'views/colis_views.xml',
+        'views/spec_views.xml',
+        'views/recond_views.xml',
+        'views/qc_views.xml',
+        'views/menus.xml',
+    ],
+    'license': 'LGPL-3',
+    'application': True,
+}

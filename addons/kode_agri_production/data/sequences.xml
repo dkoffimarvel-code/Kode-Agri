@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_ka_of_melange" model="ir.sequence"><field name="name">ka.of.melange</field><field name="code">ka.of.melange</field><field name="prefix">OFM-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_ka_of_production" model="ir.sequence"><field name="name">ka.of.production</field><field name="code">ka.of.production</field><field name="prefix">OFP-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_ka_of_essai" model="ir.sequence"><field name="name">ka.of.essai</field><field name="code">ka.of.essai</field><field name="prefix">OFE-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_ka_of_reclassement" model="ir.sequence"><field name="name">ka.of.reclassement</field><field name="code">ka.of.reclassement</field><field name="prefix">OFR-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_ka_panier" model="ir.sequence"><field name="name">ka.panier</field><field name="code">ka.panier</field><field name="prefix">P</field><field name="padding">5</field><field name="number_next">1</field></record>
+    <record id="seq_ka_colis" model="ir.sequence"><field name="name">ka.colis</field><field name="code">ka.colis</field><field name="prefix">SER-TSR-</field><field name="padding">6</field><field name="number_next">100001</field></record>
+    <record id="seq_ka_recond" model="ir.sequence"><field name="name">ka.recond</field><field name="code">ka.recond</field><field name="prefix">OQ-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_ka_qc_reception" model="ir.sequence"><field name="name">ka.qc.reception</field><field name="code">ka.qc.reception</field><field name="prefix">QC-CTM-</field><field name="padding">5</field><field name="number_next">1</field></record>
+    <record id="seq_ka_drc_essai" model="ir.sequence"><field name="name">ka.drc.essai</field><field name="code">ka.drc.essai</field><field name="prefix">DRC-</field><field name="padding">5</field><field name="number_next">1</field></record>
+    <record id="seq_ka_qc_granul" model="ir.sequence"><field name="name">ka.qc.granul</field><field name="code">ka.qc.granul</field><field name="prefix">QC-GRA-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_ka_qc_panier" model="ir.sequence"><field name="name">ka.qc.panier</field><field name="code">ka.qc.panier</field><field name="prefix">QC-PAN-</field><field name="padding">5</field><field name="number_next">1</field></record>
+    <record id="seq_ka_qc_liberation" model="ir.sequence"><field name="name">ka.qc.liberation</field><field name="code">ka.qc.liberation</field><field name="prefix">EQC-</field><field name="padding">6</field><field name="number_next">1</field></record>
+</odoo>
