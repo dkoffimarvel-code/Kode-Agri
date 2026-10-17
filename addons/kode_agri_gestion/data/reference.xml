@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="param_1" model="ka.gestion.param"/>
+    <record id="cascade_1" model="ka.cascade"/>
+    <record id="kpi_1" model="ka.kpi"/>
+    <record id="pnl_1" model="ka.pnl"/>
+    <record id="treso_gl_1" model="ka.treso.glissant"/>
+    <record id="ecart_1" model="ka.ecart"/>
+    <record id="cron_alertes_budget" model="ir.cron"><field name="name">Kode Agri — Alertes budgétaires</field><field name="model_id" ref="model_ka_budget"/><field name="state">code</field><field name="code">model.cron_alertes()</field><field name="interval_number">1</field><field name="interval_type">days</field></record>
+    <record id="an_ach_fdt" model="account.analytic.account"><field name="name">Coût d'achat FDT</field><field name="code">ACH_FDT</field><field name="plan_id" ref="kode_agri_achats.plan_activite"/></record>
+    <record id="an_usinage" model="account.analytic.account"><field name="name">Coût d'usinage</field><field name="code">USINAGE</field><field name="plan_id" ref="kode_agri_achats.plan_activite"/></record>
+    <record id="an_fob" model="account.analytic.account"><field name="name">Frais de mise à FOB</field><field name="code">FOB</field><field name="plan_id" ref="kode_agri_achats.plan_activite"/></record>
+    <record id="an_afv" model="account.analytic.account"><field name="name">Autres frais sur vente</field><field name="code">AFV</field><field name="plan_id" ref="kode_agri_achats.plan_activite"/></record>
+    <record id="an_admin" model="account.analytic.account"><field name="name">Frais administratifs</field><field name="code">ADMIN</field><field name="plan_id" ref="kode_agri_achats.plan_activite"/></record>
+    <record id="plan_grade" model="account.analytic.plan"><field name="name">Grade</field></record>
+    <record id="an_grade_tsr10" model="account.analytic.account"><field name="name">TSR10</field><field name="code">TSR10</field><field name="plan_id" ref="plan_grade"/></record>
+    <record id="an_grade_tsr20" model="account.analytic.account"><field name="name">TSR20</field><field name="code">TSR20</field><field name="plan_id" ref="plan_grade"/></record>
+    <record id="an_grade_offspecs" model="account.analytic.account"><field name="name">OFFSPECS</field><field name="code">OFFSPECS</field><field name="plan_id" ref="plan_grade"/></record>
+    <record id="plan_campagne" model="account.analytic.plan"><field name="name">Campagne</field></record>
+    <record id="an_campagne_2025" model="account.analytic.account"><field name="name">2025</field><field name="code">2025</field><field name="plan_id" ref="plan_campagne"/></record>
+    <record id="an_campagne_2026" model="account.analytic.account"><field name="name">2026</field><field name="code">2026</field><field name="plan_id" ref="plan_campagne"/></record>
+    <record id="plan_site" model="account.analytic.plan"><field name="name">Site</field></record>
+    <record id="an_site_u01" model="account.analytic.account"><field name="name">U01 — Usine principale</field><field name="code">U01</field><field name="plan_id" ref="plan_site"/></record>
+    <record id="plan_zone" model="account.analytic.plan"><field name="name">Zone de collecte</field></record>
+    <record id="an_zone_dabou" model="account.analytic.account"><field name="name">Dabou</field><field name="code">DABOU</field><field name="plan_id" ref="plan_zone"/></record>
+    <record id="an_zone_anguededou" model="account.analytic.account"><field name="name">Anguédédou</field><field name="code">ANGUEDEDOU</field><field name="plan_id" ref="plan_zone"/></record>
+    <record id="plan_equip" model="account.analytic.plan"><field name="name">Équipement</field></record>
+    <record id="an_equip_vh0001" model="account.analytic.account"><field name="name">VH0001 — Camion de transport</field><field name="code">VH0001</field><field name="plan_id" ref="plan_equip"/></record>
+</odoo>

@@ -14,7 +14,7 @@
 <menuitem id="menu_ka_immo_dot" name="Comptabilisation des dotations" parent="menu_ka_immo_trait" action="action_ka_dotation" sequence="10"/>
 <menuitem id="menu_ka_immo_sort" name="Sorties" parent="menu_ka_immo_root" sequence="50"/>
 <menuitem id="menu_ka_immo_ces" name="Cessions et mises au rebut" parent="menu_ka_immo_sort" action="action_ka_sortie" sequence="10"/>
-<menuitem id="menu_ka_immo_param" name="Immobilisations" parent="menu_ka_param_stock" sequence="90"/>
+<menuitem id="menu_ka_immo_param" name="Immobilisations" parent="kode_agri_achats.menu_ka_param_stock" sequence="90"/>
 <menuitem id="menu_ka_immo_fam" name="Familles" parent="menu_ka_immo_param" action="action_ka_famille" sequence="10"/>
 
 </odoo>

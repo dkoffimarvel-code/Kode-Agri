@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_bab_form" model="ir.ui.view">
+    <field name="name">ka.bab.ka.form</field>
+    <field name="model">ka.bab</field>
+    <field name="arch" type="xml">
+        <form string="Budget d'investissement — bon à budgétiser" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Engagements</span><span class="o_ka_cur">Budgets d'investissement</span><span class="o_ka_fn">Fonction : YBAB · spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Budget d'investissement — bon à budgétiser</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="badge_label" widget="badge" decoration-success="state in ('autorise','approuve','vise','emis')" decoration-muted="state=='brouillon'"/>
+                        </div>
+                        <div class="o_ka_info"><field name="info" nolabel="1"/></div><div class="o_ka_sec">Dotation</div><div class="o_ka_grid"><div class="o_ka_f"><label for="intitule" string="Intitulé" class="o_ka_req"/><field name="intitule"/></div><div class="o_ka_f"><label for="nature" string="Nature d'immobilisation"/><field name="nature"/></div><div class="o_ka_f"><label for="account_id" string="Compte général"/><field name="account_id"/></div><div class="o_ka_f"><label for="section_id" string="Section analytique"/><field name="section_id"/></div><div class="o_ka_f"><label for="dotation" string="Dotation" class="o_ka_req"/><field name="dotation"/></div><div class="o_ka_f"><label for="periode" string="Période"/><field name="periode"/></div><div class="o_ka_f"><label for="regle" string="Règles de suivi"/><field name="regle"/></div><div class="o_ka_f"><label for="budget_id" string="Budget validé"/><field name="budget_id"/></div></div><div class="o_ka_h3">Circuit de signature</div><field name="signature_ids" nolabel="1" readonly="1"><list><field name="etape" string="Étape"/><field name="signataire" string="Signataire"/><field name="date" string="Date"/><field name="statut" string="Statut" widget="badge" decoration-success="statut in ('Émis','Visé','Approuvé','Autorisé')" decoration-muted="statut in ('À venir','Sans objet')"/></list></field><notebook><page string="Exécution du bon"><div class="o_ka_h3">Exécution du bon — engagé / réalisé / disponible (M FCFA)</div><field name="mouvement_ids" nolabel="1" readonly="1"><list><field name="mouvement" string="Mouvement"/><field name="reference" string="Référence"/><field name="date" string="Date"/><field name="engage" string="Engagé"/><field name="realise" string="Réalisé"/><field name="disponible" string="Disponible"/></list></field></page><page string="Lignes de commande engagées"><field name="ligne_ids" nolabel="1"><list><field name="order_id" string="Commande"/><field name="name" string="Désignation"/><field name="price_subtotal" string="Montant" sum="Total"/></list></field></page></notebook><div class="o_ka_docs"><span><b><field name="situation" nolabel="1" readonly="1"/></b> — engagé <field name="engage" nolabel="1" readonly="1"/> · réalisé <field name="realise" nolabel="1" readonly="1"/> · disponible <field name="disponible" nolabel="1" readonly="1"/></span></div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Soumettre" name="action_soumettre" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'brouillon'"/><button string="Viser (DAF)" name="action_viser" type="object" class="o_ka_btn" invisible="state != 'emis'"/><button string="Approuver (DG)" name="action_approuver" type="object" class="o_ka_btn" invisible="state != 'vise'"/><button string="Autoriser (CA)" name="action_autoriser" type="object" class="o_ka_btn" invisible="state != 'approuve'"/><button string="Engager" name="action_engager" type="object" class="o_ka_btn"/><button string="Consulter les engagements" name="action_consulter" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_bab_tree" model="ir.ui.view">
+    <field name="name">ka.bab.ka.tree</field>
+    <field name="model">ka.bab</field>
+    <field name="arch" type="xml"><list string="ka_bab"><field name="name"/><field name="intitule"/><field name="dotation" sum="Total"/><field name="engage"/><field name="disponible"/><field name="badge_label" widget="badge"/></list></field>
+</record>
+<record id="action_ka_bab" model="ir.actions.act_window"><field name="name">Budgets d'investissement</field><field name="res_model">ka.bab</field><field name="view_mode">list,form</field></record>
+</odoo>

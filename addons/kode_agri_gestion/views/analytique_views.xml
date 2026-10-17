@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_cascade_form" model="ir.ui.view">
+    <field name="name">ka.cascade.ka.form</field>
+    <field name="model">ka.cascade</field>
+    <field name="arch" type="xml">
+        <form string="Consultation analytique — cascade par activité" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Analytique</span><span class="o_ka_c">Consultations</span><span class="o_ka_cur">Balance analytique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Consultation analytique — cascade par activité</h1><div class="o_ka_sub"><field name="titre" nolabel="1" readonly="1"/></div></div>
+                            
+                        </div>
+                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="complet_txt" nolabel="1"/><span class="o_ka_kl">Coût complet</span></div><div class="o_ka_kpi"><field name="part_fdt_txt" nolabel="1"/><span class="o_ka_kl">Part du FDT</span></div></div><div class="o_ka_info">La ventilation analytique est portée par les écritures générales, y compris les écritures de stock : aucune routine d'import n'est nécessaire.</div><div class="o_ka_sec">Critères</div><div class="o_ka_grid"><div class="o_ka_f"><label for="axe_principal" string="Axe principal"/><field name="axe_principal" readonly="1"/></div><div class="o_ka_f"><label for="grade_id" string="Axe croisé"/><field name="grade_id"/></div><div class="o_ka_f"><label for="campagne_id" string="Campagne"/><field name="campagne_id"/></div><div class="o_ka_f"><label for="site_id" string="Site"/><field name="site_id"/></div></div><field name="table_html" nolabel="1" readonly="1"/>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Actualiser" name="action_actualiser" type="object" class="o_ka_btn o_ka_primary"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/><button string="Détail des écritures" name="action_detail" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_repartition_form" model="ir.ui.view">
+    <field name="name">ka.repartition.ka.form</field>
+    <field name="model">ka.repartition</field>
+    <field name="arch" type="xml">
+        <form string="Répartition analytique — unités d'œuvre et clés" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Analytique</span><span class="o_ka_c">Répartitions</span><span class="o_ka_cur">Clés par unités d'œuvre</span><span class="o_ka_fn">Fonction : YUOCLE · spécifique + répartition standard</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Répartition analytique — unités d'œuvre et clés</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-info="state in ('saisie')" decoration-success="state in ('cles','repartie')"/>
+                        </div>
+                        <div class="o_ka_sec">1. Unités d'œuvre saisies (quantités non financières)</div><div class="o_ka_grid"><div class="o_ka_f"><label for="emetteur_id" string="Charge indirecte" class="o_ka_req"/><field name="emetteur_id"/></div><div class="o_ka_f"><label for="periode" string="Période" class="o_ka_req"/><field name="periode"/></div></div><field name="uo_ids" nolabel="1" readonly="1"><list><field name="date" string="Date"/><field name="emetteur_id" string="Section émettrice"/><field name="unite" string="Unité d'œuvre"/><field name="recepteur_id" string="Section réceptrice"/><field name="quantite" string="Quantité" sum="Cumul"/></list></field><div class="o_ka_sec">2. Clés de répartition du mois et 3. répartition par compte (M FCFA)</div><field name="table_html" nolabel="1" readonly="1"/><p class="o_ka_note">Chaque compte imputé à la section émettrice est réparti avec la clé du mois ; les sections réceptrices alimentent la cascade du coût de revient (collecte → coût d'achat FDT, mise à FOB → frais de mise à FOB).</p>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Saisir les unités d'œuvre" name="action_saisir_uo" type="object" class="o_ka_btn"/><button string="Calculer les clés (%)" name="action_calculer_cles" type="object" class="o_ka_btn o_ka_primary"/><button string="Lancer la répartition" name="action_repartir" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_repartition_tree" model="ir.ui.view">
+    <field name="name">ka.repartition.ka.tree</field>
+    <field name="model">ka.repartition</field>
+    <field name="arch" type="xml"><list string="ka_repartition"><field name="name"/><field name="emetteur_id"/><field name="periode"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="view_ka_uo_tree" model="ir.ui.view">
+    <field name="name">ka.uo.ka.tree</field>
+    <field name="model">ka.uo</field>
+    <field name="arch" type="xml"><list string="ka_uo"><field name="date"/><field name="emetteur_id"/><field name="unite"/><field name="recepteur_id"/><field name="quantite" sum="Total"/></list></field>
+</record>
+<record id="action_ka_cascade" model="ir.actions.act_window"><field name="name">Balance analytique</field><field name="res_model">ka.cascade</field><field name="res_id" ref="cascade_1"/><field name="view_mode">form</field></record>
+<record id="action_ka_repartition" model="ir.actions.act_window"><field name="name">Clés par unités d'œuvre</field><field name="res_model">ka.repartition</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_uo" model="ir.actions.act_window"><field name="name">Unités d'œuvre</field><field name="res_model">ka.uo</field><field name="view_mode">list,form</field></record>
+</odoo>

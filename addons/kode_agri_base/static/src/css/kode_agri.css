@@ -122,3 +122,15 @@ table.o_ka_tbl tfoot td { background: #edf1f1; font-weight: 700; border-top: 2px
 .o_ka_docs .o_ka_doc { display: inline-flex; align-items: center; gap: .35rem; }
 .o_ka_docs .o_ka_doc label { margin: 0; }
 .o_ka_u_ans::after { content: "ans"; }
+
+/* pilotage : grille de KPI, barres, alertes */
+.o_ka_kpigrid { display: grid; grid-template-columns: repeat(3, minmax(190px, 260px)); gap: 1rem; margin: .8rem 0 1rem; }
+.o_ka_kpigrid .o_ka_kpi { min-width: 0; }
+.o_ka_bar_row { display: flex; align-items: center; gap: .8rem; margin: .45rem 0; }
+.o_ka_bar_row .o_ka_bar_l { width: 6.5rem; }
+.o_ka_bar_row .o_ka_bar { display: inline-block; height: 1.1rem; background: var(--ka-green); }
+.o_ka_warn_banner { background: #fdf1e1 !important; border-left-color: #d9822b !important; }
+.o_ka_warn_banner::before { content: "" !important; margin: 0 !important; }
+.o_ka_tag.o_ka_danger { background: #fbe0e0; color: #8a1c1c; }
+.o_ka_alerte { color: #8a1c1c; font-weight: 700; }
+table.o_ka_tbl tr.o_ka_total td { background: #edf1f1; font-weight: 700; border-top: 2px solid #9fbdb2; }

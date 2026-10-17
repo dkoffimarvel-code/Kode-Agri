@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_ka_repartition" model="ir.sequence"><field name="name">ka.repartition</field><field name="code">ka.repartition</field><field name="prefix">REP-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_ka_bab" model="ir.sequence"><field name="name">ka.bab</field><field name="code">ka.bab</field><field name="prefix">BAB-%(year)s-</field><field name="padding">4</field><field name="number_next">27</field></record>
+</odoo>
