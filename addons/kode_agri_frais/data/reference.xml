@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cat_carb" model="ka.frais.categorie"><field name="code">CARB</field><field name="name">Carburant</field><field name="compte_code">605100</field><field name="plafond">50000</field></record>
+    <record id="cat_rest" model="ka.frais.categorie"><field name="code">REST</field><field name="name">Restauration</field><field name="compte_code">622500</field><field name="plafond">15000</field></record>
+    <record id="cat_heb" model="ka.frais.categorie"><field name="code">HEB</field><field name="name">Hébergement</field><field name="compte_code">622600</field><field name="plafond">40000</field></record>
+    <record id="cat_four" model="ka.frais.categorie"><field name="code">FOUR</field><field name="name">Fournitures</field><field name="compte_code">605200</field><field name="plafond">0</field></record>
+    <record id="plan_section" model="account.analytic.plan"><field name="name">Section</field></record>
+    <record id="analytic_colsud" model="account.analytic.account"><field name="name">Collecte zone Sud</field><field name="code">COLSUD</field><field name="plan_id" ref="plan_section"/></record>
+    <record id="journal_ndf" model="account.journal"><field name="name">Notes de frais</field><field name="code">NDF</field><field name="type">general</field></record>
+</odoo>

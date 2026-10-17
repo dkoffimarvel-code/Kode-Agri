@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_frais_note" model="ir.sequence"><field name="name">Note de frais</field><field name="code">ka.frais.note</field><field name="prefix">EXP-T-</field><field name="padding">4</field><field name="number_next">231</field></record>
+    <record id="seq_frais_reglement" model="ir.sequence"><field name="name">Remboursement de note de frais</field><field name="code">ka.frais.reglement</field><field name="prefix">VIR-%(year)s-</field><field name="padding">4</field><field name="number_next">874</field></record>
+</odoo>

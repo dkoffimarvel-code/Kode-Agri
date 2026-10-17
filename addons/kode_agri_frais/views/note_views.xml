@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_frais_saisie_form" model="ir.ui.view">
+    <field name="name">ka.frais.note.ka.form</field>
+    <field name="model">ka.frais.note</field>
+    <field name="arch" type="xml">
+        <form string="Saisie des notes de frais" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Tiers</span><span class="o_ka_c">Notes de frais</span><span class="o_ka_cur">Saisie des notes de frais</span><span class="o_ka_fn">Fonction : GESEXS</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Saisie des notes de frais</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="badge_label" widget="badge" decoration-info="state=='saisie'" decoration-warning="state=='a_approuver'" decoration-success="state in ('approuvee','comptabilisee','remboursee')" decoration-danger="state=='refusee'"/>
+                        </div>
+                        <field name="state" widget="statusbar" class="o_ka_pills" statusbar_visible="saisie,a_approuver,approuvee,comptabilisee,remboursee"/><div class="o_ka_sec">En-tête</div><div class="o_ka_grid"><div class="o_ka_f"><label for="salarie_id" string="Salarié" class="o_ka_req"/><field name="salarie_id"/></div><div class="o_ka_f"><label for="date_debut" string="Période" class="o_ka_req"/><field name="date_debut" widget="daterange" options="{'end_date_field': 'date_fin'}"/></div><div class="o_ka_f"><label for="analytic_id" string="Section analytique" class="o_ka_req"/><field name="analytic_id"/></div><div class="o_ka_f"><label for="total" string="Total"/><field name="total" readonly="1"/></div></div><field name="date_fin" invisible="1"/><field name="line_ids" nolabel="1"><list editable="bottom"><field name="date" string="Date"/><field name="categorie_id" string="Code frais"/><field name="description" string="Description"/><field name="justificatif" string="Justificatif"/><field name="plafond" string="Plafond"/><field name="montant" string="Montant" sum="Total à rembourser"/></list></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Joindre un justificatif" name="action_joindre" type="object" class="o_ka_btn"/><button string="Soumettre à approbation" name="action_soumettre" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'saisie'"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_frais_appro_form" model="ir.ui.view">
+    <field name="name">ka.frais.note.ka.form</field>
+    <field name="model">ka.frais.note</field>
+    <field name="arch" type="xml">
+        <form string="Notes de frais — approbation" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Tiers</span><span class="o_ka_c">Notes de frais</span><span class="o_ka_cur">À approuver</span><span class="o_ka_fn">Fonction : GESEXS · règle de workflow</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Notes de frais — approbation</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="badge_label" widget="badge" decoration-info="state=='saisie'" decoration-warning="state=='a_approuver'" decoration-success="state in ('approuvee','comptabilisee','remboursee')" decoration-danger="state=='refusee'"/>
+                        </div>
+                        <field name="state" widget="statusbar" class="o_ka_pills" statusbar_visible="saisie,a_approuver,approuvee,comptabilisee,remboursee"/><div class="o_ka_info">Imputation : compte de charge par code frais et section analytique « Collecte zone Sud ».</div><div class="o_ka_sec">Contrôle</div><div class="o_ka_grid"><div class="o_ka_f"><label for="salarie_id" string="Salarié"/><field name="salarie_id" readonly="1"/></div><div class="o_ka_f"><label for="total" string="Montant"/><field name="total" readonly="1"/></div><div class="o_ka_f"><label for="justificatifs_txt" string="Documents attachés"/><field name="justificatifs_txt" readonly="1"/></div><div class="o_ka_f"><label for="plafonds" string="Plafonds"/><field name="plafonds" readonly="1" widget="badge" decoration-success="plafonds=='respectes'" decoration-danger="plafonds=='depasses'"/></div><div class="o_ka_f"><label for="analytic_id" string="Section analytique"/><field name="analytic_id" readonly="1"/></div><div class="o_ka_f"><label for="refacturable" string="Refacturable"/><field name="refacturable" readonly="1"/></div><div class="o_ka_f"><label for="approbateur" string="Approbateur"/><field name="approbateur" readonly="1"/></div></div><p class="o_ka_note">Circuit : approbation hiérarchique (règle de workflow) → comptabilisation (charge et dette envers le salarié) → remboursement par proposition de règlement.</p>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Approuver" name="action_approuver" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'a_approuver'"/><button string="Refuser" name="action_refuser" type="object" class="o_ka_btn" invisible="state != 'a_approuver'"/><button string="Comptabiliser" name="action_comptabiliser" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_frais_compta_form" model="ir.ui.view">
+    <field name="name">ka.frais.note.ka.form</field>
+    <field name="model">ka.frais.note</field>
+    <field name="arch" type="xml">
+        <form string="Notes de frais — comptabilisation" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Tiers</span><span class="o_ka_c">Notes de frais</span><span class="o_ka_cur">Comptabilisation</span><span class="o_ka_fn">Fonction : GESEXS</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Notes de frais — comptabilisation</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="badge_label" widget="badge" decoration-info="state=='saisie'" decoration-warning="state=='a_approuver'" decoration-success="state in ('approuvee','comptabilisee','remboursee')" decoration-danger="state=='refusee'"/>
+                        </div>
+                        <div class="o_ka_info">Pièce automatique : charge ventilée par code frais et section analytique, contrepartie au compte du salarié.</div><div class="o_ka_sec">Pièce</div><div class="o_ka_grid"><div class="o_ka_f"><label for="salarie_id" string="Salarié"/><field name="salarie_id" readonly="1"/></div><div class="o_ka_f"><label for="total" string="Montant"/><field name="total" readonly="1"/></div><div class="o_ka_f"><label for="analytic_code" string="Section analytique"/><field name="analytic_code" readonly="1"/></div><div class="o_ka_f"><label for="date_compta" string="Date comptable"/><field name="date_compta" readonly="1"/></div></div><div class="o_ka_h3">Pièce générée — journal NDF</div><field name="piece_ids" nolabel="1" readonly="1"><list><field name="compte" string="Compte"/><field name="intitule" string="Intitulé"/><field name="section" string="Section"/><field name="debit" string="Débit" sum="Total"/><field name="credit" string="Crédit" sum="Total"/></list></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Consulter la pièce" name="action_voir_piece" type="object" class="o_ka_btn"/><button string="Proposer au règlement" name="action_proposer_reglement" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'comptabilisee'"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_frais_note_tree" model="ir.ui.view">
+    <field name="name">ka.frais.note.ka.tree</field>
+    <field name="model">ka.frais.note</field>
+    <field name="arch" type="xml"><list string="ka_frais_note"><field name="name"/><field name="salarie_id"/><field name="date_debut"/><field name="analytic_id"/><field name="total" sum="Total"/><field name="badge_label" widget="badge"/></list></field>
+</record>
+<record id="action_ka_frais_saisie" model="ir.actions.act_window"><field name="name">Saisie des notes de frais</field><field name="res_model">ka.frais.note</field><field name="view_mode">list,form</field></record><record id="action_ka_frais_saisie_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_frais_saisie"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_frais_note_tree"/></record><record id="action_ka_frais_saisie_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_frais_saisie"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_frais_saisie_form"/></record>
+<record id="action_ka_frais_appro" model="ir.actions.act_window"><field name="name">Notes de frais à approuver</field><field name="res_model">ka.frais.note</field><field name="view_mode">list,form</field><field name="domain">[('state','=','a_approuver')]</field></record><record id="action_ka_frais_appro_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_frais_appro"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_frais_note_tree"/></record><record id="action_ka_frais_appro_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_frais_appro"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_frais_appro_form"/></record>
+<record id="action_ka_frais_compta" model="ir.actions.act_window"><field name="name">Comptabilisation des notes de frais</field><field name="res_model">ka.frais.note</field><field name="view_mode">list,form</field><field name="domain">[('state','in',('approuvee','comptabilisee','remboursee'))]</field></record><record id="action_ka_frais_compta_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_frais_compta"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_frais_note_tree"/></record><record id="action_ka_frais_compta_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_frais_compta"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_frais_compta_form"/></record>
+<record id="action_ka_frais_categorie" model="ir.actions.act_window"><field name="name">Catégories de frais</field><field name="res_model">ka.frais.categorie</field><field name="view_mode">list,form</field></record>
+<record id="view_ka_frais_categorie_tree" model="ir.ui.view">
+    <field name="name">ka.frais.categorie.ka.tree</field>
+    <field name="model">ka.frais.categorie</field>
+    <field name="arch" type="xml"><list string="ka_frais_categorie"><field name="code"/><field name="name"/><field name="compte_code"/><field name="plafond" sum="Total"/></list></field>
+</record>
+</odoo>

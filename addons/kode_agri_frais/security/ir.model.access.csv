@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ka_frais_categorie,ka.frais.categorie,model_ka_frais_categorie,base.group_user,1,1,1,1
+access_ka_frais_note,ka.frais.note,model_ka_frais_note,base.group_user,1,1,1,1
+access_ka_frais_ligne,ka.frais.ligne,model_ka_frais_ligne,base.group_user,1,1,1,1
+access_ka_frais_piece,ka.frais.piece,model_ka_frais_piece,base.group_user,1,1,1,1
+access_ka_frais_reglement,ka.frais.reglement,model_ka_frais_reglement,base.group_user,1,1,1,1

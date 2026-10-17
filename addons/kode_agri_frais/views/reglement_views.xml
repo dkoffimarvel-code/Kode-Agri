@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_frais_reglement_form" model="ir.ui.view">
+    <field name="name">ka.frais.reglement.ka.form</field>
+    <field name="model">ka.frais.reglement</field>
+    <field name="arch" type="xml">
+        <form string="Règlement — remboursement de note de frais" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Règlements</span><span class="o_ka_cur">Saisie des règlements</span><span class="o_ka_fn">Fonction : GESPAY</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Règlement — remboursement de note de frais</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state=='propose'" decoration-success="state=='rembourse'"/>
+                        </div>
+                        <div class="o_ka_info">Le virement solde le compte du salarié (421000) ouvert à la comptabilisation de la note de frais.</div><div class="o_ka_sec">Règlement</div><div class="o_ka_grid"><div class="o_ka_f"><label for="type_reglement" string="Type de règlement" class="o_ka_req"/><field name="type_reglement"/></div><div class="o_ka_f"><label for="salarie_id" string="Tiers"/><field name="salarie_id" readonly="1"/></div><div class="o_ka_f"><label for="montant" string="Montant"/><field name="montant" readonly="1"/></div><div class="o_ka_f"><label for="date" string="Date"/><field name="date" readonly="1"/></div><div class="o_ka_f"><label for="journal_id" string="Banque"/><field name="journal_id"/></div><div class="o_ka_f"><label for="iban" string="IBAN du salarié"/><field name="iban" readonly="1"/></div></div><div class="o_ka_h3">Pièce générée</div><field name="piece_ids" nolabel="1" readonly="1"><list><field name="compte" string="Compte"/><field name="intitule" string="Intitulé"/><field name="debit" string="Débit" sum="Total"/><field name="credit" string="Crédit" sum="Total"/></list></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Régler le salarié" name="action_regler" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'propose'"/><button string="Imprimer l'avis de virement" name="action_imprimer" type="object" class="o_ka_btn"/><button string="Consulter la pièce" name="action_voir_piece" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_frais_reglement_tree" model="ir.ui.view">
+    <field name="name">ka.frais.reglement.ka.tree</field>
+    <field name="model">ka.frais.reglement</field>
+    <field name="arch" type="xml"><list string="ka_frais_reglement"><field name="name"/><field name="note_id"/><field name="salarie_id"/><field name="montant" sum="Total"/><field name="date"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_frais_reglement" model="ir.actions.act_window"><field name="name">Remboursements de notes de frais</field><field name="res_model">ka.frais.reglement</field><field name="view_mode">list,form</field></record>
+</odoo>

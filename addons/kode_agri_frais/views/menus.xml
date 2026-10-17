@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<menuitem id="menu_ka_tiers" name="Tiers" parent="account.menu_finance" sequence="44"/>
+<menuitem id="menu_ka_frais" name="Notes de frais" parent="menu_ka_tiers" sequence="10"/>
+<menuitem id="menu_ka_frais_saisie" name="Saisie des notes de frais" parent="menu_ka_frais" action="action_ka_frais_saisie" sequence="10"/>
+<menuitem id="menu_ka_frais_appro" name="À approuver" parent="menu_ka_frais" action="action_ka_frais_appro" sequence="20"/>
+<menuitem id="menu_ka_frais_compta" name="Comptabilisation" parent="menu_ka_frais" action="action_ka_frais_compta" sequence="30"/>
+<menuitem id="menu_ka_frais_categories" name="Catégories de frais" parent="menu_ka_frais" action="action_ka_frais_categorie" sequence="90"/>
+<menuitem id="menu_ka_frais_reglement" name="Remboursements de notes de frais" parent="kode_agri_planteur.menu_ka_reglements" action="action_ka_frais_reglement" sequence="30"/>
+
+</odoo>

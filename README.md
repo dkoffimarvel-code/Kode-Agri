@@ -16,7 +16,9 @@ Installation : ajouter `addons/` à l'`addons_path`, puis installer `kode_agri_p
 
 | `kode_agri_vente` | **Module 5** : fiche client (spécifications 7 tests, documents requis), contrats Spot / Long terme avec conversion kg → conteneurs/balles et héritage des spécifications (RG-5.3/5.5), sous-contrats (booking 48 h / 7 j, BMC), ordre de transit, jalons départ port, ordre de voyage (2 conteneurs max, détention par armateur), empotage avec filtre de conformité et capacité 16/17 colis, bon d'expédition, déclaration d'exportation (DUS, parafiscalité), transfert au port, départ navire et clôture documentaire |
 
-Modules 2, 3, 6, 7 et 8 : à venir (même patron de vues).
+| `kode_agri_frais` | **Module 6** : notes de frais (saisie par catégorie avec plafonds et justificatifs, approbation, pièce comptable NDF ventilée par section analytique avec contrepartie 421000, remboursement du salarié par virement lettré) |
+
+Modules 2, 3, 7 et 8 : à venir (même patron de vues).
 
 **Non testé sur une instance Odoo** : la syntaxe Python/XML et la cohérence champs ↔ vues sont vérifiées
 statiquement, mais le chargement réel dans Odoo 19 reste à valider.
