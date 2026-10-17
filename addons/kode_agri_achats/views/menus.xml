@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<menuitem id="menu_ka_base_root" name="Données de base" sequence="38"/>
+<menuitem id="menu_ka_articles" name="Articles" parent="menu_ka_base_root" sequence="10"/>
+<menuitem id="menu_ka_articles_l" name="Articles" parent="menu_ka_articles" action="action_ka_article" sequence="10"/>
+<menuitem id="menu_ka_tiers_b" name="Tiers" parent="menu_ka_base_root" sequence="20"/>
+<menuitem id="menu_ka_fournisseurs" name="Fournisseurs" parent="menu_ka_tiers_b" action="action_ka_fournisseur" sequence="10"/>
+<menuitem id="menu_ka_param_stock" name="Stocks" parent="menu_ka_base_root" sequence="30"/>
+<menuitem id="menu_ka_categories" name="Catégories article" parent="menu_ka_param_stock" action="action_ka_categorie" sequence="10"/>
+<menuitem id="menu_ka_depots" name="Dépôts" parent="menu_ka_param_stock" action="action_ka_depot" sequence="20"/>
+<menuitem id="menu_ka_struct" name="Sociétés, sites et compteurs" parent="menu_ka_param_stock" action="action_ka_structure" sequence="30"/>
+<menuitem id="menu_ka_dem" name="Demandes" parent="purchase.menu_purchase_root" sequence="21"/>
+<menuitem id="menu_ka_da" name="Demandes d'achat" parent="menu_ka_dem" action="action_ka_da" sequence="10"/>
+<menuitem id="menu_ka_dp" name="Demandes de prix" parent="purchase.menu_purchase_root" sequence="22"/>
+<menuitem id="menu_ka_ao" name="Réponses fournisseurs" parent="menu_ka_dp" action="action_ka_ao" sequence="10"/>
+<menuitem id="menu_ka_cmds" name="Commandes" parent="purchase.menu_purchase_root" sequence="23"/>
+<menuitem id="menu_ka_cmd_l" name="Commandes d'achat" parent="menu_ka_cmds" action="action_ka_commande" sequence="10"/>
+<menuitem id="menu_ka_recs" name="Réceptions" parent="purchase.menu_purchase_root" sequence="24"/>
+<menuitem id="menu_ka_rec_l" name="Réceptions" parent="menu_ka_recs" action="action_ka_reception" sequence="10"/>
+<menuitem id="menu_ka_facs" name="Factures" parent="purchase.menu_purchase_root" sequence="25"/>
+<menuitem id="menu_ka_fac_l" name="Factures fournisseurs" parent="menu_ka_facs" action="action_ka_facture" sequence="10"/>
+<menuitem id="menu_ka_import" name="Import" parent="purchase.menu_purchase_root" sequence="26"/>
+<menuitem id="menu_ka_dossiers" name="Dossiers d'import" parent="menu_ka_import" action="action_ka_dossier_liste" sequence="10"/>
+<menuitem id="menu_ka_stocks_root" name="Stocks Kode Agri" sequence="43"/>
+<menuitem id="menu_ka_mvts" name="Mouvements" parent="menu_ka_stocks_root" sequence="10"/>
+<menuitem id="menu_ka_trf" name="Transferts intersites" parent="menu_ka_mvts" action="action_ka_transfert" sequence="10"/>
+<menuitem id="menu_ka_invs" name="Inventaires" parent="menu_ka_stocks_root" sequence="20"/>
+<menuitem id="menu_ka_inv" name="Saisie des comptages" parent="menu_ka_invs" action="action_ka_inventaire" sequence="10"/>
+
+</odoo>

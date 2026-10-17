@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_dossier_form" model="ir.ui.view">
+    <field name="name">ka.dossier.import.ka.form</field>
+    <field name="model">ka.dossier.import</field>
+    <field name="arch" type="xml">
+        <form string="Dossier d'import" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Import</span><span class="o_ka_cur">Dossiers d'import</span><span class="o_ka_fn">Fonction : YIMP · spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Dossier d'import</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state in ('en_cours')" decoration-success="state in ('valide')"/>
+                        </div>
+                        <field name="state" widget="statusbar" class="o_ka_pills" statusbar_visible="en_cours,valide,cloture"/><div class="o_ka_kpis"><div class="o_ka_kpi"><field name="nb_articles" nolabel="1"/><span class="o_ka_kl">Articles</span></div><div class="o_ka_kpi"><field name="nb_factures" nolabel="1"/><span class="o_ka_kl">Factures de frais</span></div><div class="o_ka_kpi"><field name="cout_complet" nolabel="1"/><span class="o_ka_kl">Coût complet</span></div></div><div class="o_ka_sec">En-tête</div><div class="o_ka_grid"><div class="o_ka_f"><label for="partner_id" string="Fournisseur étranger" class="o_ka_req"/><field name="partner_id"/></div><div class="o_ka_f"><label for="transitaire_id" string="Transitaire" class="o_ka_req"/><field name="transitaire_id"/></div><div class="o_ka_f"><label for="currency_id" string="Devise"/><field name="currency_id" readonly="1"/></div><div class="o_ka_f"><label for="cours" string="Cours"/><field name="cours" readonly="1"/></div><div class="o_ka_f"><label for="commande_id" string="Commande d'achat"/><field name="commande_id"/></div><div class="o_ka_f"><label for="date_ouverture" string="Date d'ouverture"/><field name="date_ouverture"/></div><div class="o_ka_f"><label for="section_txt" string="Section analytique"/><field name="section_txt" readonly="1"/></div><div class="o_ka_f"><label for="site_id" string="Site"/><field name="site_id"/></div></div><notebook><page string="Articles importés"><field name="line_ids" nolabel="1"><list editable="bottom"><field name="product_id" string="Article"/><field name="qty" string="Quantité"/><field name="poids" string="Poids (kg)"/><field name="fob" string="Valeur FOB (XOF)" sum="Total"/><field name="frais" string="Frais ventilés" sum="Total"/><field name="cout_complet" string="Coût complet d'entrée" sum="Total"/></list></field></page><page string="Frais d'approche"><field name="frais_ids" nolabel="1"><list editable="bottom"><field name="type" string="Nature"/><field name="libelle" string="Libellé"/><field name="facture_ref" string="Facture du transitaire"/><field name="montant" string="Montant (XOF)" sum="Total"/></list></field></page><page string="Documents attachés"><div class="o_ka_info">Pièces justificatives du dossier (facture du transitaire, déclaration, certificat) : au moins une pièce est exigée avant validation (RG-2.2).</div><button string="Joindre un document" name="action_joindre" type="object" class="o_ka_btn"/><field name="nb_docs" readonly="1"/></page></notebook>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Ventiler les frais" name="action_ouvrir_ventilation" type="object" class="o_ka_btn o_ka_primary"/><button string="Valider le dossier" name="action_valider" type="object" class="o_ka_btn"/><button string="Imprimer" name="action_imprimer" type="object" class="o_ka_btn"/><div class="o_ka_side_t">Liens</div><button string="Commande" name="action_open_commande" type="object" class="o_ka_link"/><button string="Factures" name="action_open_factures" type="object" class="o_ka_link"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_ventilation_form" model="ir.ui.view">
+    <field name="name">ka.dossier.import.ka.form</field>
+    <field name="model">ka.dossier.import</field>
+    <field name="arch" type="xml">
+        <form string="Ventilation des frais d'approche" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Import</span><span class="o_ka_c">Dossiers d'import</span><span class="o_ka_cur">Ventilation</span><span class="o_ka_fn">Fonction : YIMP · spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Ventilation des frais d'approche</h1><div class="o_ka_sub"><field name="name" nolabel="1" readonly="1"/></div></div>
+                            
+                        </div>
+                        <div class="o_ka_sec">Paramètres</div><div class="o_ka_grid"><div class="o_ka_f"><label for="cle" string="Clé de répartition" class="o_ka_req"/><field name="cle"/></div><div class="o_ka_f"><label for="total_frais" string="Total des frais d'approche"/><field name="total_frais" readonly="1"/></div><div class="o_ka_f"><label for="factures_txt" string="Factures de frais"/><field name="factures_txt" readonly="1"/></div><div class="o_ka_f o_ka_check"><field name="ajustement"/><label for="ajustement" string="Ajustement de valorisation"/></div></div><field name="line_ids" nolabel="1" readonly="1"><list><field name="product_id" string="Article"/><field name="fob" string="Valeur FOB" sum="Total"/><field name="coef" string="Coefficient"/><field name="frais" string="Frais ventilés" sum="Total"/><field name="cout_complet" string="Coût complet" sum="Total"/></list></field><div class="o_ka_info">Frais ventilés = total des frais × (valeur FOB de l'article / valeur FOB totale). Le changement de clé (valeur, poids, quantité) recalcule la ventilation.</div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Ventiler" name="action_ventiler" type="object" class="o_ka_btn o_ka_primary"/><button string="Recalculer" name="action_recalculer" type="object" class="o_ka_btn"/><button string="Annuler la ventilation" name="action_annuler_ventilation" type="object" class="o_ka_btn"/><button string="Retour au dossier" name="action_retour_dossier" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_dossier_liste_form" model="ir.ui.view">
+    <field name="name">ka.dossier.liste.ka.form</field>
+    <field name="model">ka.dossier.liste</field>
+    <field name="arch" type="xml">
+        <form string="Dossiers d'import — liste" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Import</span><span class="o_ka_cur">Dossiers d'import</span><span class="o_ka_fn">Fonction : YIMP · spécifique</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Dossiers d'import — liste</h1><div class="o_ka_sub"></div></div>
+                            
+                        </div>
+                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="nb_en_cours" nolabel="1"/><span class="o_ka_kl">En cours</span></div><div class="o_ka_kpi"><field name="nb_valides" nolabel="1"/><span class="o_ka_kl">Validés</span></div><div class="o_ka_kpi"><field name="nb_clotures" nolabel="1"/><span class="o_ka_kl">Clôturés ce mois</span></div><div class="o_ka_kpi"><field name="a_ventiler" nolabel="1"/><span class="o_ka_kl">Frais à ventiler</span></div></div><div class="o_ka_grid"><div class="o_ka_f"><label for="statut" string="Statut"/><field name="statut"/></div><div class="o_ka_f"><label for="transitaire_id" string="Transitaire"/><field name="transitaire_id"/></div><div class="o_ka_f"><label for="periode" string="Période"/><field name="periode"/></div><div class="o_ka_f"><label for="regroupement" string="Regroupement"/><field name="regroupement"/></div></div><field name="dossier_ids" nolabel="1" readonly="1"><list><field name="name" string="N° dossier"/><field name="partner_id" string="Fournisseur étranger"/><field name="transitaire_id" string="Transitaire"/><field name="cout_complet" string="Coût complet (XOF)"/><field name="state" string="Statut" widget="badge" decoration-warning="state=='en_cours'" decoration-success="state=='valide'" decoration-muted="state=='cloture'"/></list></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Créer" name="action_creer" type="object" class="o_ka_btn o_ka_primary"/><button string="Filtrer" name="action_filtrer" type="object" class="o_ka_btn"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_dossier_tree" model="ir.ui.view">
+    <field name="name">ka.dossier.import.ka.tree</field>
+    <field name="model">ka.dossier.import</field>
+    <field name="arch" type="xml"><list string="ka_dossier"><field name="name"/><field name="partner_id"/><field name="transitaire_id"/><field name="cout_complet"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_dossier" model="ir.actions.act_window"><field name="name">Dossiers d'import</field><field name="res_model">ka.dossier.import</field><field name="view_mode">list,form</field></record><record id="action_ka_dossier_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_dossier"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_dossier_tree"/></record><record id="action_ka_dossier_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_dossier"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_dossier_form"/></record>
+<record id="action_ka_dossier_liste" model="ir.actions.act_window"><field name="name">Dossiers d'import</field><field name="res_model">ka.dossier.liste</field><field name="view_mode">form</field><field name="target">current</field></record>
+</odoo>

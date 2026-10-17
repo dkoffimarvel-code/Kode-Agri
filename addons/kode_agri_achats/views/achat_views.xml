@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_da_form" model="ir.ui.view">
+    <field name="name">ka.da.ka.form</field>
+    <field name="model">ka.da</field>
+    <field name="arch" type="xml">
+        <form string="Demande d'achat" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Demandes</span><span class="o_ka_cur">Demandes d'achat</span><span class="o_ka_fn">Fonction : GESPSH</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Demande d'achat</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-info="state in ('en_cours','ouverte')" decoration-warning="state in ('a_signer','provisoire')" decoration-success="state in ('signee','soldee','validee','complete')"/>
+                        </div>
+                        <field name="state" widget="statusbar" class="o_ka_pills" statusbar_visible="en_cours,a_signer,signee,soldee"/><div class="o_ka_sec">En-tête</div><div class="o_ka_grid"><div class="o_ka_f"><label for="site_id" string="Site demandeur" class="o_ka_req"/><field name="site_id"/></div><div class="o_ka_f"><label for="demandeur" string="Demandeur" class="o_ka_req"/><field name="demandeur"/></div><div class="o_ka_f"><label for="partner_id" string="Fournisseur"/><field name="partner_id"/></div><div class="o_ka_f"><label for="date_besoin" string="Date du besoin" class="o_ka_req"/><field name="date_besoin"/></div><div class="o_ka_f"><label for="depot_id" string="Dépôt de réception"/><field name="depot_id"/></div><div class="o_ka_f"><label for="priorite" string="Priorité"/><field name="priorite"/></div><div class="o_ka_f"><label for="section_txt" string="Section analytique"/><field name="section_txt" readonly="1"/></div></div><field name="line_ids" nolabel="1"><list editable="bottom"><field name="sequence" string="Ligne"/><field name="product_id" string="Article"/><field name="designation" string="Désignation"/><field name="qty" string="Quantité"/><field name="uom_id" string="Unité"/><field name="montant" string="Montant estimé"/></list></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Soumettre à signature" name="action_soumettre" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'en_cours'"/><button string="Créer une demande de prix" name="action_demande_prix" type="object" class="o_ka_btn"/><button string="Transformer en commande" name="action_transformer" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_ao_form" model="ir.ui.view">
+    <field name="name">ka.ao.ka.form</field>
+    <field name="model">ka.ao</field>
+    <field name="arch" type="xml">
+        <form string="Demandes de prix — comparaison des offres" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Demandes de prix</span><span class="o_ka_cur">Réponses fournisseurs</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Demandes de prix — comparaison des offres</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-info="state in ('ouverte','retenue','commandee')"/>
+                        </div>
+                        <div class="o_ka_info">Le fournisseur retenu (mieux-disant) génère la commande d'achat ; les autres réponses sont clôturées.</div><field name="offre_ids" nolabel="1"><list><field name="partner_id" string="Fournisseur"/><field name="delai" string="Délai"/><field name="detail" string="Prix unitaires"/><field name="total" string="Total HT"/><field name="choix_txt" string="Choix" widget="badge" decoration-success="choix_txt=='Retenu'"/></list></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Retenir le fournisseur" name="action_retenir" type="object" class="o_ka_btn o_ka_primary"/><button string="Générer la commande" name="action_generer_commande" type="object" class="o_ka_btn"/><button string="Relancer un fournisseur" name="action_relancer" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_commande_form" model="ir.ui.view">
+    <field name="name">ka.commande.ka.form</field>
+    <field name="model">ka.commande</field>
+    <field name="arch" type="xml">
+        <form string="Commande d'achat" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Commandes</span><span class="o_ka_cur">Commandes</span><span class="o_ka_fn">Fonction : GESPOH</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Commande d'achat</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-info="state in ('en_cours','ouverte')" decoration-warning="state in ('a_signer','provisoire')" decoration-success="state in ('signee','soldee','validee','complete')"/>
+                        </div>
+                        <field name="state" widget="statusbar" class="o_ka_pills" statusbar_visible="en_cours,a_signer,signee,recue,facturee"/><div class="o_ka_info">Circuit de signature : à la signature, la commande peut être réceptionnée (articles stockés en dépôt, prestations en réception de service).</div><div class="o_ka_sec">En-tête</div><div class="o_ka_grid"><div class="o_ka_f"><label for="site_id" string="Site de commande" class="o_ka_req"/><field name="site_id"/></div><div class="o_ka_f"><label for="partner_id" string="Fournisseur" class="o_ka_req"/><field name="partner_id"/></div><div class="o_ka_f"><label for="date_commande" string="Date commande" class="o_ka_req"/><field name="date_commande"/></div><div class="o_ka_f"><label for="incoterm" string="Incoterm"/><field name="incoterm"/></div><div class="o_ka_f"><label for="depot_id" string="Dépôt"/><field name="depot_id"/></div><div class="o_ka_f"><label for="section_txt" string="Section analytique"/><field name="section_txt" readonly="1"/></div><div class="o_ka_f"><label for="currency_id" string="Devise"/><field name="currency_id" readonly="1"/></div></div><field name="line_ids" nolabel="1"><list editable="bottom"><field name="sequence" string="Ligne"/><field name="product_id" string="Article / service"/><field name="type" string="Type"/><field name="qty" string="Quantité"/><field name="prix" string="Prix net"/><field name="montant" string="Montant HT" sum="Total HT"/></list></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Signer la commande" name="action_signer" type="object" class="o_ka_btn o_ka_primary" invisible="state in ('signee','recue','facturee')"/><button string="Imprimer" name="action_imprimer" type="object" class="o_ka_btn"/><button string="Créer la réception" name="action_creer_reception" type="object" class="o_ka_btn"/><div class="o_ka_side_t">Liens</div><button string="Réceptions" name="action_open_receptions" type="object" class="o_ka_link"/><button string="Factures" name="action_open_factures" type="object" class="o_ka_link"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_da_tree" model="ir.ui.view">
+    <field name="name">ka.da.ka.tree</field>
+    <field name="model">ka.da</field>
+    <field name="arch" type="xml"><list string="ka_da"><field name="name"/><field name="site_id"/><field name="demandeur"/><field name="date_besoin"/><field name="total" sum="Total"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="view_ka_ao_tree" model="ir.ui.view">
+    <field name="name">ka.ao.ka.tree</field>
+    <field name="model">ka.ao</field>
+    <field name="arch" type="xml"><list string="ka_ao"><field name="name"/><field name="da_id"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="view_ka_commande_tree" model="ir.ui.view">
+    <field name="name">ka.commande.ka.tree</field>
+    <field name="model">ka.commande</field>
+    <field name="arch" type="xml"><list string="ka_commande"><field name="name"/><field name="partner_id"/><field name="date_commande"/><field name="total" sum="Total"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_da" model="ir.actions.act_window"><field name="name">Demandes d'achat</field><field name="res_model">ka.da</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_ao" model="ir.actions.act_window"><field name="name">Réponses fournisseurs</field><field name="res_model">ka.ao</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_commande" model="ir.actions.act_window"><field name="name">Commandes d'achat</field><field name="res_model">ka.commande</field><field name="view_mode">list,form</field></record>
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_ka_fournisseur" model="ir.sequence"><field name="name">ka.fournisseur</field><field name="code">ka.fournisseur</field><field name="prefix">FRN-</field><field name="padding">4</field><field name="number_next">198</field></record>
+    <record id="seq_ka_da" model="ir.sequence"><field name="name">ka.da</field><field name="code">ka.da</field><field name="prefix">DA-</field><field name="padding">4</field><field name="number_next">455</field></record>
+    <record id="seq_ka_ao" model="ir.sequence"><field name="name">ka.ao</field><field name="code">ka.ao</field><field name="prefix">AO-</field><field name="padding">4</field><field name="number_next">188</field></record>
+    <record id="seq_ka_commande" model="ir.sequence"><field name="name">ka.commande</field><field name="code">ka.commande</field><field name="prefix">CA-</field><field name="padding">4</field><field name="number_next">731</field></record>
+    <record id="seq_ka_reception" model="ir.sequence"><field name="name">ka.reception</field><field name="code">ka.reception</field><field name="prefix">RCP-</field><field name="padding">4</field><field name="number_next">912</field></record>
+    <record id="seq_ka_facture" model="ir.sequence"><field name="name">ka.facture</field><field name="code">ka.facture</field><field name="prefix">FAC-A-</field><field name="padding">4</field><field name="number_next">731</field></record>
+    <record id="seq_ka_transfert" model="ir.sequence"><field name="name">ka.transfert</field><field name="code">ka.transfert</field><field name="prefix">TRF-</field><field name="padding">4</field><field name="number_next">204</field></record>
+    <record id="seq_ka_inventaire" model="ir.sequence"><field name="name">ka.inventaire</field><field name="code">ka.inventaire</field><field name="prefix">INV-</field><field name="padding">4</field><field name="number_next">67</field></record>
+    <record id="seq_ka_dossier_import" model="ir.sequence"><field name="name">ka.dossier.import</field><field name="code">ka.dossier.import</field><field name="prefix">IMP-%(year)s-</field><field name="padding">4</field><field name="number_next">148</field></record>
+</odoo>

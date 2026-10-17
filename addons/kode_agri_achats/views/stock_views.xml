@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_reception_form" model="ir.ui.view">
+    <field name="name">ka.reception.ka.form</field>
+    <field name="model">ka.reception</field>
+    <field name="arch" type="xml">
+        <form string="Réception" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Réceptions</span><span class="o_ka_cur">Réceptions</span><span class="o_ka_fn">Fonction : GESPTH</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Réception</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state in ('partielle','brouillon')" decoration-success="state in ('complete')"/>
+                        </div>
+                        <field name="line_ids" nolabel="1"><list editable="bottom"><field name="sequence" string="Ligne"/><field name="product_id" string="Article"/><field name="commande" string="Commandé"/><field name="recu" string="Reçu"/><field name="reliquat" string="Reliquat"/><field name="statut" string="Statut"/><field name="emplacement" string="Emplacement"/></list></field><div class="o_ka_info"><field name="info" nolabel="1"/></div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider la réception" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state == 'complete'"/><button string="Imprimer les étiquettes" name="action_etiquettes" type="object" class="o_ka_btn"/><button string="Créer le reliquat" name="action_reliquat" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_facture_form" model="ir.ui.view">
+    <field name="name">ka.facture.ka.form</field>
+    <field name="model">ka.facture</field>
+    <field name="arch" type="xml">
+        <form string="Facture fournisseur — documents attachés" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Factures</span><span class="o_ka_cur">Factures</span><span class="o_ka_fn">Fonction : GESPIH</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Facture fournisseur — documents attachés</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-info="state in ('en_cours','ouverte')" decoration-warning="state in ('a_signer','provisoire')" decoration-success="state in ('signee','soldee','validee','complete')"/>
+                        </div>
+                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="nb_docs" nolabel="1"/><span class="o_ka_kl">Documents attachés</span></div><div class="o_ka_kpi"><field name="requis_txt" nolabel="1"/><span class="o_ka_kl">Documents requis</span></div></div><div class="o_ka_info">Tout document d'achat (ticket, commande, réception, facture) accepte des documents attachés ; des pièces obligatoires peuvent être exigées avant validation.</div><field name="doc_ids" nolabel="1"><list editable="bottom"><field name="name" string="Document"/><field name="type" string="Type"/><field name="user_id" string="Ajouté par"/><field name="date" string="Date"/><field name="fourni" string="Reçu"/><field name="statut" string="Statut" widget="badge" decoration-success="statut=='fournie'" decoration-danger="statut=='manquante'" decoration-muted="statut=='optionnelle'"/></list></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Joindre un document" name="action_joindre" type="object" class="o_ka_btn"/><button string="Valider la facture" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state == 'validee'"/><button string="Contrôle facture" name="action_controle" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_transfert_form" model="ir.ui.view">
+    <field name="name">ka.transfert.ka.form</field>
+    <field name="model">ka.transfert</field>
+    <field name="arch" type="xml">
+        <form string="Transfert intersites" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Stocks</span><span class="o_ka_c">Mouvements</span><span class="o_ka_cur">Transferts intersites</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Transfert intersites</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-warning="state in ('a_valider')" decoration-success="state in ('valide')"/>
+                        </div>
+                        <div class="o_ka_info">La validation génère la sortie du site émetteur et l'entrée sur le site destinataire, avec traçabilité des lots.</div><div class="o_ka_sec">En-tête</div><div class="o_ka_grid"><div class="o_ka_f"><label for="emetteur_id" string="Site émetteur" class="o_ka_req"/><field name="emetteur_id"/></div><div class="o_ka_f"><label for="destinataire_id" string="Site destinataire" class="o_ka_req"/><field name="destinataire_id"/></div><div class="o_ka_f"><label for="date_prevue" string="Date prévue"/><field name="date_prevue"/></div><div class="o_ka_f"><label for="responsable" string="Responsable"/><field name="responsable"/></div></div><field name="line_ids" nolabel="1"><list editable="bottom"><field name="product_id" string="Article"/><field name="qty" string="Quantité"/><field name="uom_id" string="Unité"/><field name="lot_id" string="Lot"/><field name="statut" string="Statut"/></list></field>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider le transfert" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state == 'valide'"/><button string="Imprimer le bon" name="action_imprimer" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_inventaire_form" model="ir.ui.view">
+    <field name="name">ka.inventaire.ka.form</field>
+    <field name="model">ka.inventaire</field>
+    <field name="arch" type="xml">
+        <form string="Inventaire — saisie des comptages" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Stocks</span><span class="o_ka_c">Inventaires</span><span class="o_ka_cur">Saisie des comptages</span></div>
+                <div class="o_ka_layout">
+                    <div class="o_ka_main">
+                        <div class="o_ka_head">
+                            <div><h1>Inventaire — saisie des comptages</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <field name="state" widget="badge" decoration-info="state in ('session','comptage')" decoration-success="state in ('validee')"/>
+                        </div>
+                        <field name="state" widget="statusbar" class="o_ka_pills" statusbar_visible="session,comptage,validee"/><field name="line_ids" nolabel="1"><list editable="bottom"><field name="product_id" string="Article"/><field name="location_id" string="Emplacement"/><field name="theorique" string="Théorique"/><field name="compte" string="Compté"/><field name="ecart" string="Écart"/></list></field><div class="o_ka_info">La validation génère les écritures d'ajustement valorisées par l'interface stock, ventilation analytique comprise.</div>
+                    </div>
+                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Démarrer le comptage" name="action_demarrer" type="object" class="o_ka_btn" invisible="state != 'session'"/><button string="Valider l'inventaire" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state == 'validee'"/><button string="Imprimer les fiches de comptage" name="action_imprimer" type="object" class="o_ka_btn"/></aside>
+                </div>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_reception_tree" model="ir.ui.view">
+    <field name="name">ka.reception.ka.tree</field>
+    <field name="model">ka.reception</field>
+    <field name="arch" type="xml"><list string="ka_reception"><field name="name"/><field name="commande_id"/><field name="reliquat_total"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="view_ka_facture_tree" model="ir.ui.view">
+    <field name="name">ka.facture.ka.tree</field>
+    <field name="model">ka.facture</field>
+    <field name="arch" type="xml"><list string="ka_facture"><field name="name"/><field name="partner_id"/><field name="nb_docs"/><field name="requis_txt"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="view_ka_transfert_tree" model="ir.ui.view">
+    <field name="name">ka.transfert.ka.tree</field>
+    <field name="model">ka.transfert</field>
+    <field name="arch" type="xml"><list string="ka_transfert"><field name="name"/><field name="emetteur_id"/><field name="destinataire_id"/><field name="date_prevue"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="view_ka_inventaire_tree" model="ir.ui.view">
+    <field name="name">ka.inventaire.ka.tree</field>
+    <field name="model">ka.inventaire</field>
+    <field name="arch" type="xml"><list string="ka_inventaire"><field name="name"/><field name="libelle"/><field name="depot_id"/><field name="state" widget="badge"/></list></field>
+</record>
+<record id="action_ka_reception" model="ir.actions.act_window"><field name="name">Réceptions</field><field name="res_model">ka.reception</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_facture" model="ir.actions.act_window"><field name="name">Factures fournisseurs</field><field name="res_model">ka.facture</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_transfert" model="ir.actions.act_window"><field name="name">Transferts intersites</field><field name="res_model">ka.transfert</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_inventaire" model="ir.actions.act_window"><field name="name">Inventaires</field><field name="res_model">ka.inventaire</field><field name="view_mode">list,form</field></record>
+</odoo>

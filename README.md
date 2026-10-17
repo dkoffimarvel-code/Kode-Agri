@@ -18,7 +18,9 @@ Installation : ajouter `addons/` à l'`addons_path`, puis installer `kode_agri_p
 
 | `kode_agri_frais` | **Module 6** : notes de frais (saisie par catégorie avec plafonds et justificatifs, approbation, pièce comptable NDF ventilée par section analytique avec contrepartie 421000, remboursement du salarié par virement lettré) |
 
-Modules 2, 3, 7 et 8 : à venir (même patron de vues).
+| `kode_agri_achats` | **Module 2** : données de base (articles, catégories avec code comptable et section analytique « achats stockés », fournisseurs frais généraux, dépôts, structure), demande d'achat → appel d'offres → commande (génère la commande et la réception Odoo), réception partielle avec reliquat, facture et pièces obligatoires (RG-2.2), transfert intersites, inventaire valorisé, dossiers d'import avec ventilation des frais d'approche (valeur / poids / quantité) et coût complet d'entrée |
+
+Modules 3, 7 et 8 : à venir (même patron de vues).
 
 **Non testé sur une instance Odoo** : la syntaxe Python/XML et la cohérence champs ↔ vues sont vérifiées
 statiquement, mais le chargement réel dans Odoo 19 reste à valider.
