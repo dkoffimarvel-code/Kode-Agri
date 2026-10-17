@@ -123,6 +123,10 @@ def verifier_manifestes():
         visiter(n)
     for f in glob.glob('kode_agri_*/views/*.xml') + glob.glob('kode_agri_*/data/*.xml'):
         mod, t = f.split('/')[0], open(f).read()
+        # les expressions eval d'un fichier de données n'ont ni `env` ni la base : ref(), time, DateTime… seulement
+        for expr in re.findall(r'eval="([^"]*)"', t):
+            if re.search(r"\benv\b|\.search\(|\.browse\(|\bself\b", expr):
+                erreurs.append('EVAL INTERDIT (env/search/browse non disponibles dans un fichier de données) : %s dans %s' % (expr[:70], f))
         for attr, i in re.findall(r'\b(ref|action|parent|view_id|inherit_id)="([^"]+)"', t):
             if '.' in i:
                 m_, x = i.split('.', 1)
@@ -132,7 +136,7 @@ def verifier_manifestes():
                 erreurs.append('XMLID SANS PRÉFIXE (cherché dans %s) : %s dans %s' % (mod, i, f))
     for py in glob.glob('kode_agri_*/models/*.py'):
         for m_, x in re.findall(r"env\.ref\(\s*'(kode_agri_[a-z]+)\.([^']+)'", open(py).read()):
-            if x not in ids.get(m_, set()):
+            if '%' not in x and x not in ids.get(m_, set()):   # identifiants construits dynamiquement : non vérifiables
                 erreurs.append('env.ref INTROUVABLE %s.%s dans %s' % (m_, x, py))
     return ordre
 

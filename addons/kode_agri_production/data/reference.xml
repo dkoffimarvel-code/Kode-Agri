@@ -67,14 +67,5 @@
     <record id="wc_pc03_03" model="mrp.workcenter"><field name="name">Pressage et habillage</field><field name="code">PC03-03</field><field name="ka_centre">CC03</field></record>
     <record id="wc_pc03_04" model="mrp.workcenter"><field name="name">Détection</field><field name="code">PC03-04</field><field name="ka_centre">CC03</field></record>
     <record id="wc_pc03_05" model="mrp.workcenter"><field name="name">Conditionnement</field><field name="code">PC03-05</field><field name="ka_centre">CC03</field></record>
-    <record id="bom_tsr" model="mrp.bom"><field name="product_tmpl_id" eval="env['product.product'].browse(ref('product_tsr')).product_tmpl_id.id"/><field name="code">1 — Production</field><field name="product_qty">1</field></record>
-    <record id="bom_tsr_line" model="mrp.bom.line"><field name="bom_id" ref="bom_tsr"/><field name="product_id" ref="kode_agri_planteur.product_fdt_hevea"/><field name="product_qty">1</field></record>
-    <record id="op_010" model="mrp.routing.workcenter"><field name="bom_id" ref="bom_tsr"/><field name="name">Slab cutter 1</field><field name="workcenter_id" ref="wc_pc01_02"/><field name="sequence">010</field><field name="time_cycle_manual">1.2</field></record>
-    <record id="op_020" model="mrp.routing.workcenter"><field name="bom_id" ref="bom_tsr"/><field name="name">Pre-breaker</field><field name="workcenter_id" ref="wc_pc02_04"/><field name="sequence">020</field><field name="time_cycle_manual">0.9</field></record>
-    <record id="op_030" model="mrp.routing.workcenter"><field name="bom_id" ref="bom_tsr"/><field name="name">Shredder à granuler</field><field name="workcenter_id" ref="wc_pc02_06"/><field name="sequence">030</field><field name="time_cycle_manual">1.5</field></record>
-    <record id="op_040" model="mrp.routing.workcenter"><field name="bom_id" ref="bom_tsr"/><field name="name">Crêpeuse 8</field><field name="workcenter_id" ref="wc_pc02_10"/><field name="sequence">040</field><field name="time_cycle_manual">1.32</field></record>
-    <record id="op_050" model="mrp.routing.workcenter"><field name="bom_id" ref="bom_tsr"/><field name="name">Shredder final (4)</field><field name="workcenter_id" ref="wc_pc02_11"/><field name="sequence">050</field><field name="time_cycle_manual">1.8</field></record>
-    <record id="op_090" model="mrp.routing.workcenter"><field name="bom_id" ref="bom_tsr"/><field name="name">Séchoir 1</field><field name="workcenter_id" ref="wc_pc03_01"/><field name="sequence">090</field><field name="time_cycle_manual">3.0</field></record>
-    <record id="op_110" model="mrp.routing.workcenter"><field name="bom_id" ref="bom_tsr"/><field name="name">Pressage et habillage</field><field name="workcenter_id" ref="wc_pc03_03"/><field name="sequence">110</field><field name="time_cycle_manual">1.08</field></record>
-    <record id="op_120" model="mrp.routing.workcenter"><field name="bom_id" ref="bom_tsr"/><field name="name">Conditionnement</field><field name="workcenter_id" ref="wc_pc03_05"/><field name="sequence">120</field><field name="time_cycle_manual">0.9</field></record>
+    <function model="mrp.bom" name="ka_init_nomenclature"/>
 </odoo>

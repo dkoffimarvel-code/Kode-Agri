@@ -29,6 +29,25 @@ class MrpBom(models.Model):
     _inherit = 'mrp.bom'
 
     ka_gamme = fields.Char(string='Gamme', default='GAM-TSR-01')
+
+    @api.model
+    def ka_init_nomenclature(self):
+        """Nomenclature TSR (1 kg de TSR consomme 1 kg de fond de tasse actif) et gamme GAM-TSR-01 (§ 4.1).
+        Créée en Python : les expressions eval d'un fichier de données XML n'ont pas accès à l'environnement."""
+        tsr = self.env.ref('kode_agri_production.product_tsr')
+        if self.search([('product_tmpl_id', '=', tsr.product_tmpl_id.id)], limit=1):
+            return
+        fdt = self.env.ref('kode_agri_planteur.product_fdt_hevea')
+        bom = self.create({'product_tmpl_id': tsr.product_tmpl_id.id, 'code': '1 — Production', 'product_qty': 1.0,
+                           'bom_line_ids': [(0, 0, {'product_id': fdt.id, 'product_qty': 1.0})]})
+        # (n° d'opération, poste de charge, intitulé, temps opératoire en heures par unité de base)
+        gamme = [('010', 'pc01_02', 'Slab cutter 1', .020), ('020', 'pc02_04', 'Pre-breaker', .015), ('030', 'pc02_06', 'Shredder à granuler', .025),
+                 ('040', 'pc02_10', 'Crêpeuse 8', .022), ('050', 'pc02_11', 'Shredder final (4)', .030), ('090', 'pc03_01', 'Séchoir 1', .050),
+                 ('110', 'pc03_03', 'Pressage et habillage', .018), ('120', 'pc03_05', 'Conditionnement', .015)]
+        for n, poste, nom, heures in gamme:
+            self.env['mrp.routing.workcenter'].create({
+                'bom_id': bom.id, 'name': nom, 'sequence': int(n), 'time_cycle_manual': round(heures * 60, 3),
+                'workcenter_id': self.env.ref('kode_agri_production.wc_%s' % poste).id})
     ka_etat = fields.Selection([('brouillon', 'Brouillon'), ('validee', 'Validée')], string='Statut',
                                default='validee')
     ka_subtitle = fields.Char(compute='_compute_ka_subtitle')
