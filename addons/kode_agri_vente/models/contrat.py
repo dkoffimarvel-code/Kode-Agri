@@ -15,7 +15,7 @@ class KaContrat(models.Model):
     """Commande ouverte : contrat Spot ou Long terme (§ 5.2.1). Le Spot est répercuté en commande client."""
     _name = 'ka.contrat'
     _description = 'Contrat de vente'
-    _inherit = ['ka.document', 'mail.thread']
+    _inherit = ['ka.document', 'mail.thread', 'mail.activity.mixin']
     _order = 'name desc'
 
     name = fields.Char(string='N° contrat', readonly=True, copy=False, default='Nouveau')

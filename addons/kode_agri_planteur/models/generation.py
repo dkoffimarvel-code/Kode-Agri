@@ -81,6 +81,10 @@ class KaGeneration(models.Model):
             picking.action_confirm()
             for move in picking.move_ids:
                 move.quantity = move.product_uom_qty
+                # le numéro de lot du pont-bascule est repris tel quel (article suivi par lot)
+                ticket = self.env['ka.ticket'].search([('purchase_id', '=', move.purchase_line_id.order_id.id)], limit=1)
+                if ticket.lot_name and move.product_id.tracking == 'lot':
+                    move.move_line_ids.write({'lot_name': ticket.lot_name})
             picking.with_context(skip_backorder=True, skip_sms=True).button_validate()
         invoices = self.env['account.move']
         for partner in orders.partner_id:

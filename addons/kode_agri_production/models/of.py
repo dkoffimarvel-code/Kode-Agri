@@ -8,7 +8,7 @@ class KaOf(models.Model):
     """Ordre de fabrication Kode Agri : mélange, production, essai ou reclassement (§ 4.2)."""
     _name = 'ka.of'
     _description = 'Ordre de fabrication'
-    _inherit = ['ka.document', 'mail.thread']
+    _inherit = ['ka.document', 'mail.thread', 'mail.activity.mixin']
     _order = 'name desc'
 
     name = fields.Char(string='N° OF', readonly=True, copy=False, default='Nouveau')

@@ -26,6 +26,8 @@ Installation : ajouter `addons/` à l'`addons_path`, puis installer `kode_agri_p
 
 | `kode_agri_gestion` | **Module 8** : cascade analytique par activité (axes croisés grade / campagne / site), unités d'œuvre et clés de répartition mensuelles, budgets à deux couches (détail et consolidé) avec génération de la maquette depuis le réalisé, import, validation verrouillée et révisions, drill-down, bons à budgétiser CAPEX avec circuit de signature, analyse des écarts avec alertes, KPI, compte de résultat de gestion, trésorerie glissante |
 
+| `kode_agri_demo` | Données de démonstration chargées par les vrais flux (rapport étape par étape) et tests automatisés de bout en bout |
+
 Les huit modules du cahier des charges sont couverts (voir les limites ci-dessous). (même patron de vues).
 
 **Non testé sur une instance Odoo** : la syntaxe Python/XML et la cohérence champs ↔ vues sont vérifiées
@@ -33,6 +35,10 @@ statiquement, mais le chargement réel dans Odoo 19 reste à valider.
 
 
 ## Installation et contrôle
+
+**Procédure complète avec données de démonstration : [`docs/INSTALLATION.md`](docs/INSTALLATION.md)** (`./scripts/install.sh`),
+parcours écran par écran : [`docs/PARCOURS_DEMO.md`](docs/PARCOURS_DEMO.md), tests : `./scripts/run_tests.sh`.
+
 
 Ordre d'installation (dépendances) : `kode_agri_base` → `kode_agri_planteur` → `kode_agri_production` → `kode_agri_achats`
 → `kode_agri_vente` → `kode_agri_frais` → `kode_agri_compta` → `kode_agri_gestion` ; `kode_agri_immo` après `kode_agri_achats`.

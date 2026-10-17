@@ -15,7 +15,7 @@ class KaBudget(models.Model):
     """Budget mensualisé en deux couches : détail (justification) et consolidé (suivi) — § 8.2.1, 8.2.2."""
     _name = 'ka.budget'
     _description = 'Budget'
-    _inherit = ['ka.document', 'mail.thread']
+    _inherit = ['ka.document', 'mail.thread', 'mail.activity.mixin']
     _order = 'annee desc, id desc'
 
     name = fields.Char(string='Budget', required=True, copy=False, default='Nouveau')

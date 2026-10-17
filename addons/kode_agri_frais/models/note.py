@@ -8,7 +8,7 @@ class KaFraisNote(models.Model):
     """Note de frais d'un collaborateur : saisie → approbation → comptabilisation → remboursement."""
     _name = 'ka.frais.note'
     _description = 'Note de frais'
-    _inherit = ['ka.document', 'mail.thread']
+    _inherit = ['ka.document', 'mail.thread', 'mail.activity.mixin']
     _order = 'name desc'
 
     name = fields.Char(string='N° note', readonly=True, copy=False, default='Nouveau')
