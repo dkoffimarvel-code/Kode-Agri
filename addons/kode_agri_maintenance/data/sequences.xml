@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_mnt_ot" model="ir.sequence"><field name="name">Ordre de travail</field><field name="code">ka.mnt.ot</field><field name="prefix">OT-%(year)s-</field><field name="padding">5</field><field name="number_next">512</field></record>
+    <record id="seq_mnt_demande" model="ir.sequence"><field name="name">Demande d&apos;intervention</field><field name="code">ka.mnt.demande</field><field name="prefix">DI-%(year)s-</field><field name="padding">5</field><field name="number_next">184</field></record>
+    <record id="seq_mnt_plan" model="ir.sequence"><field name="name">Plan préventif</field><field name="code">ka.mnt.plan</field><field name="prefix">PLAN-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_mnt_contrat" model="ir.sequence"><field name="name">Contrat de maintenance</field><field name="code">ka.mnt.contrat</field><field name="prefix">CTR-%(year)s-</field><field name="padding">3</field><field name="number_next">14</field></record>
+</odoo>

@@ -20,7 +20,7 @@ os.chdir(ROOT)
 erreurs = []
 
 CHAMPS = ('Char', 'Float', 'Integer', 'Boolean', 'Selection', 'Date', 'Datetime', 'Many2one', 'One2many', 'Many2many',
-          'Monetary', 'Text', 'Binary', 'Html')
+          'Monetary', 'Text', 'Binary', 'Html', 'Image')
 STD = {'id', 'name', 'display_name', 'state', 'create_uid', 'create_date', 'active', 'date', 'user_id', 'company_id', 'currency_id'}
 ETENDUS = {'res.partner', 'stock.lot', 'mrp.bom', 'mrp.routing.workcenter', 'mrp.workcenter', 'ka.ticket', 'product.template',
            'product.category', 'stock.warehouse', 'stock.location', 'account.move', 'account.move.line', 'purchase.order.line'}
@@ -251,6 +251,7 @@ def verifier_definitions():
 
 if __name__ == '__main__':
     champs, methodes, bases = lire_modeles()
+    bases.setdefault('product.product', set()).add('product.template')   # héritage par délégation
     ordre = verifier_manifestes()
     verifier_vues(champs, methodes, bases)
     verifier_definitions()

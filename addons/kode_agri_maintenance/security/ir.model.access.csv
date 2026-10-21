@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ka_mnt_contrat,ka.mnt.contrat,model_ka_mnt_contrat,base.group_user,1,1,1,1
+access_ka_mnt_demande,ka.mnt.demande,model_ka_mnt_demande,base.group_user,1,1,1,1
+access_ka_mnt_equipe,ka.mnt.equipe,model_ka_mnt_equipe,base.group_user,1,1,1,1
+access_ka_mnt_equipement,ka.mnt.equipement,model_ka_mnt_equipement,base.group_user,1,1,1,1
+access_ka_mnt_ot,ka.mnt.ot,model_ka_mnt_ot,base.group_user,1,1,1,1
+access_ka_mnt_ot_ligne,ka.mnt.ot.ligne,model_ka_mnt_ot_ligne,base.group_user,1,1,1,1
+access_ka_mnt_plan,ka.mnt.plan,model_ka_mnt_plan,base.group_user,1,1,1,1
+access_ka_mnt_plan_operation,ka.mnt.plan.operation,model_ka_mnt_plan_operation,base.group_user,1,1,1,1
+access_ka_mnt_releve,ka.mnt.releve,model_ka_mnt_releve,base.group_user,1,1,1,1

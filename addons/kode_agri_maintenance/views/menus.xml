@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<menuitem id="menu_ka_mnt_root" name="Maintenance" sequence="70"/>
+<menuitem id="menu_ka_mnt_demandes" name="Demandes de maintenance" parent="menu_ka_mnt_root" action="action_ka_mnt_demande" sequence="5"/>
+<menuitem id="menu_ka_mnt_equipements" name="Équipements" parent="menu_ka_mnt_root" action="action_ka_mnt_equipement" sequence="10"/>
+<menuitem id="menu_ka_mnt_ot" name="Ordres de travail" parent="menu_ka_mnt_root" action="action_ka_mnt_ot" sequence="20"/>
+<menuitem id="menu_ka_mnt_preventif" name="Préventif" parent="menu_ka_mnt_root" action="action_ka_mnt_plan" sequence="30"/>
+<menuitem id="menu_ka_mnt_contrats" name="Contrats &amp; prestataires" parent="menu_ka_mnt_root" action="action_ka_mnt_contrat" sequence="40"/>
+<menuitem id="menu_ka_mnt_pieces" name="Pièces" parent="menu_ka_mnt_root" action="action_ka_mnt_pieces" sequence="50"/>
+<menuitem id="menu_ka_mnt_etats" name="États" parent="menu_ka_mnt_root" sequence="60"/>
+<menuitem id="menu_ka_mnt_etat_charge" name="Plan de charge et calendrier préventif" parent="menu_ka_mnt_etats" action="action_ka_mnt_charge" sequence="10"/>
+<menuitem id="menu_ka_mnt_etat_historique" name="Historique par équipement (carnet de santé)" parent="menu_ka_mnt_etats" action="action_ka_mnt_historique" sequence="20"/>
+<menuitem id="menu_ka_mnt_etat_couts" name="Coûts de maintenance" parent="menu_ka_mnt_etats" action="action_ka_mnt_couts" sequence="30"/>
+<menuitem id="menu_ka_mnt_etat_fiabilite" name="Tableau de bord fiabilité" parent="menu_ka_mnt_etats" action="action_ka_mnt_fiabilite" sequence="40"/>
+<menuitem id="menu_ka_mnt_etat_alertes" name="Pièces critiques et alertes" parent="menu_ka_mnt_etats" action="action_ka_mnt_pieces_alerte" sequence="50"/>
+<menuitem id="menu_ka_mnt_etat_factures" name="Suivi des factures des contrats" parent="menu_ka_mnt_etats" action="action_ka_mnt_externes" sequence="60"/>
+<menuitem id="menu_ka_mnt_config" name="Configuration" parent="menu_ka_mnt_root" sequence="90"/>
+<menuitem id="menu_ka_mnt_cfg_equipes" name="Équipes de maintenance" parent="menu_ka_mnt_config" action="action_ka_mnt_equipe" sequence="10"/>
+<menuitem id="menu_ka_mnt_cfg_releves" name="Relevés de compteur" parent="menu_ka_mnt_config" action="action_ka_mnt_releve" sequence="20"/>
+</odoo>

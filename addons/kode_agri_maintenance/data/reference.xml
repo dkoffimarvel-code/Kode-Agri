@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Emplacement de consommation des pièces sorties sur les OT (RG-10.2) -->
+    <record id="location_conso_mnt" model="stock.location">
+        <field name="name">Consommation maintenance</field>
+        <field name="usage">inventory</field>
+        <field name="location_id" ref="stock.stock_location_locations_virtual"/>
+    </record>
+    <!-- Prestation de maintenance sous-traitée (commande d'achat de service liée à l'OT) -->
+    <record id="product_prestation_mnt" model="product.template">
+        <field name="name">Prestation de maintenance sous-traitée</field>
+        <field name="type">service</field>
+        <field name="purchase_ok" eval="True"/>
+        <field name="sale_ok" eval="False"/>
+        <field name="standard_price">45000</field>
+    </record>
+    <record id="equipe_sechage" model="ka.mnt.equipe"><field name="name">Atelier séchage</field><field name="taux_horaire">20000</field></record>
+    <record id="equipe_granulation" model="ka.mnt.equipe"><field name="name">Atelier granulation</field><field name="taux_horaire">20000</field></record>
+    <record id="equipe_electricite" model="ka.mnt.equipe"><field name="name">Électricité</field><field name="taux_horaire">22000</field></record>
+    <record id="param_taux_horaire" model="ir.config_parameter"><field name="key">kode_agri_maintenance.taux_horaire</field><field name="value">20000</field></record>
+</odoo>
