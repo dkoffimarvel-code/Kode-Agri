@@ -16,7 +16,7 @@ class KaProposition(models.Model):
     libelle = fields.Char(string='Libellé', default='quinzaine')
     journal_id = fields.Many2one('account.journal', string='Banque émettrice', required=True,
                                  domain=[('type', '=', 'bank')])
-    mode = fields.Selection([('vir', 'VIR — Virement bancaire')], string='Mode de règlement', required=True,
+    mode = fields.Selection([('vir', 'Virement bancaire')], string='Mode de règlement', required=True,
                             default='vir')
     date_debut = fields.Date(string='Date début', required=True)
     date_fin = fields.Date(string='Date fin', required=True)
@@ -29,18 +29,27 @@ class KaProposition(models.Model):
     line_ids = fields.One2many('ka.proposition.line', 'proposition_id', string='Lignes de la proposition')
     total = fields.Monetary(compute='_compute_total', string='Net total')
     nb_beneficiaires = fields.Integer(compute='_compute_total', string='Bénéficiaires')
-    state = fields.Selection([('brouillon', 'Brouillon'), ('approuvee', 'Approuvée'),
-                              ('remise', 'Remise générée'), ('transmise', 'Transmise à la banque')],
+    state = fields.Selection([('brouillon', 'Brouillon'), ('a_approuver', 'À approuver'), ('approuvee', 'Approuvé'),
+                              ('remise', 'Règlements générés'), ('transmise', 'Transmis banque')],
                              default='brouillon', string='Statut')
+    compte_emetteur = fields.Char(related='journal_id.bank_acc_number', string='N° compte émetteur')
+    nb_beneficiaires_txt = fields.Char(compute='_compute_total', string='Bénéficiaires éligibles')
+    total_txt = fields.Char(compute='_compute_total', string='Net total (abrégé)')
     fichier = fields.Binary(string='Fichier de virement', readonly=True)
     fichier_nom = fields.Char()
 
     def _ka_subtitle(self):
         self.ensure_one()
-        if not self.date_debut:
-            return self.name
-        return '%s — %s du %s au %s' % (self.name, self.libelle or '', self.date_debut.strftime('%d/%m'),
-                                         self.date_fin.strftime('%d/%m/%Y') if self.date_fin else '')
+        if not (self.date_debut and self.date_fin):
+            return 'Routine — %s' % (self.libelle or '')
+        debut = self.date_debut.strftime('%d' if self.date_debut.strftime('%m%Y') == self.date_fin.strftime('%m%Y')
+                                         else '%d/%m/%Y')
+        return 'Routine — %s %s–%s' % (self.libelle or '', debut, self.date_fin.strftime('%d/%m/%Y'))
+
+    @api.depends('name')
+    def _compute_display_name(self):
+        for rec in self:
+            rec.display_name = '%s — Virement multiple' % (rec.name or '')
 
     @api.depends('date_debut', 'date_fin', 'categorie')
     def _compute_exclus(self):
@@ -54,9 +63,20 @@ class KaProposition(models.Model):
         for rec in self:
             rec.total = sum(rec.line_ids.mapped('net'))
             rec.nb_beneficiaires = len(rec.line_ids.mapped('partner_id'))
+            rec.nb_beneficiaires_txt = '%d éligible%s' % (rec.nb_beneficiaires, 's' if rec.nb_beneficiaires > 1 else '')
+            t = rec.total
+            if abs(t) >= 1_000_000:
+                rec.total_txt = ('%.1f M' % (t / 1_000_000)).replace('.', ',')
+            elif abs(t) >= 1000:
+                rec.total_txt = '%d k' % round(t / 1000)
+            else:
+                rec.total_txt = '%d' % t
 
     @api.onchange('date_debut', 'date_fin', 'categorie', 'mode')
     def _onchange_criteres(self):
+        self._charger_lignes()
+
+    def _charger_lignes(self):
         if not (self.date_debut and self.date_fin):
             return
         moves = self.env['account.move'].search([
@@ -76,6 +96,24 @@ class KaProposition(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('ka.proposition')
         return super().create(vals_list)
 
+    def action_lancer_routine(self):
+        """Routine de période : charge les nets à payer des planteurs en mode virement et soumet l'ordre."""
+        for rec in self:
+            if rec.state not in ('brouillon', 'a_approuver'):
+                raise UserError(_("L'ordre de virement est déjà approuvé."))
+            rec._charger_lignes()
+            rec.state = 'a_approuver'
+
+    def action_open_beneficiaires(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Bénéficiaires', 'res_model': 'res.partner',
+                'view_mode': 'list,form', 'domain': [('id', 'in', self.line_ids.partner_id.ids)]}
+
+    def action_open_factures(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Factures réglées', 'res_model': 'account.move',
+                'view_mode': 'list,form', 'domain': [('id', 'in', self.line_ids.move_id.ids)]}
+
     def action_approuver(self):
         if not self.line_ids:
             raise UserError(_('La proposition ne contient aucune ligne.'))
@@ -83,19 +121,22 @@ class KaProposition(models.Model):
 
     def action_generer_reglements(self):
         self.ensure_one()
-        if self.state != 'approuvee':
-            raise UserError(_("La proposition doit être approuvée avant de générer les règlements."))
-        for line in self.line_ids:
+        if self.state not in ('approuvee', 'remise', 'transmise'):
+            raise UserError(_("L'ordre de virement doit être approuvé avant de générer les règlements."))
+        for line in self.line_ids.filtered(lambda l: not l.payment_id and l.move_id):
             wiz = self.env['account.payment.register'].with_context(
                 active_model='account.move', active_ids=line.move_id.ids).create({
                     'journal_id': self.journal_id.id, 'amount': line.net,
                     'payment_date': self.date_fin, 'communication': self.name})
             payments = wiz._create_payments()
             line.payment_id = payments[:1]
-        self.state = 'remise'
+        if self.state == 'approuvee':
+            self.state = 'remise'
 
     def action_fichier_virement(self):
         self.ensure_one()
+        if self.state in ('brouillon', 'a_approuver'):
+            raise UserError(_("L'ordre de virement doit être approuvé avant de générer le fichier de virement."))
         buf = io.StringIO()
         w = csv.writer(buf, delimiter=';')
         w.writerow(['Beneficiaire', 'Banque / IBAN', 'Facture', 'Montant'])
@@ -106,6 +147,8 @@ class KaProposition(models.Model):
 
     def action_comptabiliser(self):
         self.ensure_one()
+        if self.line_ids.filtered(lambda l: not l.payment_id and l.move_id):
+            self.action_generer_reglements()
         self.line_ids.payment_id.filtered(lambda p: p.state == 'draft').action_post()
 
 

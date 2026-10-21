@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 
-from odoo import api, fields, models
+from odoo import Command, api, fields, models
 from odoo.tools import date_utils
 
 
@@ -20,14 +20,43 @@ class KaTarif(models.Model):
     currency_id = fields.Many2one('res.currency', string='Devise',
                                   default=lambda s: s.env.ref('base.XOF', raise_if_not_found=False))
     bareme_ids = fields.One2many('ka.tarif.bareme', 'tarif_id', string='Barèmes du mois')
-    state = fields.Selection([('actif', 'Actif'), ('ferme', 'Fermé')], default='actif', string='Statut')
+    state = fields.Selection([('brouillon', 'Brouillon'), ('actif', 'Actif'), ('ferme', 'Fermé')], default='actif',
+                             string='Statut')
+    ka_titre = fields.Char(string='Titre', compute='_compute_ka_titre')
+
+    MOIS = ('Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre',
+            'Novembre', 'Décembre')
 
     def _ka_subtitle(self):
+        return 'Défini chaque mois · barèmes usine et bord champ'
+
+    def _mois_txt(self):
         self.ensure_one()
-        if not self.date_start:
-            return 'Code tarif APROMAC'
-        mois = self.date_start.strftime('%m/%Y')
-        return 'Code tarif %s — période %s' % (self.code, mois)
+        return '%s %s' % (self.MOIS[self.date_start.month - 1], self.date_start.year) if self.date_start else ''
+
+    @api.depends('code', 'date_start')
+    def _compute_display_name(self):
+        for rec in self:
+            rec.display_name = rec._mois_txt() or rec.code or ''
+
+    @api.depends('date_start')
+    def _compute_ka_titre(self):
+        for rec in self:
+            rec.ka_titre = ' — '.join(x for x in ('Prix Apromac', rec._mois_txt()) if x)
+
+    def action_activer(self):
+        self.write({'state': 'actif'})
+
+    def action_nouveau_mois(self):
+        """Prépare le mois suivant (brouillon) en reprenant les barèmes du mois courant."""
+        self.ensure_one()
+        if not self.date_end:
+            return self.action_creer()
+        start = self.date_end + relativedelta(days=1)
+        new = self.copy({'date_start': start, 'date_end': date_utils.end_of(start, 'month'), 'state': 'brouillon',
+                         'bareme_ids': [Command.create({'name': b.name, 'lieu': b.lieu, 'prix_kg': b.prix_kg})
+                                        for b in self.bareme_ids]})
+        return {'type': 'ir.actions.act_window', 'res_model': 'ka.tarif', 'res_id': new.id, 'view_mode': 'form'}
 
     def action_dupliquer_mois(self):
         self.ensure_one()

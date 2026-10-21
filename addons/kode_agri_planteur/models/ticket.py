@@ -29,11 +29,37 @@ class KaTicketImport(models.Model):
         for rec in self:
             rec.nb_tickets = len(rec.ticket_ids)
             rec.poids_t = sum(rec.ticket_ids.mapped('poids_net')) / 1000.0
+            rec.poids_txt = ('%.1f t' % rec.poids_t).replace('.', ',')
+
+    poids_txt = fields.Char(compute='_compute_totaux', string='Poids net')
+    ka_titre = fields.Char(compute='_compute_ka_titre', string='Titre')
 
     def _ka_subtitle(self):
         self.ensure_one()
-        d = self.date.strftime('%d/%m/%Y') if self.date else ''
-        return "Lot d'import du %s — fichier pont-bascule %s" % (d, self.source or '')
+        return "Fichier pont-bascule (%s) importé dans l'ERP" % (self.source or 'SIPIC')
+
+    @api.depends('name', 'date')
+    def _compute_display_name(self):
+        for rec in self:
+            rec.display_name = ('Import du %s' % rec.date.strftime('%d/%m/%Y')) if rec.date else (rec.name or '')
+
+    @api.depends('date', 'ticket_ids.date_pesee')
+    def _compute_ka_titre(self):
+        for rec in self:
+            dates = [d for d in rec.ticket_ids.mapped('date_pesee') if d]
+            d = max(dates) if dates else rec.date
+            rec.ka_titre = "Lot d'import — %s" % (d.strftime('%d/%m/%Y') if d else (rec.name or ''))
+
+    def action_open_tickets(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Tickets de pesée', 'res_model': 'ka.ticket',
+                'view_mode': 'list,form', 'domain': [('import_id', '=', self.id)]}
+
+    def action_modele_import(self):
+        return {'type': 'ir.actions.client', 'tag': 'display_notification',
+                'params': {'title': "Modèle d'import YTKT", 'type': 'info', 'sticky': True,
+                           'message': "Colonnes attendues (CSV ; ou ,) : CodeFournisseur ; N_Ticket ; DatePesee "
+                                      "(JJ/MM/AAAA) ; Article ; Poids N ; Site ; N_Lot ; EUDR"}}
 
     @api.model_create_multi
     def create(self, vals_list):

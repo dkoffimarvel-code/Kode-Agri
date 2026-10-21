@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<menuitem id="menu_ka_fdt" name="Fond de tasse" parent="purchase.menu_purchase_root" sequence="30"/>
-<menuitem id="menu_ka_planteur" name="Planteurs et coopératives" parent="menu_ka_fdt" action="action_ka_planteur" sequence="10"/>
+<!-- Application « Collecte FDT » (maquettes 1.1 à 1.4b) : Planteurs · Avances · Primes · Prix Apromac · Tickets · Décomptes · États -->
+<menuitem id="menu_ka_fdt" name="Collecte FDT" sequence="30"/>
+<menuitem id="menu_ka_planteur" name="Planteurs" parent="menu_ka_fdt" action="action_ka_planteur" sequence="10"/>
 <menuitem id="menu_ka_avance" name="Avances" parent="menu_ka_fdt" action="action_ka_avance" sequence="20"/>
-<menuitem id="menu_ka_ticket" name="Tickets de pesée" parent="menu_ka_fdt" action="action_ka_ticket_import" sequence="30"/>
-<menuitem id="menu_ka_traitements" name="Traitements" parent="menu_ka_fdt" sequence="40"/>
+<menuitem id="menu_ka_param" name="Primes" parent="menu_ka_fdt" action="action_ka_prime" sequence="25"/>
+<menuitem id="menu_ka_tarifs" name="Prix Apromac" parent="menu_ka_fdt" sequence="28"/>
+<menuitem id="menu_ka_tarif_saisie" name="Prix mensuels" parent="menu_ka_tarifs" action="action_ka_tarif" sequence="10"/>
+<menuitem id="menu_ka_ticket" name="Tickets" parent="menu_ka_fdt" action="action_ka_ticket_import" sequence="30"/>
+<menuitem id="menu_ka_traitements" name="Décomptes" parent="menu_ka_fdt" sequence="40"/>
 <menuitem id="menu_ka_generation" name="Génération réceptions et factures" parent="menu_ka_traitements" action="action_ka_generation" sequence="10"/>
-<menuitem id="menu_ka_tarifs" name="Tarifs" parent="purchase.menu_purchase_root" sequence="35"/>
-<menuitem id="menu_ka_tarif_saisie" name="Saisie des tarifs" parent="menu_ka_tarifs" action="action_ka_tarif" sequence="10"/>
-<menuitem id="menu_ka_param" name="Types de primes" parent="purchase.menu_purchase_config" action="action_ka_prime" sequence="50"/>
-<menuitem id="menu_ka_reglements" name="Règlements" parent="account.menu_finance" sequence="45"/>
-<menuitem id="menu_ka_proposition" name="Propositions de règlement" parent="menu_ka_reglements" action="action_ka_proposition" sequence="10"/>
-<menuitem id="menu_ka_cheque" name="Saisie des règlements" parent="menu_ka_reglements" action="action_ka_cheque" sequence="20"/>
+<menuitem id="menu_ka_decompte_factures" name="Factures d'achat planteurs" parent="menu_ka_traitements" action="action_ka_decompte_factures" sequence="20"/>
+<menuitem id="menu_ka_etats" name="États" parent="menu_ka_fdt" sequence="50"/>
+<menuitem id="menu_ka_etat_tickets" name="Tickets de pesée (détail)" parent="menu_ka_etats" action="action_ka_ticket" sequence="10"/>
+
+<!-- Règlements (maquettes 1.5 et 1.5b) : application Comptabilité, entrée « Paiements » -->
+<menuitem id="menu_ka_reglements" name="Paiements" parent="account.menu_finance" sequence="45"/>
+<menuitem id="menu_ka_proposition" name="Virement multiple" parent="menu_ka_reglements" action="action_ka_proposition" sequence="10"/>
+<menuitem id="menu_ka_cheque" name="Chèques" parent="menu_ka_reglements" action="action_ka_cheque" sequence="20"/>
 
 </odoo>

@@ -1,4 +1,5 @@
 from odoo import _, api, fields, models
+from odoo.tools import date_utils
 from odoo.exceptions import UserError
 
 
@@ -15,18 +16,66 @@ class KaGeneration(models.Model):
     warehouse_id = fields.Many2one('stock.warehouse', string='Site')
     categorie = fields.Selection([('planteur_coop', 'Planteur & coopérative')], string='Catégorie fournisseur',
                                  default='planteur_coop')
-    groupage = fields.Selection([('fournisseur', 'Réception + facture par fournisseur')], string='Groupage',
+    groupage = fields.Selection([('fournisseur', 'Réception + facture groupées')], string='Groupage',
                                 default='fournisseur')
     avances = fields.Boolean(string='Avances à imputer', default=True)
     primes = fields.Boolean(string='Primes à ventiler', default=True)
-    state = fields.Selection([('pret', 'Prêt à lancer'), ('simule', 'Simulé'), ('termine', 'Terminé')],
-                             default='pret', string='Statut')
+    state = fields.Selection([('pret', 'En attente'), ('simule', 'Contrôlée'), ('termine', 'Exécutée'),
+                              ('annule', 'Annulée')], default='pret', string='Statut')
+    avances_sel = fields.Selection([('oui', 'Oui (auto)'), ('non', 'Non')], string='Avances à imputer',
+                                   compute='_compute_sel', inverse='_inverse_avances_sel')
+    primes_sel = fields.Selection([('oui', 'Ventilées sur coût FDT'), ('non', 'Non ventilées')],
+                                  string='Primes (bonus)', compute='_compute_sel', inverse='_inverse_primes_sel')
+    prix_applique = fields.Char(string='Prix appliqué', compute='_compute_sel')
     nb_commandes = fields.Integer(compute='_compute_controles', string='Commandes éligibles sur la plage')
     nb_hors_periode = fields.Integer(compute='_compute_controles', string='Tickets hors période comptable')
     trace = fields.Text(string='Trace', readonly=True)
 
     def _ka_subtitle(self):
-        return 'Tâche %s — groupage par plage de dates de pesée' % (self.name or '')
+        return 'Groupage par plage de dates de pesée — fond de tasse géré par lot'
+
+    @api.depends('name')
+    def _compute_display_name(self):
+        for rec in self:
+            rec.display_name = 'Tâche %s' % (rec.name or '')
+
+    @api.depends('avances', 'primes')
+    def _compute_sel(self):
+        for rec in self:
+            rec.avances_sel = 'oui' if rec.avances else 'non'
+            rec.primes_sel = 'oui' if rec.primes else 'non'
+            rec.prix_applique = 'Apromac du mois concerné'
+
+    def _inverse_avances_sel(self):
+        for rec in self:
+            rec.avances = rec.avances_sel == 'oui'
+
+    def _inverse_primes_sel(self):
+        for rec in self:
+            rec.primes = rec.primes_sel == 'oui'
+
+    def _tickets_a_facturer(self):
+        return self.env['ka.ticket'].search([
+            ('state', '=', 'valide'),
+            ('purchase_id.state', 'in', ('draft', 'sent', 'to approve', 'purchase')),
+            ('purchase_id.invoice_ids', '=', False)])
+
+    def action_selectionner_plage(self):
+        """Propose la plage du mois de pesée le plus ancien restant à facturer (RG-1.7), puis contrôle la tâche."""
+        self.ensure_one()
+        if not (self.date_debut and self.date_fin):
+            dates = [d for d in self._tickets_a_facturer().mapped('date_pesee') if d]
+            if not dates:
+                raise UserError(_('Aucun ticket validé ne reste à facturer.'))
+            debut = min(dates)
+            fin = date_utils.end_of(debut, 'month')
+            self.write({'date_debut': debut, 'date_fin': fin, 'date_comptable': self.date_comptable or fin})
+        return self.action_simuler()
+
+    def action_annuler(self):
+        if self.filtered(lambda g: g.state == 'termine'):
+            raise UserError(_('Une tâche exécutée ne peut pas être annulée.'))
+        self.write({'state': 'annule'})
 
     def _tickets(self):
         self.ensure_one()
@@ -71,6 +120,8 @@ class KaGeneration(models.Model):
 
     def action_lancer(self):
         self.ensure_one()
+        if self.state in ('annule', 'termine'):
+            raise UserError(_('Cette tâche est déjà exécutée ou annulée.'))
         if self.nb_hors_periode:
             raise UserError(_("RG-1.7 : des tickets d'un mois différent de la date comptable ne peuvent pas "
                               "être facturés ensemble."))

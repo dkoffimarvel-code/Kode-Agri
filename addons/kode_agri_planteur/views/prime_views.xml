@@ -4,19 +4,49 @@
     <field name="name">ka.prime.type.ka.form</field>
     <field name="model">ka.prime.type</field>
     <field name="arch" type="xml">
-        <form string="Paramétrage des primes" class="o_ka_form">
+        <form string="Prime" class="o_ka_form">
+            <header>
+                <button string="Nouveau" name="action_creer" type="object" class="btn-primary"/>
+                <button string="Enregistrer" special="save" class="btn-secondary"/>
+                <button string="Activer" name="action_activer" type="object" class="btn-secondary" invisible="state == 'actif'"/>
+                <button string="Dupliquer" name="action_dupliquer" type="object" class="btn-secondary"/>
+                <button string="Désactiver" name="action_desactiver" type="object" class="btn-secondary" invisible="state != 'actif'"/>
+                <field name="state" widget="statusbar" statusbar_visible="brouillon,actif"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Paramétrage</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Fond de tasse</span><span class="o_ka_cur">Types de primes</span><span class="o_ka_fn">Fonction : YPRIME · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Paramétrage des primes</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-success="state in ('actif')" decoration-warning="state in ('ferme','inactif')"/>
-                        </div>
-                        <div class="o_ka_info">La prime est acquise au planteur et n'est pas récupérable. Elle est calculée à la facturation et ventilée sur le coût de revient du fond de tasse.</div><div class="o_ka_sec">Définition</div><div class="o_ka_grid"><div class="o_ka_f"><label for="type_prime" string="Type de prime" class="o_ka_req"/><field name="type_prime"/></div><div class="o_ka_f"><label for="base_calcul" string="Base de calcul" class="o_ka_req"/><field name="base_calcul"/></div><div class="o_ka_f"><label for="bareme" string="Barème" class="o_ka_req"/><field name="bareme"/></div><div class="o_ka_f"><label for="periode" string="Période d'application"/><field name="periode"/></div><div class="o_ka_f"><label for="eligibilite" string="Éligibilité"/><field name="eligibilite"/></div><div class="o_ka_f"><label for="imputation" string="Imputation"/><field name="imputation" readonly="1"/></div><div class="o_ka_f"><label for="product_id" string="Élément de facture"/><field name="product_id"/></div><div class="o_ka_f"><label for="name" string="Code" class="o_ka_req"/><field name="name"/></div></div><div class="o_ka_h3">Formes de prime paramétrables</div><table class="o_ka_tbl"><thead><tr><th>Forme</th><th>Base de calcul</th><th>Moment du calcul</th></tr></thead><tbody><tr><td>Prime au kilogramme</td><td>Par kg de fond de tasse acheté</td><td>À chaque ticket (facturation)</td></tr><tr><td>Prime mensuelle</td><td>Forfait ou selon le volume du mois</td><td>Fin de mois sur cumul</td></tr><tr><td>Prime de fidélité / volume</td><td>Cumul de livraisons sur la période</td><td>Fin de période sur cumul</td></tr><tr><td>Prime de qualité</td><td>Critères qualité de la livraison</td><td>À la facturation</td></tr></tbody></table>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Créer" name="action_creer" type="object" class="o_ka_btn o_ka_primary"/><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Dupliquer" name="action_dupliquer" type="object" class="o_ka_btn"/><button string="Désactiver" name="action_desactiver" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <h1><field name="ka_titre" readonly="1"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <div class="o_ka_info">La prime n'est pas récupérable (contrairement à l'avance). Calculée à la facturation, ventilée sur le coût de revient FDT.</div>
+                <group>
+                    <group>
+                        <field name="type_prime" string="Type de prime" widget="badge" invisible="state != 'actif' or not id"/>
+                        <field name="type_prime" string="Type de prime" required="1" invisible="state == 'actif' and id"/>
+                        <field name="base_calcul" string="Base de calcul" required="1"/>
+                        <label for="bareme" string="Barème"/>
+                        <div class="o_row fw-bold">
+                            <field name="bareme" required="1" class="oe_inline"/><span>FCFA / kg humide</span>
+                        </div>
+                    </group>
+                    <group>
+                        <field name="eligibilite" string="Éligibilité"/>
+                        <field name="periode" string="Période d'application"/>
+                        <field name="imputation" string="Imputation" readonly="1"/>
+                        <field name="name" string="Code" required="1"/>
+                        <field name="product_id" string="Élément de facture"/>
+                    </group>
+                </group>
+                <div class="o_ka_h3">Formes de prime paramétrables</div>
+                <table class="o_ka_tbl">
+                    <thead><tr><th>Forme</th><th>Base de calcul</th><th>Moment du calcul</th></tr></thead>
+                    <tbody>
+                        <tr><td>Prime au kilogramme</td><td>Par kg de FDT acheté</td><td>À chaque ticket (facturation)</td></tr>
+                        <tr><td>Prime mensuelle</td><td>Forfait ou selon volume du mois</td><td>Fin de mois sur cumul</td></tr>
+                        <tr><td>Prime de fidélité / volume</td><td>Cumul de livraisons sur période</td><td>Fin de période sur cumul</td></tr>
+                        <tr><td>Prime de qualité</td><td>Critères qualité de la livraison</td><td>À la facturation</td></tr>
+                    </tbody>
+                </table>
             </sheet>
         </form>
     </field>
@@ -27,7 +57,7 @@
     <field name="arch" type="xml"><list string="ka_prime"><field name="name"/><field name="type_prime"/><field name="base_calcul"/><field name="bareme"/><field name="periode"/></list></field>
 </record>
 <record id="action_ka_prime" model="ir.actions.act_window">
-    <field name="name">Types de primes</field>
+    <field name="name">Primes</field>
     <field name="res_model">ka.prime.type</field>
     <field name="view_mode">list,form</field>
 </record>

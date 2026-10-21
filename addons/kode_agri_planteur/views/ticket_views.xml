@@ -4,19 +4,52 @@
     <field name="name">ka.ticket.import.ka.form</field>
     <field name="model">ka.ticket.import</field>
     <field name="arch" type="xml">
-        <form string="Tickets de pesée — import et validation" class="o_ka_form">
+        <form string="Lot d'import" class="o_ka_form">
+            <header>
+                <button string="Importer fichier" name="action_importer" type="object" class="btn-primary"/>
+                <button string="Supprimer / réimporter" name="action_supprimer_reimporter" type="object" class="btn-secondary"/>
+                <button string="Vérifier" name="action_verifier" type="object" class="btn-secondary"/>
+                <button string="Valider → générer commandes" name="action_valider" type="object" class="btn-secondary"/>
+                <button string="Commandes générées" name="action_open_commandes" type="object" class="btn-secondary" invisible="state != 'valide'"/>
+                <button string="Modèle d'import" name="action_modele_import" type="object" class="btn-secondary"/>
+                <field name="state" widget="statusbar" statusbar_visible="importe,controle,valide"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Fond de tasse</span><span class="o_ka_cur">Tickets de pesée</span><span class="o_ka_fn">Fonction : YTKT · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Tickets de pesée — import et validation</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-info="state in ('controle')" decoration-success="state in ('importe','valide')"/>
-                        </div>
-                        <field name="state" widget="statusbar" class="o_ka_pills"/><div class="o_ka_kpis"><div class="o_ka_kpi"><field name="nb_tickets" nolabel="1"/><span class="o_ka_kl">Tickets</span></div><div class="o_ka_kpi"><field name="poids_t" nolabel="1"/><span class="o_ka_kl">Poids net humide</span></div></div><div class="o_ka_info">Modèle d'import : CodeFournisseur → fournisseur, Poids N → poids net humide, N_Lot → lot, EUDR → parcelle. La validation génère une commande d'achat par ticket (avances et primes).</div><div class="o_ka_f"><label for="file" string="Fichier du pont-bascule (CSV)"/><field name="file" filename="filename"/><field name="filename" invisible="1"/></div><div class="o_ka_h3">Tickets importés depuis le fichier du pont-bascule (avant validation)</div><field name="ticket_ids" nolabel="1"><list><field name="name" string="N° ticket"/><field name="date_pesee"/><field name="partner_id" string="Fournisseur"/><field name="product_id" string="Article"/><field name="poids_net" string="Poids net (kg)"/><field name="site"/><field name="lot_name" string="Lot"/><field name="state" widget="badge" decoration-info="state=='controle'" decoration-warning="state=='a_controler'" decoration-success="state=='valide'"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Importer le fichier" name="action_importer" type="object" class="o_ka_btn"/><button string="Supprimer et réimporter" name="action_supprimer_reimporter" type="object" class="o_ka_btn"/><button string="Vérifier" name="action_verifier" type="object" class="o_ka_btn"/><button string="Valider et générer les commandes" name="action_valider" type="object" class="o_ka_btn o_ka_primary"/><div class="o_ka_side_t">Liens</div><button string="Modèle d'import YTKT" name="action_creer" type="object" class="o_ka_link"/><button string="Commandes d'achat générées" name="action_open_commandes" type="object" class="o_ka_link"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_tickets" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="nb_tickets"/></span><span class="o_stat_text">Tickets</span></div>
+                    </button>
+                    <button name="action_open_tickets" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="poids_txt"/></span><span class="o_stat_text">Poids net</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1><field name="ka_titre" readonly="1"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
+                </div>
+                <div class="o_ka_info">Mapping du modèle de pesée : CodeFournisseur → planteur, Poids N → net humide, N_Lot → lot, EUDR → parcelle. La validation génère les commandes (avances + primes). 1 ticket = 1 commande.</div>
+                <group invisible="state == 'valide'">
+                    <group>
+                        <field name="file" string="Fichier pont-bascule (CSV)" filename="filename"/>
+                        <field name="filename" invisible="1"/>
+                    </group>
+                    <group>
+                        <field name="source" string="Pont-bascule"/>
+                    </group>
+                </group>
+                <div class="o_ka_h3">Tickets importés depuis le fichier de pont-bascule (avant validation)</div>
+                <field name="ticket_ids" nolabel="1">
+                    <list>
+                        <field name="name" string="N_Ticket"/>
+                        <field name="date_pesee" string="DateP2"/>
+                        <field name="partner_id" string="Fournisseur"/>
+                        <field name="product_id" string="Produit"/>
+                        <field name="poids_net" string="Poids N"/>
+                        <field name="site" string="Site"/>
+                        <field name="lot_name" string="Lot" optional="hide"/>
+                        <field name="state" string="Statut"/>
+                    </list>
+                </field>
             </sheet>
         </form>
     </field>

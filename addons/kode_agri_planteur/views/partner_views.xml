@@ -85,7 +85,7 @@
     <field name="arch" type="xml"><list string="ka_planteur"><field name="ka_code"/><field name="name"/><field name="ka_categorie"/><field name="ka_cooperative_id"/><field name="phone"/><field name="ka_mode_reglement"/><field name="ka_solde_avance"/></list></field>
 </record>
 <record id="action_ka_planteur" model="ir.actions.act_window">
-    <field name="name">Planteurs et coopératives</field>
+    <field name="name">Planteurs</field>
     <field name="res_model">res.partner</field>
     <field name="view_mode">list,form</field>
     <field name="domain">[('ka_categorie', '=', 'planteur_coop')]</field>

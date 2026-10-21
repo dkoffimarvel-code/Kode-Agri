@@ -4,19 +4,51 @@
     <field name="name">ka.avance.ka.form</field>
     <field name="model">ka.avance</field>
     <field name="arch" type="xml">
-        <form string="Demande d'avance de campagne" class="o_ka_form">
+        <form string="Avance" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-secondary"/>
+                <button string="Soumettre" name="action_soumettre" type="object" class="btn-secondary" invisible="state not in ('brouillon', 'soumise')"/>
+                <button string="Approuver" name="action_approuver" type="object" class="btn-primary" invisible="state not in ('brouillon', 'soumise')"/>
+                <button string="Refuser" name="action_refuser" type="object" class="btn-secondary" invisible="state not in ('brouillon', 'soumise')"/>
+                <button string="Verser" name="action_verser" type="object" class="btn-secondary" invisible="state != 'approuvee'"/>
+                <button string="Compte courant planteur" name="action_open_compte" type="object" class="btn-secondary" invisible="not partner_id"/>
+                <field name="state" widget="statusbar" statusbar_visible="brouillon,soumise,approuvee,recuperee"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Achats</span><span class="o_ka_c">Fond de tasse</span><span class="o_ka_cur">Avances</span><span class="o_ka_fn">Fonction : YAVA · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Demande d'avance de campagne</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-warning="state in ('soumise')" decoration-success="state in ('approuvee','versee','recuperee')" decoration-danger="state in ('refusee')"/>
-                        </div>
-                        <field name="state" widget="statusbar" class="o_ka_pills"/><div class="o_ka_info"><field name="info" nolabel="1"/></div><div class="o_ka_sec">Avance</div><div class="o_ka_grid"><div class="o_ka_f"><label for="partner_id" string="Fournisseur" class="o_ka_req"/><field name="partner_id"/></div><div class="o_ka_f"><label for="nature" string="Nature d'avance" class="o_ka_req"/><field name="nature"/></div><div class="o_ka_f"><label for="amount" string="Montant" class="o_ka_req"/><field name="amount"/></div><div class="o_ka_f"><label for="date_octroi" string="Date d'octroi"/><field name="date_octroi"/></div><div class="o_ka_f"><label for="regle_id" string="Règle de récupération" class="o_ka_req"/><field name="regle_id"/></div><div class="o_ka_f"><label for="plafond" string="Plafond par période"/><field name="plafond"/></div><div class="o_ka_f"><label for="collectif" string="Collectif"/><field name="collectif" readonly="1"/></div><div class="o_ka_f"><label for="warehouse_id" string="Site"/><field name="warehouse_id"/></div></div><div class="o_ka_sec">Circuit de signature</div><field name="signature_ids" nolabel="1"><list><field name="etape"/><field name="signataire"/><field name="statut" widget="badge" decoration-success="statut=='fait'" decoration-warning="statut=='attente'"/><field name="date"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Soumettre à approbation" name="action_soumettre" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'brouillon'"/><button string="Approuver" name="action_approuver" type="object" class="o_ka_btn" invisible="state != 'soumise'"/><button string="Refuser" name="action_refuser" type="object" class="o_ka_btn" invisible="state != 'soumise'"/><button string="Verser" name="action_verser" type="object" class="o_ka_btn" invisible="state != 'approuvee'"/><div class="o_ka_side_t">Liens</div><button string="Compte courant planteur" name="action_open_compte" type="object" class="o_ka_link"/><button string="Échéancier de récupération" name="action_open_compte" type="object" class="o_ka_link"/></aside>
+                <div class="oe_title">
+                    <h1>Avance <field name="name" readonly="1" class="oe_inline"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <div class="o_ka_info"><field name="info" readonly="1"/></div>
+                <group>
+                    <group>
+                        <field name="partner_id" string="Planteur" required="1"/>
+                        <field name="nature" string="Nature" required="1"/>
+                        <field name="amount" string="Montant" required="1" class="fw-bold"/>
+                    </group>
+                    <group>
+                        <field name="regle_id" string="Règle récupération" required="1"/>
+                        <field name="plafond" string="Plafond / période"/>
+                        <field name="date_octroi" string="Date d'octroi"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                </group>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span><field name="validation_txt" readonly="1"/></div>
+                <notebook>
+                    <page string="Circuit de signature" name="circuit">
+                        <group>
+                            <group>
+                                <field name="warehouse_id" string="Site"/>
+                            </group>
+                            <group>
+                                <field name="collectif" string="Collectif" readonly="1"/>
+                            </group>
+                        </group>
+                        <field name="signature_ids" nolabel="1">
+                            <list><field name="etape"/><field name="signataire"/><field name="statut" widget="badge" decoration-success="statut=='fait'" decoration-warning="statut=='attente'"/><field name="date"/></list>
+                        </field>
+                    </page>
+                </notebook>
             </sheet>
         </form>
     </field>
