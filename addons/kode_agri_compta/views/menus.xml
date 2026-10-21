@@ -3,6 +3,7 @@
 
 <!-- Application « Comptabilité » des maquettes 8.x : Clients · Fournisseurs · Écritures · Lettrage · Trésorerie · États -->
 <menuitem id="menu_ka_compta_root" name="Comptabilité" sequence="47"/>
+<menuitem id="kode_agri_planteur.menu_ka_reglements" name="Paiements" parent="menu_ka_compta_root" sequence="35"/>
 <menuitem id="menu_ka_ventes_f" name="Clients" parent="menu_ka_compta_root" sequence="10"/>
 <menuitem id="menu_ka_fv" name="Factures clients" parent="menu_ka_ventes_f" action="action_ka_facture_vente" sequence="10"/>
 <menuitem id="menu_ka_achats_c" name="Fournisseurs" parent="menu_ka_compta_root" sequence="20"/>

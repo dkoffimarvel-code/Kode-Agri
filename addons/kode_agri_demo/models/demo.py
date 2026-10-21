@@ -32,6 +32,11 @@ COMPTES = [  # code, intitulé, type
     ('624100', 'Transport / transit', 'expense'), ('627100', 'Frais bancaires', 'expense'), ('641200', 'Salaires structure', 'expense'),
     ('602200', 'Carburant', 'expense'), ('602400', 'Pneumatiques', 'expense'), ('615500', 'Entretien', 'expense'),
     ('2411100', 'Matériel et outillage industriel', 'asset_fixed'),
+    # paie (module 7), missions, carburant (module 11)
+    ('661100', 'Rémunérations directes versées au personnel', 'expense'), ('664100', 'Charges sociales', 'expense'),
+    ('422100', 'Personnel, rémunérations dues', 'liability_current'), ('425100', 'Personnel, avances et acomptes', 'asset_current'),
+    ('431100', 'Sécurité sociale (CNPS)', 'liability_current'), ('447200', 'État, impôts retenus à la source (ITS)', 'liability_current'),
+    ('447300', 'État, contributions FDFP', 'liability_current'), ('625100', 'Frais de mission', 'expense'),
 ]
 
 
@@ -55,6 +60,9 @@ class KaDemo(models.AbstractModel):
             ('M3 — Immobilisations, dotations, sortie', self._m3_immo),
             ('M8 — Facture export, contrôle facture, trésorerie, régularisation', self._m8_compta),
             ('M9 — Analytique, budget, CAPEX, unités d\'œuvre', self._m9_gestion),
+            ('M7 — Personnel, pointage, congés, paie, missions, recrutement, formation', self._m7_rh),
+            ('M10 — Équipements, plans préventifs, OT, demandes d\'intervention, contrats', self._m10_maintenance),
+            ('M11 — Véhicules, documents, carburant, affectations, entretien', self._m11_flotte),
         ]
         rapport = []
         for nom, fn in etapes:

@@ -3,7 +3,7 @@
     'version': '19.0.1.0.0',
     'category': 'Kode Agri',
     'summary': "Jeu de données de démonstration cohérent avec les maquettes, chargé par les flux réels, et tests de bout en bout",
-    'depends': ['kode_agri_gestion', 'kode_agri_immo'],
+    'depends': ['kode_agri_gestion', 'kode_agri_immo', 'kode_agri_rh', 'kode_agri_maintenance', 'kode_agri_flotte'],
     'data': [],
     'post_init_hook': 'post_init_hook',
     'license': 'LGPL-3',
