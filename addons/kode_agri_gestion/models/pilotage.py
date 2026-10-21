@@ -24,7 +24,7 @@ def _chiffre_affaires(env, deb, fin):
 
 
 class KaKpi(models.Model):
-    """Tableau de bord de pilotage : KPI, marge par grade, coût standard / réel (écran 8.5)."""
+    """Tableau de bord de pilotage : KPI, marge par grade, coût standard / réel (écran 9.5)."""
     _name = 'ka.kpi'
     _description = 'Tableau de bord de pilotage'
     _inherit = ['ka.document']
@@ -120,7 +120,7 @@ class KaKpi(models.Model):
 
 
 class KaPnl(models.Model):
-    """Compte de résultat de gestion par activité : mois, cumul campagne, % CA, N-1 (écran 8.6)."""
+    """Compte de résultat de gestion par activité : mois, cumul campagne, % CA, N-1 (écran 9.6)."""
     _name = 'ka.pnl'
     _description = 'Compte de résultat de gestion'
     _inherit = ['ka.document']
@@ -185,7 +185,7 @@ class KaPnl(models.Model):
 
 
 class KaTresoGlissant(models.Model):
-    """Tableau de trésorerie glissant : réalisé de la semaine précédente et prévisionnel sur quatre semaines (écran 8.7)."""
+    """Tableau de trésorerie glissant : réalisé de la semaine précédente et prévisionnel sur quatre semaines (écran 9.7)."""
     _name = 'ka.treso.glissant'
     _description = 'Tableau de trésorerie glissant'
     _inherit = ['ka.document']
@@ -265,7 +265,7 @@ class KaEcartNote(models.Model):
 
 
 class KaEcart(models.Model):
-    """Analyse des écarts budget / réalisé par section, avec décomposition et notes d'analyse (écran 8.4, § 8.2.6)."""
+    """Analyse des écarts budget / réalisé par section, avec décomposition et notes d'analyse (écran 9.4, § 9.2.6)."""
     _name = 'ka.ecart'
     _description = 'Analyse des écarts budget / réalisé'
     _inherit = ['ka.document']

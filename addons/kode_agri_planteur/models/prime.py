@@ -14,7 +14,7 @@ class KaPrimeType(models.Model):
     ], string='Type de prime', required=True, default='kg')
     base_calcul = fields.Selection([
         ('kg_achete', 'Par kg de fond de tasse acheté'), ('forfait', 'Forfait ou selon le volume du mois'),
-        ('cumul', "Cumul d'apports sur la période"), ('qualite', "Critères qualité de l'apport"),
+        ('cumul', "Cumul de livraisons sur la période"), ('qualite', "Critères qualité de la livraison"),
     ], string='Base de calcul', required=True, default='kg_achete')
     bareme = fields.Float(string='Barème (FCFA / kg humide)')
     periode = fields.Char(string="Période d'application", default='Campagne 2026')

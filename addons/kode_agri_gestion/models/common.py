@@ -2,7 +2,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-# Axe ACTIVITE : cascade du coût de revient (§ 8.1.1)
+# Axe ACTIVITE : cascade du coût de revient (§ 9.1.1)
 SECTIONS = [
     ('ACH_FDT', "Coût d'achat FDT", 'Coût matière'),
     ('USINAGE', "Coût d'usinage", 'Coût de production'),

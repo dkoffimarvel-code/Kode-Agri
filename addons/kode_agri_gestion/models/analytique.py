@@ -7,7 +7,7 @@ ETAPES = {code: etape for code, _n, etape in SECTIONS}
 
 
 class KaCascade(models.Model):
-    """Consultation analytique : cascade du coût de revient par activité, croisée avec grade, campagne et site (écran 8.1)."""
+    """Consultation analytique : cascade du coût de revient par activité, croisée avec grade, campagne et site (écran 9.1)."""
     _name = 'ka.cascade'
     _description = 'Consultation analytique — cascade par activité'
     _inherit = ['ka.document']
@@ -72,7 +72,7 @@ class KaCascade(models.Model):
 
 
 class KaUo(models.Model):
-    """Unité d'œuvre : quantité non financière saisie quotidiennement par section consommatrice (§ 8.1.3)."""
+    """Unité d'œuvre : quantité non financière saisie quotidiennement par section consommatrice (§ 9.1.3)."""
     _name = 'ka.uo'
     _description = "Unité d'œuvre"
     _order = 'date desc, id desc'
@@ -85,7 +85,7 @@ class KaUo(models.Model):
 
 
 class KaRepartition(models.Model):
-    """Répartition analytique d'une charge indirecte : unités d'œuvre → clés en % → répartition par compte général (écran 8.2)."""
+    """Répartition analytique d'une charge indirecte : unités d'œuvre → clés en % → répartition par compte général (écran 9.2)."""
     _name = 'ka.repartition'
     _description = 'Répartition analytique — unités d\'œuvre et clés'
     _inherit = ['ka.document', 'mail.thread']

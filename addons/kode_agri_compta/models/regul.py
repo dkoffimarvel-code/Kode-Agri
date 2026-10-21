@@ -14,7 +14,7 @@ DEFAUT = {'cca': ('476', None), 'pca': (None, '477'), 'cap': (None, '4081'), 'pa
 
 
 class KaRegul(models.Model):
-    """Écriture de régularisation de fin de période avec extourne automatique à l'ouverture suivante (RG-7.5)."""
+    """Écriture de régularisation de fin de période avec extourne automatique à l'ouverture suivante (RG-8.5)."""
     _name = 'ka.regul'
     _description = "Régularisation d'arrêté"
     _inherit = ['ka.document', 'mail.thread']
@@ -83,7 +83,7 @@ class KaRegul(models.Model):
             r.state = 'comptabilisee'
 
     def action_extourner(self):
-        """Contre-passation à l'ouverture suivante : même montant, sens inverse, au lendemain de la clôture (RG-7.5)."""
+        """Contre-passation à l'ouverture suivante : même montant, sens inverse, au lendemain de la clôture (RG-8.5)."""
         for r in self:
             if not r.extourne:
                 raise UserError(_("Une provision se reprend (reprise de provision) ; elle ne s'extourne pas."))

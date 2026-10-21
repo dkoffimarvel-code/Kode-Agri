@@ -3,13 +3,13 @@ from odoo.exceptions import UserError
 
 from .common import fmt_dec
 
-SEUIL_CA = 100_000_000   # au-delà, l'autorisation du conseil d'administration est requise (écran 8.3 quater)
+SEUIL_CA = 100_000_000   # au-delà, l'autorisation du conseil d'administration est requise (écran 9.3 quater)
 ETAPES = [('Demande', 'Département production', 'Émis'), ('Contrôle budgétaire', 'DAF', 'Visé'),
           ('Approbation', 'Direction générale', 'Approuvé'), ('Seuil > 100 M FCFA', "Conseil d'administration", 'Autorisé')]
 
 
 class KaBab(models.Model):
-    """Bon à budgétiser CAPEX : dotation d'investissement, support d'engagement et de suivi (§ 8.2.3)."""
+    """Bon à budgétiser CAPEX : dotation d'investissement, support d'engagement et de suivi (§ 9.2.3)."""
     _name = 'ka.bab'
     _description = 'Bon à budgétiser CAPEX'
     _inherit = ['ka.document', 'mail.thread']

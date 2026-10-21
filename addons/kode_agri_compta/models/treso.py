@@ -48,7 +48,7 @@ class KaTresoLigne(models.Model):
 
 
 class KaTreso(models.Model):
-    """Prévisions de trésorerie en six rubriques : vue mensuelle et vue hebdomadaire (§ 7.6.4, YTRESO)."""
+    """Prévisions de trésorerie en six rubriques : vue mensuelle et vue hebdomadaire (§ 8.6.4, YTRESO)."""
     _name = 'ka.treso'
     _description = 'Prévisions de trésorerie'
     _inherit = ['ka.document']

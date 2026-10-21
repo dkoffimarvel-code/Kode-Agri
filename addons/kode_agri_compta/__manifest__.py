@@ -1,5 +1,5 @@
 {
-    'name': 'Kode Agri — Module 7 : Comptabilité et finance',
+    'name': 'Kode Agri — Module 8 : Comptabilité et finance',
     'version': '19.0.1.0.0',
     'category': 'Kode Agri',
     'summary': "Facture export en devise, rapprochement à trois niveaux, lettrage, prévisions de trésorerie, régularisations d'arrêté, schémas d'écritures",

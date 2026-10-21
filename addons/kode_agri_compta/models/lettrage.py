@@ -3,7 +3,7 @@ from odoo.exceptions import UserError
 
 
 class KaLettrage(models.Model):
-    """Lettrage d'un compte de tiers : proposition puis lettrage automatique (écran 7.5)."""
+    """Lettrage d'un compte de tiers : proposition puis lettrage automatique (écran 8.5)."""
     _name = 'ka.lettrage'
     _description = 'Lettrage automatique'
     _inherit = ['ka.document']

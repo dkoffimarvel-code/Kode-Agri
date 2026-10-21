@@ -2,7 +2,7 @@ from odoo import _, api, fields, models
 
 
 class AccountMove(models.Model):
-    """Facture de vente export en devise (écran 7.1) : champs d'affichage et commande ouverte d'origine."""
+    """Facture de vente export en devise (écran 8.1) : champs d'affichage et commande ouverte d'origine."""
     _inherit = 'account.move'
 
     ka_contrat_id = fields.Many2one('ka.contrat', string='Commande ouverte')

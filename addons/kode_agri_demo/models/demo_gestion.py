@@ -6,7 +6,7 @@ from odoo import Command, models
 
 from odoo.addons.kode_agri_gestion.models.common import SECTIONS, plan_col, plan_de
 
-# Répartition par section et compte général du coût de la campagne (grade TSR10), en FCFA — écran 8.1
+# Répartition par section et compte général du coût de la campagne (grade TSR10), en FCFA — écran 9.1
 COUTS = {
     'ACH_FDT': [('601100', 28_400_000, True)],
     'USINAGE': [('613200', 5_520_000, False), ('641100', 3_680_000, False)],
@@ -34,7 +34,7 @@ class KaDemoGestion(models.AbstractModel):
         vals.setdefault('account_id', accounts[0].id)
         return self.env['account.analytic.line'].create(vals)
 
-    def _m8_gestion(self):
+    def _m9_gestion(self):
         if self.env['ka.budget'].search([('annee', '=', date.today().year)], limit=1):
             return 'déjà chargé'
         today = date.today()

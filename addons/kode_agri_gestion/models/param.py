@@ -2,7 +2,7 @@ from odoo import api, fields, models
 
 
 class KaGestionParam(models.Model):
-    """Objectifs et seuils des indicateurs de pilotage (« Paramétrer les indicateurs », § 8.3, 8.5.3)."""
+    """Objectifs et seuils des indicateurs de pilotage (« Paramétrer les indicateurs », § 9.3, 9.5.3)."""
     _name = 'ka.gestion.param'
     _description = 'Paramètres des indicateurs de gestion'
 

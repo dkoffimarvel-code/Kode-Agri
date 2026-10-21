@@ -152,7 +152,7 @@ class KaDemoSuite(models.AbstractModel):
             fin_mois_prec.strftime('%m/%Y'), '{:,.0f}'.format(dot.total).replace(',', ' '))
 
     # ---- M7 : comptabilité et finance -------------------------------------------------------------------------------------------------
-    def _m7_compta(self):
+    def _m8_compta(self):
         today = date.today()
         usd = self.env['res.currency'].search([('name', '=', 'USD')], limit=1)
         tsr10 = self._ref('kode_agri_production.product_tsr10')

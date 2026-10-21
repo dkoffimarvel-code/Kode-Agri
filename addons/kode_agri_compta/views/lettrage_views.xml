@@ -4,16 +4,16 @@
     <field name="name">ka.lettrage.ka.form</field>
     <field name="model">ka.lettrage</field>
     <field name="arch" type="xml">
-        <form string="Lettrage — compte d'avances apporteur" class="o_ka_form">
+        <form string="Lettrage — compte d'avances planteur" class="o_ka_form">
             <sheet>
                 <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Lettrage</span><span class="o_ka_cur">Lettrage automatique</span></div>
                 <div class="o_ka_layout">
                     <div class="o_ka_main">
                         <div class="o_ka_head">
-                            <div><h1>Lettrage — compte d'avances apporteur</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
+                            <div><h1>Lettrage — compte d'avances planteur</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
                             <field name="state" widget="badge" decoration-warning="state in ('partiel','non_lettre')" decoration-success="state in ('lettre')"/>
                         </div>
-                        <div class="o_ka_info">Chaque décompte impute la récupération d'avance par lettrage ; le grand livre auxiliaire donne le solde par apporteur.</div><div class="o_ka_sec">Critères</div><div class="o_ka_grid"><div class="o_ka_f"><label for="company_id" string="Société"/><field name="company_id"/></div><div class="o_ka_f"><label for="account_id" string="Collectif" class="o_ka_req"/><field name="account_id"/></div><div class="o_ka_f"><label for="partner_id" string="Tiers"/><field name="partner_id"/></div><div class="o_ka_f"><label for="critere" string="Critère de lettrage"/><field name="critere"/></div></div><field name="line_ids" nolabel="1" readonly="1"><list><field name="date" string="Date"/><field name="piece" string="Pièce"/><field name="intitule" string="Intitulé"/><field name="debit" string="Débit" sum="Solde dû après lettrage"/><field name="credit" string="Crédit" sum="Total"/><field name="lettre" string="Lettre"/></list></field><div class="o_ka_grid"><div class="o_ka_f"><label for="solde" string="Solde dû après lettrage"/><field name="solde" readonly="1"/></div></div>
+                        <div class="o_ka_info">Chaque décompte impute la récupération d'avance par lettrage ; le grand livre auxiliaire donne le solde par planteur.</div><div class="o_ka_sec">Critères</div><div class="o_ka_grid"><div class="o_ka_f"><label for="company_id" string="Société"/><field name="company_id"/></div><div class="o_ka_f"><label for="account_id" string="Collectif" class="o_ka_req"/><field name="account_id"/></div><div class="o_ka_f"><label for="partner_id" string="Tiers"/><field name="partner_id"/></div><div class="o_ka_f"><label for="critere" string="Critère de lettrage"/><field name="critere"/></div></div><field name="line_ids" nolabel="1" readonly="1"><list><field name="date" string="Date"/><field name="piece" string="Pièce"/><field name="intitule" string="Intitulé"/><field name="debit" string="Débit" sum="Solde dû après lettrage"/><field name="credit" string="Crédit" sum="Total"/><field name="lettre" string="Lettre"/></list></field><div class="o_ka_grid"><div class="o_ka_f"><label for="solde" string="Solde dû après lettrage"/><field name="solde" readonly="1"/></div></div>
                     </div>
                     <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Proposer le lettrage" name="action_proposer" type="object" class="o_ka_btn"/><button string="Lettrer automatiquement" name="action_lettrer" type="object" class="o_ka_btn o_ka_primary"/><button string="Consulter la balance âgée" name="action_balance_agee" type="object" class="o_ka_btn"/></aside>
                 </div>

@@ -53,8 +53,8 @@ class KaDemo(models.AbstractModel):
             ('M6 — Note de frais', self._m6_frais),
             ('M2 — Demande d\'achat, appel d\'offres, commande, réception, facture, dossier d\'import', self._m2_achats),
             ('M3 — Immobilisations, dotations, sortie', self._m3_immo),
-            ('M7 — Facture export, contrôle facture, trésorerie, régularisation', self._m7_compta),
-            ('M8 — Analytique, budget, CAPEX, unités d\'œuvre', self._m8_gestion),
+            ('M8 — Facture export, contrôle facture, trésorerie, régularisation', self._m8_compta),
+            ('M9 — Analytique, budget, CAPEX, unités d\'œuvre', self._m9_gestion),
         ]
         rapport = []
         for nom, fn in etapes:
@@ -151,7 +151,7 @@ class KaDemo(models.AbstractModel):
                                  ('P-0231', 'Roulement 9120', 'consu'), ('P-0244', 'Courroie transporteur', 'consu'), ('P-0250', 'Filtre', 'consu')):
             self._product(code, nom, type='consu', is_storable=True, categ_id=categ.id, standard_price=1000 if code.startswith('P') else 765)
         self._product('SRV-POSE', 'Pose et réglage séchoir', type='service', standard_price=150000)
-        return '%d apporteurs, clients, fournisseurs et articles' % (len(self.planteurs) + 1)
+        return '%d planteurs, clients, fournisseurs et articles' % (len(self.planteurs) + 1)
 
     # ---- M1 ---------------------------------------------------------------------------------------------------------------
     def _m1_parametres(self):

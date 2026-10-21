@@ -5,7 +5,7 @@ from odoo.addons.kode_agri_production.models.common import ka_param
 
 
 class KaRapprochement(models.Model):
-    """Contrôle facture à trois niveaux commande / réception / facture avec tolérances (RG-7.1)."""
+    """Contrôle facture à trois niveaux commande / réception / facture avec tolérances (RG-8.1)."""
     _name = 'ka.rapprochement'
     _description = 'Contrôle facture fournisseur'
     _inherit = ['ka.document', 'mail.thread']
@@ -84,12 +84,12 @@ class KaRapprochement(models.Model):
         self.write({'state': 'attente'})
 
     def action_valider(self):
-        """RG-7.1 : au-delà de la tolérance de prix ou de quantité, la facture reste en attente de contrôle ;
+        """RG-8.1 : au-delà de la tolérance de prix ou de quantité, la facture reste en attente de contrôle ;
         sinon elle est comptabilisée et solde le compte des factures non parvenues."""
         for r in self:
             if r.controle == 'ecart':
                 r.state = 'attente'
-                raise UserError(_("Écart hors tolérance : la facture est mise en attente de contrôle (RG-7.1)."))
+                raise UserError(_("Écart hors tolérance : la facture est mise en attente de contrôle (RG-8.1)."))
             if r.move_id.state == 'draft':
                 r.move_id.action_post()
             r.state = 'rapprochee'

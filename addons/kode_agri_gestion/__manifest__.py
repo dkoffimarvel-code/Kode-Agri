@@ -1,5 +1,5 @@
 {
-    'name': 'Kode Agri — Module 8 : Contrôle de gestion',
+    'name': 'Kode Agri — Module 9 : Contrôle de gestion',
     'version': '19.0.1.0.0',
     'category': 'Kode Agri',
     'summary': "Cascade analytique, unités d'œuvre et clés, budgets à deux couches, CAPEX, écarts, KPI, P&L de gestion, trésorerie glissante",

@@ -12,7 +12,7 @@ VERSIONS = [('initial', 'Initial'), ('revise', 'Révisé'), ('simulation', 'Simu
 
 
 class KaBudget(models.Model):
-    """Budget mensualisé en deux couches : détail (justification) et consolidé (suivi) — § 8.2.1, 8.2.2."""
+    """Budget mensualisé en deux couches : détail (justification) et consolidé (suivi) — § 9.2.1, 9.2.2."""
     _name = 'ka.budget'
     _description = 'Budget'
     _inherit = ['ka.document', 'mail.thread', 'mail.activity.mixin']
@@ -112,7 +112,7 @@ class KaBudget(models.Model):
                 d.copy({'budget_id': new.id, 'ligne_id': nl.id})
         return {'type': 'ir.actions.act_window', 'res_model': 'ka.budget', 'res_id': new.id, 'view_mode': 'form'}
 
-    # ---- génération de la maquette à partir du réalisé (§ 8.2.1, 8.2.4) ------------------------------------------------
+    # ---- génération de la maquette à partir du réalisé (§ 9.2.1, 9.2.4) ------------------------------------------------
     def action_generer_maquette(self):
         """Agrège les écritures analytiques de l'année précédente par compte général × section × mois : une ligne de détail
         par écriture (traçabilité, zoom) et une ligne consolidée par clé de regroupement. Rejette les référentiels inconnus."""
@@ -181,7 +181,7 @@ class KaBudget(models.Model):
         return {'type': 'ir.actions.act_window', 'name': 'Budget — suivi par activité', 'res_model': 'ka.budget', 'res_id': self.id,
                 'view_mode': 'form', 'views': [(self.env.ref('kode_agri_gestion.view_ka_budget_suivi_form').id, 'form')]}
 
-    # ---- comparaison budget / réalisé (§ 8.2.6) -------------------------------------------------------------------------------
+    # ---- comparaison budget / réalisé (§ 9.2.6) -------------------------------------------------------------------------------
     def _comparer(self):
         """[(code, nom, budget, réalisé)] par section d'activité sur l'année du budget."""
         self.ensure_one()
@@ -205,7 +205,7 @@ class KaBudget(models.Model):
             b.ecart_global_txt = '%s FCFA' % fmt_signe(ecart)
             b.suivi_html = ('<table class="o_ka_tbl"><thead><tr><th>Section (activité)</th><th>Axe croisé</th><th class="o_ka_num">Budget</th><th class="o_ka_num">Réalisé</th><th class="o_ka_num">Écart</th></tr></thead><tbody>%s</tbody><tfoot><tr><td><b>Écart global</b></td><td></td><td></td><td></td><td class="o_ka_num"><b>%s FCFA</b></td></tr></tfoot></table>' % (rows, fmt_signe(ecart)))
 
-    # ---- alertes (§ 8.5.3) -------------------------------------------------------------------------------------------------
+    # ---- alertes (§ 9.5.3) -------------------------------------------------------------------------------------------------
     @api.model
     def cron_alertes(self):
         """Action planifiée : active une alerte lorsque l'écart d'une section dépasse le seuil paramétré."""
@@ -218,7 +218,7 @@ class KaBudget(models.Model):
 
 
 class KaBudgetLigne(models.Model):
-    """Couche consolidée : clé de regroupement compte général × section d'activité × mois (§ 8.2.4)."""
+    """Couche consolidée : clé de regroupement compte général × section d'activité × mois (§ 9.2.4)."""
     _name = 'ka.budget.ligne'
     _description = 'Budget — ligne consolidée'
     _order = 'section_id, account_id'
@@ -297,7 +297,7 @@ class KaBudgetDetail(models.Model):
 
 
 class KaBudgetImport(models.TransientModel):
-    """Import Excel/CSV : compte général, activité, axe croisé, 12 colonnes mensuelles ; contrôle de cohérence (§ 8.2.1)."""
+    """Import Excel/CSV : compte général, activité, axe croisé, 12 colonnes mensuelles ; contrôle de cohérence (§ 9.2.1)."""
     _name = 'ka.budget.import'
     _description = 'Importer les budgets'
 

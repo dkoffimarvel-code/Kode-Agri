@@ -17,7 +17,7 @@ class ResPartner(models.Model):
     ], string='Mode de règlement')
     ka_bareme_id = fields.Many2one('ka.tarif.bareme', string='Prix Apromac')
     ka_parcelle_ids = fields.One2many('ka.parcelle', 'partner_id', string="Parcelles d'origine (EUDR)")
-    ka_nb_apports = fields.Integer(string='Apports de la campagne', compute='_compute_ka_stats')
+    ka_nb_apports = fields.Integer(string='Livraisons de la campagne', compute='_compute_ka_stats')
     ka_solde_avance = fields.Monetary(string="Solde d'avance", compute='_compute_ka_stats',
                                       currency_field='ka_currency_id')
     ka_currency_id = fields.Many2one('res.currency', compute='_compute_ka_currency')

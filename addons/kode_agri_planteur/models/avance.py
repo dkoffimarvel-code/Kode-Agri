@@ -49,7 +49,7 @@ class KaAvance(models.Model):
         for rec in self:
             solde = rec.partner_id.ka_solde_avance
             fmt = '{:,.0f}'.format(solde).replace(',', ' ')
-            rec.info = _("Solde d'avance en cours : %s FCFA — encours de l'apporteur sous le plafond autorisé.") % fmt
+            rec.info = _("Solde d'avance en cours : %s FCFA — encours du planteur sous le plafond autorisé.") % fmt
 
     @api.model_create_multi
     def create(self, vals_list):
