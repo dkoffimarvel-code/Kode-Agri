@@ -1,136 +1,119 @@
-/* ===== Kode Agri — habillage reproduisant les maquettes du cahier des charges ===== */
+/* ===== Kode Agri — habillage des maquettes v4.5 (interface native Odoo) =====
+ * Les écrans sont des formulaires Odoo standard : barre d'application violette, boutons d'action et barre d'état
+ * dans l'en-tête, cartes KPI (boutons statistiques) à droite du titre, champs sur deux colonnes, onglets.
+ * Ce fichier n'ajoute que les éléments propres aux maquettes : bandeaux d'information et de validation,
+ * pastilles, cartes KPI, tableaux de synthèse.
+ */
 :root {
-    --ka-green: #00855f;
-    --ka-green-dark: #006b4c;
-    --ka-green-bg: #dff3ea;
-    --ka-black: #000;
-    --ka-ink: #14181b;
-    --ka-muted: #4d5b66;
-    --ka-line: #cfd8dd;
-    --ka-head: #e9eef1;
-    --ka-info-bg: #e8f0fa;
-    --ka-info-bar: #0b6bb5;
-    --ka-warn-bg: #fdebd0;
+    --ka-purple: #714b67;
+    --ka-purple-bg: #ece3ea;
+    --ka-teal: #017e84;
+    --ka-ink: #212529;
+    --ka-muted: #6c757d;
+    --ka-line: #dee2e6;
+    --ka-head: #f2f2f2;
+    --ka-info-bg: #e9f4f8;
+    --ka-info-line: #b6dbe6;
+    --ka-info-ink: #0e5c68;
+    --ka-valid-bg: #faf6e6;
+    --ka-valid-line: #eadc9b;
+    --ka-valid-ink: #7a5d00;
+    --ka-ok-bg: #dbf1e1;
+    --ka-ok-ink: #1d6b35;
+    --ka-warn-bg: #fdebd6;
     --ka-warn-ink: #9a5200;
-    --ka-blue-bg: #dbe9f8;
-    --ka-blue-ink: #0b4f86;
+    --ka-danger-bg: #f8d7da;
+    --ka-danger-ink: #9b1c24;
 }
 
-/* --- Barre supérieure noire --- */
-.o_main_navbar { background: var(--ka-black) !important; border-bottom: 0; }
-.o_main_navbar .o_navbar_apps_menu .dropdown-toggle,
-.o_main_navbar .o_menu_brand,
-.o_main_navbar .o_menu_sections .o_nav_entry,
-.o_main_navbar .o_menu_sections .dropdown-toggle { color: #fff !important; }
-.o_main_navbar::before { content: "Kode Agri"; color: #fff; font-size: 1.3rem; padding: 0 1rem 0 .8rem; margin-right: .6rem; border-right: 1px solid #555; }
-.o_ka_navctx { display: flex; align-items: center; gap: .5rem; color: #fff; margin-right: 1rem; font-size: .95rem; white-space: nowrap; }
-.o_ka_navctx .o_ka_dot { color: #aaa; }
+/* --- Barre supérieure : libellé « ERP KODE » --- */
+.o_ka_erp { display: flex; align-items: center; color: #fff; font-weight: 600; letter-spacing: .02em; margin-right: .6rem; white-space: nowrap; }
 
-/* --- Fiche Kode Agri --- */
-.o_form_view.o_ka_form .o_form_sheet_bg { background: #fff; padding: 0; border: 0; }
-.o_form_view.o_ka_form .o_form_sheet { max-width: none; margin: 0; padding: 0; border: 0; box-shadow: none; background: #fff; }
-.o_ka_crumbs { background: #f1f4f6; color: var(--ka-muted); padding: .6rem 1.5rem; font-size: .95rem; display: flex; }
-.o_ka_crumbs span.o_ka_c::after { content: "›"; margin: 0 .55rem; }
-.o_ka_crumbs span.o_ka_cur { font-weight: 700; color: var(--ka-ink); }
-.o_ka_crumbs .o_ka_fn { margin-left: auto; }
-.o_ka_layout { display: flex; align-items: stretch; min-height: 70vh; }
-.o_ka_main { flex: 1 1 auto; padding: 1.5rem 2rem 2rem; min-width: 0; }
-.o_ka_side { flex: 0 0 235px; background: #f1f4f6; border-left: 1px solid var(--ka-line); padding: 1.1rem 1rem; }
-.o_ka_side .o_ka_side_t { text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--ka-muted); font-size: .85rem; margin: .4rem 0 .7rem; }
-.o_ka_side .o_ka_side_t:not(:first-child) { margin-top: 1.6rem; }
-.o_ka_side button.o_ka_btn, .o_ka_side button.o_ka_link { display: block; width: 100%; text-align: left; margin-bottom: .55rem; }
-.o_ka_side button.o_ka_btn { background: #fff; border: 1px solid var(--ka-line); color: var(--ka-ink); padding: .65rem .8rem; border-radius: 2px; font-size: 1rem; }
-.o_ka_side button.o_ka_btn::before { content: "›"; color: var(--ka-green); font-weight: 700; margin-right: .7rem; }
-.o_ka_side button.o_ka_btn.o_ka_primary { background: var(--ka-green); border-color: var(--ka-green); color: #fff; font-weight: 700; }
-.o_ka_side button.o_ka_btn.o_ka_primary::before { color: #fff; }
-.o_ka_side button.o_ka_link { background: none; border: 0; color: var(--ka-green); padding: .15rem .2rem; font-size: 1rem; }
-.o_ka_side button.o_ka_link:hover { text-decoration: underline; }
+/* --- Boutons d'action de l'en-tête : contour violet, action principale pleine --- */
+.o_form_view.o_ka_form .o_form_statusbar .o_statusbar_buttons .btn-secondary {
+    background: #fff; border: 1px solid var(--ka-purple); color: var(--ka-purple); font-weight: 600;
+}
+.o_form_view.o_ka_form .o_form_statusbar .o_statusbar_buttons .btn-primary { font-weight: 600; }
+.o_form_view.o_ka_form .o_form_statusbar .o_statusbar_buttons .btn-danger-outline,
+.o_form_view.o_ka_form .o_form_statusbar .o_statusbar_buttons .o_ka_btn_danger {
+    background: #fff; border: 1px solid #d9534f; color: #d9534f;
+}
 
-.o_ka_head { display: flex; justify-content: space-between; align-items: flex-start; }
-.o_ka_head h1 { font-size: 2rem; font-weight: 700; margin: 0; color: #000; }
-.o_ka_sub { color: var(--ka-muted); font-size: 1.25rem; margin: .2rem 0 .6rem; }
+/* --- Titre et sous-titre --- */
+.o_ka_form .oe_title h1 { font-weight: 700; margin-bottom: .1rem; }
+.o_ka_sub { color: var(--ka-muted); font-size: 1.1rem; margin: 0 0 .8rem; }
 .o_ka_sub .o_field_widget { display: inline; }
+.o_ka_title_tag { display: inline-flex; align-items: center; gap: .8rem; }
 
-/* pastille d'état (badge) */
-.o_ka_head .o_field_badge span { border-radius: 999px; padding: .35rem 1rem; font-weight: 700; font-size: 1rem; background: var(--ka-green-bg); color: #00462f; }
-.o_ka_head .o_field_badge .text-bg-warning { background: var(--ka-warn-bg) !important; color: var(--ka-warn-ink) !important; }
-.o_ka_head .o_field_badge .text-bg-info { background: var(--ka-blue-bg) !important; color: var(--ka-blue-ink) !important; }
-.o_ka_head .o_field_badge .text-bg-success { background: var(--ka-green-bg) !important; color: #00462f !important; }
-.o_ka_head .o_field_badge .text-bg-danger { background: #fbe0e0 !important; color: #8a1c1c !important; }
+/* --- Cartes KPI (boutons statistiques sans icône) --- */
+.o_ka_form .oe_button_box .oe_stat_button { min-width: 170px; border: 1px solid var(--ka-line); border-radius: 4px; margin-left: .6rem; }
+.o_ka_form .oe_button_box .oe_stat_button .o_stat_value { color: var(--ka-teal); font-size: 1.35rem; font-weight: 700; }
+.o_ka_form .oe_button_box .oe_stat_button .o_stat_text { color: var(--ka-muted); }
+.o_ka_form .oe_button_box .oe_stat_button .o_stat_value .o_field_widget { display: inline; }
 
-/* statusbar rendue en pastilles */
-.o_ka_pills .o_statusbar_status { display: flex; gap: .6rem; background: none; border: 0; }
-.o_ka_pills .o_statusbar_status .o_arrow_button { background: #e8ecef !important; color: #7a8791 !important; border: 0 !important; border-radius: 999px !important; padding: .2rem 1rem !important; font-size: 1rem; }
-.o_ka_pills .o_statusbar_status .o_arrow_button::before, .o_ka_pills .o_statusbar_status .o_arrow_button::after { display: none !important; }
-.o_ka_pills .o_statusbar_status .o_arrow_button.o_arrow_button_current { background: var(--ka-green) !important; color: #fff !important; font-weight: 700; }
-.o_ka_pills .o_statusbar_status .o_arrow_button.o_arrow_button_current ~ .o_arrow_button { background: #e8ecef !important; }
-.o_ka_pills .o_statusbar_status .o_arrow_button:not(.o_arrow_button_current):not(.disabled) { background: var(--ka-green-bg) !important; color: var(--ka-green-dark) !important; }
+/* --- Bandeau d'information (bleu) et bloc de validation (jaune) --- */
+.o_ka_info { background: var(--ka-info-bg); border: 1px solid var(--ka-info-line); color: var(--ka-info-ink); border-radius: 4px;
+             padding: .55rem .9rem; margin: .6rem 0 1rem; }
+.o_ka_info::before { content: "ℹ "; font-weight: 700; margin-right: .2rem; }
+.o_ka_info.o_ka_noicon::before { content: none; }
+.o_ka_info .o_ka_info_t, .o_ka_valid .o_ka_valid_t { display: block; font-weight: 700; margin-bottom: .2rem; }
+.o_ka_valid { background: var(--ka-valid-bg); border: 1px solid var(--ka-valid-line); color: var(--ka-valid-ink); border-radius: 4px;
+              padding: .7rem 1rem; margin: 1rem 0 .5rem; }
+.o_ka_valid .o_ka_valid_t { font-size: 1.1rem; }
+.o_ka_warn_banner { background: #fdf1e1; border: 1px solid #f0c48a; color: #8a4b00; border-radius: 4px; padding: .7rem 1rem; margin: 1rem 0 .5rem; }
+.o_ka_alert { background: #fbeaea; border: 1px solid #efb7b7; color: #8a1c1c; border-radius: 4px; padding: .7rem 1rem; margin: 1rem 0 .5rem; }
 
-/* KPI */
-.o_ka_kpis { display: flex; gap: 1rem; margin: .8rem 0 1rem; }
-.o_ka_kpi { border: 1px solid var(--ka-line); border-left: 4px solid var(--ka-green); padding: .5rem 1.4rem .5rem .9rem; min-width: 190px; }
-.o_ka_kpi .o_field_widget { font-size: 1.9rem; font-weight: 700; color: #000; display: block; line-height: 1.2; }
-.o_ka_kpi .o_ka_kl { color: var(--ka-muted); font-size: 1rem; }
+/* --- Sous-titres de section et notes --- */
+.o_ka_h3 { font-size: 1.1rem; font-weight: 700; margin: 1.2rem 0 .5rem; color: var(--ka-ink); }
+.o_ka_sec { font-size: 1.1rem; font-weight: 700; margin: 1.2rem 0 .5rem; }
+.o_ka_note { color: var(--ka-muted); margin: .3rem 0 .9rem; }
+.o_ka_hint { color: var(--ka-muted); font-size: .85rem; }
 
-/* bandeau d'information */
-.o_ka_info { background: var(--ka-info-bg); border-left: 4px solid var(--ka-info-bar); padding: .65rem 1rem; margin: .7rem 0 1.2rem; font-size: 1.02rem; }
-.o_ka_info::before { content: "ⓘ "; color: #3a4750; margin-right: .35rem; }
-
-/* sections et grille de champs */
-.o_ka_sec { font-size: 1.35rem; font-weight: 700; border-bottom: 1px solid var(--ka-line); padding-bottom: .35rem; margin: 1.2rem 0 1rem; }
-.o_ka_sec::before { content: "▾"; color: var(--ka-green); margin-right: .5rem; }
-.o_ka_h3 { font-size: 1.2rem; font-weight: 700; margin: 1.4rem 0 .6rem; }
-.o_ka_grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem 1.2rem; max-width: 1250px; }
-.o_ka_f > label { display: block; color: var(--ka-muted); font-size: .98rem; margin-bottom: .15rem; font-weight: 400; }
-.o_ka_f > label.o_ka_req::after { content: " *"; color: #c0262d; }
-.o_ka_f .o_field_widget { width: 100%; }
-.o_ka_f .o_input, .o_ka_f input, .o_ka_f select { border: 1px solid #b9c4cb; border-radius: 2px; padding: .45rem .6rem; background: #fff; }
-.o_ka_f .o_readonly_modifier { background: #eef2f4; border: 1px solid #b9c4cb; padding: .45rem .6rem; min-height: 2.45rem; }
-.o_ka_f.o_ka_check { display: flex; align-items: center; gap: .6rem; padding-top: 1.4rem; }
-
-/* tableaux (listes et tableaux HTML statiques) */
-.o_ka_main .o_list_renderer table.o_list_table thead th, table.o_ka_tbl thead th { background: var(--ka-head); color: #111; font-weight: 700; border: 1px solid var(--ka-line); padding: .6rem .8rem; }
-.o_ka_main .o_list_renderer table.o_list_table td, table.o_ka_tbl td { border: 1px solid var(--ka-line); padding: .55rem .8rem; }
-table.o_ka_tbl { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
-table.o_ka_tbl tbody tr:nth-child(even), .o_ka_main .o_list_renderer tbody tr:nth-child(even) { background: #f8fafb; }
-table.o_ka_tbl .o_ka_num { text-align: right; }
-table.o_ka_tbl tfoot td { background: #edf1f1; font-weight: 700; border-top: 2px solid #9fbdb2; }
-.o_ka_tag { display: inline-block; border-radius: 999px; padding: .1rem .75rem; font-weight: 700; background: var(--ka-green-bg); color: #00462f; }
+/* --- Pastilles (valeurs mises en avant : type, criticité, statut…) --- */
+.o_ka_form .o_field_badge span, .o_ka_tag { border-radius: 999px; padding: .15rem .8rem; font-weight: 700; }
+.o_ka_tag { display: inline-block; background: var(--ka-purple-bg); color: #4b2f44; }
+.o_ka_tag.o_ka_ok, .o_ka_tag.o_ka_success { background: var(--ka-ok-bg); color: var(--ka-ok-ink); }
 .o_ka_tag.o_ka_warn { background: var(--ka-warn-bg); color: var(--ka-warn-ink); }
-.o_ka_tag.o_ka_info { background: var(--ka-blue-bg); color: var(--ka-blue-ink); border-left: 0; padding: .1rem .75rem; margin: 0; }
-.o_ka_tag.o_ka_grey { background: #e8ecef; color: #5a6670; }
-/* badge dans les listes */
-.o_ka_main .o_list_renderer .o_field_badge span { border-radius: 999px; padding: .1rem .75rem; font-weight: 700; }
+.o_ka_tag.o_ka_danger { background: var(--ka-danger-bg); color: var(--ka-danger-ink); }
+.o_ka_tag.o_ka_info { background: #dcecf3; color: var(--ka-info-ink); border: 0; padding: .15rem .8rem; margin: 0; }
+.o_ka_tag.o_ka_info::before { content: none; }
+.o_ka_tag.o_ka_grey { background: #e9ecef; color: #5a6670; }
+.o_ka_form .o_field_badge .text-bg-secondary, .o_ka_form .o_field_badge .text-bg-muted { background: var(--ka-purple-bg) !important; color: #4b2f44 !important; }
+.o_ka_form .o_field_badge .text-bg-success { background: var(--ka-ok-bg) !important; color: var(--ka-ok-ink) !important; }
+.o_ka_form .o_field_badge .text-bg-warning { background: var(--ka-warn-bg) !important; color: var(--ka-warn-ink) !important; }
+.o_ka_form .o_field_badge .text-bg-danger { background: var(--ka-danger-bg) !important; color: var(--ka-danger-ink) !important; }
+.o_ka_form .o_field_badge .text-bg-info { background: #dcecf3 !important; color: var(--ka-info-ink) !important; }
+.o_ka_ok_txt { color: var(--ka-ok-ink); font-weight: 700; }
+.o_ka_alerte, .o_ka_ko_txt { color: var(--ka-danger-ink); font-weight: 700; }
 
-/* onglets */
-.o_ka_main .o_notebook .nav-tabs .nav-link { color: var(--ka-muted); font-size: 1.1rem; border: 0; }
-.o_ka_main .o_notebook .nav-tabs .nav-link.active { color: var(--ka-green); font-weight: 700; border-bottom: 3px solid var(--ka-green); background: none; }
+/* --- Tableaux de synthèse (HTML calculé) et listes intégrées --- */
+table.o_ka_tbl { width: 100%; border-collapse: collapse; margin-bottom: 1rem; border: 1px solid var(--ka-line); }
+table.o_ka_tbl thead th { background: var(--ka-head); color: #555; font-weight: 700; padding: .5rem .7rem; border-bottom: 1px solid var(--ka-line); text-align: left; }
+table.o_ka_tbl td { padding: .45rem .7rem; border-bottom: 1px solid var(--ka-line); }
+table.o_ka_tbl tbody tr:nth-child(even) { background: #fafafa; }
+table.o_ka_tbl .o_ka_num, table.o_ka_tbl th.o_ka_num { text-align: right; }
+table.o_ka_tbl tfoot td, table.o_ka_tbl tr.o_ka_total td { background: #f1ebf0; font-weight: 700; color: #4b2f44; }
+.o_ka_form .o_list_renderer tfoot td { background: #f1ebf0; font-weight: 700; color: #4b2f44; }
 
-/* unités affichées dans les champs numériques (kg, %, g, pt) */
-.o_field_widget[class*="o_ka_u_"] { position: relative; }
-.o_field_widget[class*="o_ka_u_"]::after { position: absolute; right: .8rem; top: 50%; transform: translateY(-50%); color: #4d5b66; pointer-events: none; }
-.o_ka_u_kg::after { content: "kg"; } .o_ka_u_pct::after { content: "%"; } .o_ka_u_g::after { content: "g"; } .o_ka_u_pt::after { content: "pt"; }
-.o_field_widget[class*="o_ka_u_"] input { padding-right: 2.2rem; text-align: left; }
-.o_field_widget.o_readonly_modifier[class*="o_ka_u_"]::after { position: static; transform: none; margin-left: .3rem; }
-.o_ka_kpi .o_field_widget[class*="o_ka_u_"]::after { position: static; transform: none; margin-left: .3rem; font-size: 1.3rem; color: #14181b; }
-.o_ka_note { color: var(--ka-muted); margin: .4rem 0 1rem; }
-.o_ka_f .o_field_float input, .o_ka_f .o_field_integer input { text-align: left; }
-
-/* unités complémentaires et lignes de cases à cocher (documents requis, liasse) */
-.o_ka_u_jours::after { content: "jours"; } .o_ka_u_eurt::after { content: "EUR/t"; }
-.o_ka_docs { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.1rem; margin: .8rem 0 1rem; color: var(--ka-ink); }
-.o_ka_docs .o_ka_doc { display: inline-flex; align-items: center; gap: .35rem; }
-.o_ka_docs .o_ka_doc label { margin: 0; }
-.o_ka_u_ans::after { content: "ans"; }
-
-/* pilotage : grille de KPI, barres, alertes */
-.o_ka_kpigrid { display: grid; grid-template-columns: repeat(3, minmax(190px, 260px)); gap: 1rem; margin: .8rem 0 1rem; }
-.o_ka_kpigrid .o_ka_kpi { min-width: 0; }
+/* --- Grille de KPI (tableaux de bord) et barres --- */
+.o_ka_kpigrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: .8rem; margin: .6rem 0 1rem; }
+.o_ka_kpi { border: 1px solid var(--ka-line); border-radius: 4px; padding: .5rem .9rem; }
+.o_ka_kpi .o_field_widget, .o_ka_kpi .o_ka_kv { font-size: 1.35rem; font-weight: 700; color: var(--ka-teal); display: block; line-height: 1.3; }
+.o_ka_kpi .o_ka_kl { color: var(--ka-muted); }
+.o_ka_kpis { display: flex; flex-wrap: wrap; gap: .8rem; margin: .6rem 0 1rem; }
 .o_ka_bar_row { display: flex; align-items: center; gap: .8rem; margin: .45rem 0; }
 .o_ka_bar_row .o_ka_bar_l { width: 6.5rem; }
-.o_ka_bar_row .o_ka_bar { display: inline-block; height: 1.1rem; background: var(--ka-green); }
-.o_ka_warn_banner { background: #fdf1e1 !important; border-left-color: #d9822b !important; }
-.o_ka_warn_banner::before { content: "" !important; margin: 0 !important; }
-.o_ka_tag.o_ka_danger { background: #fbe0e0; color: #8a1c1c; }
-.o_ka_alerte { color: #8a1c1c; font-weight: 700; }
-table.o_ka_tbl tr.o_ka_total td { background: #edf1f1; font-weight: 700; border-top: 2px solid #9fbdb2; }
+.o_ka_bar_row .o_ka_bar { display: inline-block; height: 1.1rem; background: var(--ka-teal); }
+
+/* --- Cases à cocher alignées (documents requis, liasse) --- */
+.o_ka_docs { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.1rem; margin: .6rem 0 1rem; }
+.o_ka_docs .o_ka_doc { display: inline-flex; align-items: center; gap: .35rem; }
+.o_ka_docs .o_ka_doc label { margin: 0; }
+
+/* --- Unités affichées après certaines valeurs --- */
+.o_field_widget[class*="o_ka_u_"]::after { margin-left: .3rem; color: var(--ka-muted); }
+.o_ka_u_kg::after { content: "kg"; } .o_ka_u_pct::after { content: "%"; } .o_ka_u_g::after { content: "g"; }
+.o_ka_u_pt::after { content: "pt"; } .o_ka_u_jours::after { content: "jours"; } .o_ka_u_eurt::after { content: "EUR/t"; }
+.o_ka_u_ans::after { content: "ans"; } .o_ka_u_h::after { content: "h"; } .o_ka_u_km::after { content: "km"; }
+.o_ka_u_l::after { content: "L"; } .o_ka_u_fcfa::after { content: "FCFA"; }
+.o_ka_u_mois::after { content: "mois"; }

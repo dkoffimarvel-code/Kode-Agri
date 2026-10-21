@@ -134,6 +134,23 @@ def verifier_manifestes():
                     erreurs.append('XMLID INTROUVABLE %s dans %s' % (i, f))
             elif i not in ids[mod] and not i.startswith('model_'):
                 erreurs.append('XMLID SANS PRÉFIXE (cherché dans %s) : %s dans %s' % (mod, i, f))
+    for f in glob.glob('kode_agri_*/views/*.xml') + glob.glob('kode_agri_*/data/*.xml'):
+        t = open(f).read()
+        # Odoo 18+ : la vue « tree » s'appelle « list » ; Odoo 17+ : plus d'attributs attrs / states
+        if re.search(r'<field name="view_mode">[^<]*\btree\b', t) or re.search(r'\bview_mode="[^"]*\btree\b', t):
+            erreurs.append('VIEW_MODE « tree » (utiliser « list ») dans %s' % f)
+        if re.search(r'<[a-z]+ [^>]*\b(attrs|states)="', t):
+            erreurs.append('ATTRIBUT attrs/states (supprimé depuis Odoo 17) dans %s' % f)
+        # maquettes v4.5 : écrans dans l'interface native d'Odoo (en-tête, barre d'état, cartes KPI)
+        for cls in ('o_ka_side', 'o_ka_crumbs', 'o_ka_layout'):
+            if 'class="%s' % cls in t or ' %s"' % cls in t:
+                erreurs.append('ANCIENNE MISE EN PAGE (%s) dans %s' % (cls, f))
+        for b in re.findall(r'<button [^>]*oe_stat_button[^>]*>', t):
+            if 'name="' not in b:
+                erreurs.append('BOUTON STATISTIQUE SANS name dans %s' % f)
+    for py in glob.glob('kode_agri_*/**/*.py', recursive=True):
+        if re.search(r"""['"]view_mode['"]\s*:\s*['"][^'"]*\btree\b""", open(py).read()):
+            erreurs.append('VIEW_MODE « tree » (utiliser « list ») dans %s' % py)
     for py in glob.glob('kode_agri_*/models/*.py'):
         for m_, x in re.findall(r"env\.ref\(\s*'(kode_agri_[a-z]+)\.([^']+)'", open(py).read()):
             if '%' not in x and x not in ids.get(m_, set()):   # identifiants construits dynamiquement : non vérifiables

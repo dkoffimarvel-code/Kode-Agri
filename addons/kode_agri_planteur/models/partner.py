@@ -22,7 +22,12 @@ class ResPartner(models.Model):
                                       currency_field='ka_currency_id')
     ka_currency_id = fields.Many2one('res.currency', compute='_compute_ka_currency')
     ka_subtitle = fields.Char(compute='_compute_ka_subtitle')
-    ka_statut = fields.Selection([('actif', 'Actif'), ('archive', 'Archivé')], compute='_compute_ka_statut')
+    ka_statut = fields.Selection([('brouillon', 'Brouillon'), ('actif', 'Actif'), ('archive', 'Archivé')],
+                                 compute='_compute_ka_statut', string='Statut')
+    ka_solde_avance_k = fields.Char(string='Solde avance', compute='_compute_ka_stats')
+    ka_visible_collecte = fields.Selection([('oui', 'Oui'), ('non', 'Non')], string='Visible collecte',
+                                           compute='_compute_ka_visible')
+    ka_parcelles_txt = fields.Char(string='Parcelles EUDR', compute='_compute_ka_parcelles')
     ka_avance_ids = fields.One2many('ka.avance', 'partner_id', string='Avances')
     ka_ticket_ids = fields.One2many('ka.ticket', 'partner_id', string='Tickets de pesée')
 
@@ -37,7 +42,22 @@ class ResPartner(models.Model):
 
     def _compute_ka_statut(self):
         for rec in self:
-            rec.ka_statut = 'actif' if rec.active else 'archive'
+            rec.ka_statut = ('actif' if rec.ka_code else 'brouillon') if rec.active else 'archive'
+
+    @api.depends('ka_code_acces')
+    def _compute_ka_visible(self):
+        for rec in self:   # le code d'accès COLLECTE rend la fiche visible du département collecte fond de tasse
+            rec.ka_visible_collecte = 'oui' if (rec.ka_code_acces or '').upper() == 'COLLECTE' else 'non'
+
+    @api.depends('ka_parcelle_ids')
+    def _compute_ka_parcelles(self):
+        for rec in self:
+            nb = len(rec.ka_parcelle_ids)
+            rec.ka_parcelles_txt = '%d parcelle%s géolocalisée%s' % (nb, 's' if nb > 1 else '', 's' if nb > 1 else '')
+
+    def action_imprimer_fiche(self):
+        return {'type': 'ir.actions.client', 'tag': 'display_notification',
+                'params': {'title': 'Fiche planteur', 'message': 'Fiche envoyée à l\'impression.', 'type': 'info'}}
 
     def _compute_ka_currency(self):
         for rec in self:
@@ -50,6 +70,8 @@ class ResPartner(models.Model):
             rec.ka_nb_apports = len(rec.ka_ticket_ids.filtered(lambda t: t.state == 'valide'))
             versees = rec.ka_avance_ids.filtered(lambda a: a.state in ('versee', 'recuperee'))
             rec.ka_solde_avance = sum(versees.mapped('amount')) - sum(versees.mapped('recupere'))
+            solde = rec.ka_solde_avance
+            rec.ka_solde_avance_k = ('%d k' % round(solde / 1000)) if abs(solde) >= 1000 else '%d' % solde
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -67,20 +89,20 @@ class ResPartner(models.Model):
 
     def action_open_avances(self):
         return {'type': 'ir.actions.act_window', 'name': 'Avances', 'res_model': 'ka.avance',
-                'view_mode': 'tree,form', 'domain': [('partner_id', '=', self.id)]}
+                'view_mode': 'list,form', 'domain': [('partner_id', '=', self.id)]}
 
     def action_open_tickets(self):
         return {'type': 'ir.actions.act_window', 'name': 'Tickets de pesée', 'res_model': 'ka.ticket',
-                'view_mode': 'tree,form', 'domain': [('partner_id', '=', self.id)]}
+                'view_mode': 'list,form', 'domain': [('partner_id', '=', self.id)]}
 
     def action_open_decomptes(self):
         return {'type': 'ir.actions.act_window', 'name': 'Décomptes', 'res_model': 'account.move',
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'domain': [('partner_id', '=', self.id), ('move_type', '=', 'in_invoice')]}
 
     def action_open_compte_courant(self):
         return {'type': 'ir.actions.act_window', 'name': 'Compte courant planteur',
-                'res_model': 'account.move.line', 'view_mode': 'tree,form',
+                'res_model': 'account.move.line', 'view_mode': 'list,form',
                 'domain': [('partner_id', '=', self.id), ('account_id.account_type', 'in',
                            ('liability_payable', 'asset_receivable'))]}
 

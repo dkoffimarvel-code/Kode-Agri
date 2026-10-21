@@ -91,7 +91,7 @@ class KaTicketImport(models.Model):
 
     def action_open_commandes(self):
         return {'type': 'ir.actions.act_window', 'name': "Commandes d'achat générées",
-                'res_model': 'purchase.order', 'view_mode': 'tree,form',
+                'res_model': 'purchase.order', 'view_mode': 'list,form',
                 'domain': [('id', 'in', self.ticket_ids.purchase_id.ids)]}
 
 
