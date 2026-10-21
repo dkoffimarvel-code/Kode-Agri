@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<menuitem id="menu_ka_rh_root" name="Employés" sequence="60"/>
+<menuitem id="menu_ka_rh_employes" name="Employés" parent="menu_ka_rh_root" action="action_ka_rh_employe" sequence="10"/>
+<menuitem id="menu_ka_rh_contrats" name="Contrats" parent="menu_ka_rh_root" action="action_ka_rh_contrat" sequence="20"/>
+<menuitem id="menu_ka_rh_emp_paie" name="Paie" parent="menu_ka_rh_root" action="action_ka_rh_bulletin" sequence="30"/>
+<menuitem id="menu_ka_rh_emp_conges" name="Congés" parent="menu_ka_rh_root" action="action_ka_rh_solde" sequence="40"/>
+<menuitem id="menu_ka_rh_emp_etats" name="États" parent="menu_ka_rh_root" sequence="50"/>
+<menuitem id="menu_ka_rh_emp_etat_effectifs" name="Effectifs et masse salariale" parent="menu_ka_rh_emp_etats" action="action_ka_rh_effectifs" sequence="10"/>
+<menuitem id="menu_ka_rh_config" name="Configuration" parent="menu_ka_rh_root" sequence="90"/>
+<menuitem id="menu_ka_rh_cfg_affectation" name="Affectations" parent="menu_ka_rh_config" action="action_ka_rh_affectation" sequence="10"/>
+<menuitem id="menu_ka_rh_cfg_categorie" name="Catégories professionnelles" parent="menu_ka_rh_config" action="action_ka_rh_categorie" sequence="20"/>
+<menuitem id="menu_ka_rh_cfg_competence" name="Catalogue des compétences" parent="menu_ka_rh_config" action="action_ka_rh_competence" sequence="30"/>
+<menuitem id="menu_ka_rh_presence_root" name="Présences" sequence="61"/>
+<menuitem id="menu_ka_rh_presences" name="Présences" parent="menu_ka_rh_presence_root" action="action_ka_rh_event" sequence="10"/>
+<menuitem id="menu_ka_rh_pres_employes" name="Employés" parent="menu_ka_rh_presence_root" action="action_ka_rh_employe" sequence="20"/>
+<menuitem id="menu_ka_rh_feuilles" name="Feuilles de pointage" parent="menu_ka_rh_presence_root" action="action_ka_rh_feuille" sequence="30"/>
+<menuitem id="menu_ka_rh_pres_etats" name="États" parent="menu_ka_rh_presence_root" sequence="40"/>
+<menuitem id="menu_ka_rh_pres_etat_anomalies" name="Anomalies en attente de régularisation" parent="menu_ka_rh_pres_etats" action="action_ka_rh_feuille_anomalies" sequence="10"/>
+<menuitem id="menu_ka_rh_conge_root" name="Congés" sequence="62"/>
+<menuitem id="menu_ka_rh_mes_conges" name="Mes congés" parent="menu_ka_rh_conge_root" action="action_ka_rh_conge" sequence="10"/>
+<menuitem id="menu_ka_rh_demandes" name="Demandes" parent="menu_ka_rh_conge_root" sequence="20"/>
+<menuitem id="menu_ka_rh_dem_toutes" name="À approuver" parent="menu_ka_rh_demandes" action="action_ka_rh_demande" sequence="10"/>
+<menuitem id="menu_ka_rh_dem_absences" name="Demandes d'absence" parent="menu_ka_rh_demandes" action="action_ka_rh_absence" sequence="20"/>
+<menuitem id="menu_ka_rh_dem_permissions" name="Demandes de permission" parent="menu_ka_rh_demandes" action="action_ka_rh_permission" sequence="30"/>
+<menuitem id="menu_ka_rh_allocations" name="Allocations" parent="menu_ka_rh_conge_root" action="action_ka_rh_solde" sequence="30"/>
+<menuitem id="menu_ka_rh_conge_etats" name="États" parent="menu_ka_rh_conge_root" sequence="40"/>
+<menuitem id="menu_ka_rh_conge_etat_cal" name="Calendrier de présence" parent="menu_ka_rh_conge_etats" action="action_ka_rh_calendrier" sequence="10"/>
+<menuitem id="menu_ka_rh_conge_cfg" name="Configuration" parent="menu_ka_rh_conge_root" sequence="90"/>
+<menuitem id="menu_ka_rh_cfg_types" name="Types de congés" parent="menu_ka_rh_conge_cfg" action="action_ka_rh_type_conge" sequence="10"/>
+<menuitem id="menu_ka_rh_cfg_feries" name="Jours fériés" parent="menu_ka_rh_conge_cfg" action="action_ka_rh_ferie" sequence="20"/>
+<menuitem id="menu_ka_rh_paie_root" name="Paie" sequence="63"/>
+<menuitem id="menu_ka_rh_paie_employes" name="Employés" parent="menu_ka_rh_paie_root" action="action_ka_rh_employe" sequence="10"/>
+<menuitem id="menu_ka_rh_paie_contrats" name="Contrats" parent="menu_ka_rh_paie_root" action="action_ka_rh_contrat" sequence="20"/>
+<menuitem id="menu_ka_rh_bulletins" name="Bulletins" parent="menu_ka_rh_paie_root" sequence="30"/>
+<menuitem id="menu_ka_rh_bull_liste" name="Bulletins" parent="menu_ka_rh_bulletins" action="action_ka_rh_bulletin" sequence="10"/>
+<menuitem id="menu_ka_rh_bull_lot" name="Calculer les bulletins du mois" parent="menu_ka_rh_bulletins" action="action_ka_rh_lot" sequence="20"/>
+<menuitem id="menu_ka_rh_journaux" name="Journaux" parent="menu_ka_rh_paie_root" action="action_ka_rh_livre" sequence="40"/>
+<menuitem id="menu_ka_rh_paie_etats" name="États" parent="menu_ka_rh_paie_root" sequence="50"/>
+<menuitem id="menu_ka_rh_etat_decl" name="Déclarations CNPS, ITS et FDFP" parent="menu_ka_rh_paie_etats" action="action_ka_rh_declarations" sequence="10"/>
+<menuitem id="menu_ka_rh_etat_masse" name="Masse salariale par affectation" parent="menu_ka_rh_paie_etats" action="action_ka_rh_masse" sequence="20"/>
+<menuitem id="menu_ka_rh_paie_cfg" name="Configuration" parent="menu_ka_rh_paie_root" sequence="90"/>
+<menuitem id="menu_ka_rh_cfg_rubriques" name="Rubriques de paie" parent="menu_ka_rh_paie_cfg" action="action_ka_rh_rubrique" sequence="10"/>
+<menuitem id="menu_ka_rh_cfg_its" name="Barème ITS" parent="menu_ka_rh_paie_cfg" action="action_ka_rh_its" sequence="20"/>
+<menuitem id="menu_ka_rh_cfg_ricf" name="Réduction pour charges de famille" parent="menu_ka_rh_paie_cfg" action="action_ka_rh_ricf" sequence="30"/>
+<menuitem id="menu_ka_rh_mission_root" name="Missions" sequence="64"/>
+<menuitem id="menu_ka_rh_mis_employes" name="Employés" parent="menu_ka_rh_mission_root" action="action_ka_rh_employe" sequence="10"/>
+<menuitem id="menu_ka_rh_mis_contrats" name="Contrats" parent="menu_ka_rh_mission_root" action="action_ka_rh_contrat" sequence="20"/>
+<menuitem id="menu_ka_rh_missions" name="Ordres de mission" parent="menu_ka_rh_mission_root" action="action_ka_rh_mission" sequence="30"/>
+<menuitem id="menu_ka_rh_mis_avances" name="Avances" parent="menu_ka_rh_mission_root" action="action_ka_rh_mission_avances" sequence="40"/>
+<menuitem id="menu_ka_rh_mis_etats" name="États" parent="menu_ka_rh_mission_root" sequence="50"/>
+<menuitem id="menu_ka_rh_mis_etat_couts" name="Coût des missions" parent="menu_ka_rh_mis_etats" action="action_ka_rh_mission_couts" sequence="10"/>
+<menuitem id="menu_ka_rh_mis_cfg" name="Barème des missions" parent="menu_ka_rh_mission_root" action="action_ka_rh_bareme" sequence="90"/>
+<menuitem id="menu_ka_rh_recrut_root" name="Recrutement" sequence="65"/>
+<menuitem id="menu_ka_rh_dp" name="Demandes de personnel" parent="menu_ka_rh_recrut_root" action="action_ka_rh_dp" sequence="10"/>
+<menuitem id="menu_ka_rh_postes" name="Postes" parent="menu_ka_rh_recrut_root" action="action_ka_rh_postes" sequence="20"/>
+<menuitem id="menu_ka_rh_candidatures" name="Candidatures" parent="menu_ka_rh_recrut_root" action="action_ka_rh_candidature" sequence="30"/>
+<menuitem id="menu_ka_rh_cand_entretiens" name="Entretiens" parent="menu_ka_rh_recrut_root" action="action_ka_rh_cand_entretiens" sequence="40"/>
+<menuitem id="menu_ka_rh_rec_etats" name="États" parent="menu_ka_rh_recrut_root" sequence="50"/>
+<menuitem id="menu_ka_rh_rec_etat_pipeline" name="Pipeline des candidatures" parent="menu_ka_rh_rec_etats" action="action_ka_rh_candidature" sequence="10"/>
+<menuitem id="menu_ka_rh_rec_etat_embauches" name="Registre des embauches et périodes d'essai" parent="menu_ka_rh_rec_etats" action="action_ka_rh_contrat" sequence="20"/>
+<menuitem id="menu_ka_rh_form_root" name="Formation" sequence="66"/>
+<menuitem id="menu_ka_rh_plan" name="Plan de formation" parent="menu_ka_rh_form_root" action="action_ka_rh_plan" sequence="10"/>
+<menuitem id="menu_ka_rh_sessions" name="Sessions" parent="menu_ka_rh_form_root" action="action_ka_rh_session" sequence="20"/>
+<menuitem id="menu_ka_rh_catalogue" name="Catalogue" parent="menu_ka_rh_form_root" action="action_ka_rh_competence" sequence="30"/>
+<menuitem id="menu_ka_rh_entretiens" name="Entretiens" parent="menu_ka_rh_form_root" action="action_ka_rh_entretien" sequence="40"/>
+<menuitem id="menu_ka_rh_competences" name="Compétences" parent="menu_ka_rh_form_root" action="action_ka_rh_comp_niveau" sequence="50"/>
+<menuitem id="menu_ka_rh_form_etats" name="États" parent="menu_ka_rh_form_root" sequence="60"/>
+<menuitem id="menu_ka_rh_form_etat_presences" name="Présences et certificats" parent="menu_ka_rh_form_etats" action="action_ka_rh_participant" sequence="10"/>
+<menuitem id="menu_ka_rh_form_etat_matrice" name="Matrice des compétences" parent="menu_ka_rh_form_etats" action="action_ka_rh_matrice" sequence="20"/>
+</odoo>

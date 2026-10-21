@@ -145,6 +145,26 @@ def verifier_manifestes():
         for cls in ('o_ka_side', 'o_ka_crumbs', 'o_ka_layout'):
             if 'class="%s' % cls in t or ' %s"' % cls in t:
                 erreurs.append('ANCIENNE MISE EN PAGE (%s) dans %s' % (cls, f))
+        if re.search(r'\sdecoration_[a-z]+="', t):
+            erreurs.append('ATTRIBUT decoration_… (écrire decoration-…) dans %s' % f)
+        if '&amp;gt;' in t or '&amp;lt;' in t:
+            erreurs.append('COMPARAISON DOUBLEMENT ÉCHAPPÉE (&amp;gt; / &amp;lt;) dans %s' % f)
+        if f.split('/')[1] == 'views':
+            for rec in etree.parse(f).getroot().iter('record'):
+                arch = rec.find("field[@name='arch']")
+                if rec.get('model') != 'ir.ui.view' or arch is None or arch.find('form') is None:
+                    continue
+                vus = {}
+                for fl in arch.find('form').iter('field'):
+                    if any(c.tag in ('list', 'kanban', 'form') for c in fl):
+                        anc = fl.getparent()
+                        while anc is not None and anc.tag not in ('list', 'kanban'):
+                            anc = anc.getparent()
+                        if anc is None:   # x2many du formulaire principal (pas d'une sous-vue)
+                            n = fl.get('name')
+                            if n in vus:
+                                erreurs.append('ONE2MANY AFFICHÉ DEUX FOIS %s dans %s (%s)' % (n, rec.get('id'), f))
+                            vus[n] = True
         for b in re.findall(r'<button [^>]*oe_stat_button[^>]*>', t):
             if 'name="' not in b:
                 erreurs.append('BOUTON STATISTIQUE SANS name dans %s' % f)

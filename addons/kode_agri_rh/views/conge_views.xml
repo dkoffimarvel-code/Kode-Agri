@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_rh_conge_form" model="ir.ui.view">
+    <field name="name">ka.rh.demande.ka.form</field>
+    <field name="model">ka.rh.demande</field>
+    <field name="arch" type="xml">
+        <form string="Demande de congé" class="o_ka_form">
+            <header><button string="Enregistrer" special="save" class="btn-secondary"/><button string="Soumettre" name="action_soumettre" type="object" class="btn-primary" invisible="state != 'brouillon'"/><button string="Approuver" name="action_approuver" type="object" class="btn-primary" invisible="state != 'a_approuver'"/><button string="Refuser" name="action_refuser" type="object" class="btn-secondary" invisible="state != 'a_approuver'"/><button string="Remettre en brouillon" name="action_brouillon" type="object" class="btn-secondary" invisible="state != 'refusee'"/><field name="state" widget="statusbar" statusbar_visible="brouillon,a_approuver,approuvee,refusee"/></header>
+            <sheet>
+                <div class="oe_title"><h1><span class="o_ka_title_tag"><field name="titre" readonly="1"/><field name="tag" widget="badge" class="ms-3" invisible="not tag"/></span></h1><div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div></div><group><group><field name="employe_id" string="Employé" invisible="state != 'brouillon'"/><field name="type_conge_id" string="Type de congé" required="1"/><field name="solde_disponible" string="Solde disponible"/><field name="date_debut" string="Période" widget="daterange" options="{'end_date_field': 'date_fin'}" required="1"/><field name="date_fin" invisible="1"/><field name="duree_txt" string="Durée"/><field name="responsable" string="Responsable à valider"/><field name="solde_apres" string="Solde après validation"/><field name="type_demande" invisible="1"/></group><group></group></group><div class="o_ka_h3"><field name="solde_titre" nolabel="1"/></div><field name="solde_html" nolabel="1" readonly="1"/><div class="o_ka_info o_ka_noicon"><span class="o_ka_info_t">Circuit de validation</span>Soumission → approbation par le responsable hiérarchique → mise à jour du solde de congés → blocage du planning de présence → alimentation de la paie du mois correspondant (§7.2.5).</div>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+<record id="view_ka_rh_absence_form" model="ir.ui.view">
+    <field name="name">ka.rh.demande.ka.form</field>
+    <field name="model">ka.rh.demande</field>
+    <field name="arch" type="xml">
+        <form string="Demande d'absence" class="o_ka_form">
+            <header><button string="Enregistrer" special="save" class="btn-secondary"/><button string="Soumettre" name="action_soumettre" type="object" class="btn-primary" invisible="state != 'brouillon'"/><button string="Approuver" name="action_approuver" type="object" class="btn-primary" invisible="state != 'a_approuver'"/><button string="Refuser" name="action_refuser" type="object" class="btn-secondary" invisible="state != 'a_approuver'"/><button string="Remettre en brouillon" name="action_brouillon" type="object" class="btn-secondary" invisible="state != 'refusee'"/><field name="state" widget="statusbar" statusbar_visible="brouillon,a_approuver,approuvee,refusee"/></header>
+            <sheet>
+                <div class="oe_title"><h1><span class="o_ka_title_tag"><field name="titre" readonly="1"/><field name="tag" widget="badge" class="ms-3" invisible="not tag"/></span></h1><div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div></div><group><group><field name="employe_id" string="Employé" invisible="state != 'brouillon'"/><field name="motif" string="Motif" required="1"/><div class="o_ka_hint" colspan="2">Liste : Maladie · Événement personnel · Force majeure · Absence non justifiée</div><field name="date_debut" string="Période" widget="daterange" options="{'end_date_field': 'date_fin'}" required="1"/><field name="date_fin" invisible="1"/><field name="duree_txt" string="Durée"/><field name="justificatif" string="Justificatif" filename="justificatif_nom" required="motif == 'maladie'"/><field name="justificatif_nom" invisible="1"/><field name="delai" string="Délai de transmission"/><field name="anciennete_txt" string="Ancienneté du collaborateur"/><field name="type_demande" invisible="1"/></group><group></group></group><div invisible="motif != 'maladie'"><div class="o_ka_h3">Traitement en paie (barème ancienneté)</div><field name="bareme_html" nolabel="1" readonly="1"/></div><div class="o_ka_info o_ka_noicon"><span class="o_ka_info_t">Effet sur le solde de congés</span><field name="effet_txt" nolabel="1" readonly="1"/></div>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+<record id="view_ka_rh_permission_form" model="ir.ui.view">
+    <field name="name">ka.rh.demande.ka.form</field>
+    <field name="model">ka.rh.demande</field>
+    <field name="arch" type="xml">
+        <form string="Demande de permission" class="o_ka_form">
+            <header><button string="Enregistrer" special="save" class="btn-secondary"/><button string="Soumettre" name="action_soumettre" type="object" class="btn-primary" invisible="state != 'brouillon'"/><button string="Approuver" name="action_approuver" type="object" class="btn-primary" invisible="state != 'a_approuver'"/><button string="Refuser" name="action_refuser" type="object" class="btn-secondary" invisible="state != 'a_approuver'"/><button string="Remettre en brouillon" name="action_brouillon" type="object" class="btn-secondary" invisible="state != 'refusee'"/><field name="state" widget="statusbar" statusbar_visible="brouillon,a_approuver,approuvee,refusee"/></header>
+            <sheet>
+                <div class="oe_title"><h1><span class="o_ka_title_tag"><field name="titre" readonly="1"/><field name="tag" widget="badge" class="ms-3" invisible="not tag"/></span></h1><div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div></div><group><group><field name="employe_id" string="Employé" invisible="state != 'brouillon'"/><field name="evenement" string="Événement familial" required="1"/><field name="foyer" string="Concerne le foyer du collaborateur"/><field name="date_debut" string="Période" widget="daterange" options="{'end_date_field': 'date_fin'}" required="1"/><field name="date_fin" invisible="1"/><field name="duree_txt" string="Durée"/><field name="justificatif" string="Pièce justifiant l'événement" filename="justificatif_nom"/><field name="justificatif_nom" invisible="1"/><field name="jours_non_remuneres" string="Jours non rémunérés"/><field name="responsable" string="Responsable à valider"/><field name="type_demande" invisible="1"/></group><group></group></group><div class="o_ka_info o_ka_noicon"><span class="o_ka_info_t">Permissions exceptionnelles (RG-7.3)</span><field name="effet_txt" nolabel="1" readonly="1"/></div>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+<record id="view_ka_rh_demande_list" model="ir.ui.view">
+    <field name="name">ka.rh.demande.ka.list</field>
+    <field name="model">ka.rh.demande</field>
+    <field name="arch" type="xml"><list><field name="name"/><field name="employe_id"/><field name="type_demande"/><field name="tag" string="Type / motif"/><field name="date_debut"/><field name="date_fin"/><field name="duree" sum="Total"/><field name="jours_non_remuneres" optional="hide"/><field name="state" widget="badge" decoration-warning="state == 'a_approuver'" decoration-success="state == 'approuvee'" decoration-danger="state == 'refusee'"/></list></field>
+</record>
+<record id="view_ka_rh_demande_search" model="ir.ui.view">
+    <field name="name">ka.rh.demande.ka.search</field>
+    <field name="model">ka.rh.demande</field>
+    <field name="arch" type="xml"><search><field name="employe_id"/><field name="name"/><filter name="a_approuver" string="En attente" domain="[('state', '=', 'a_approuver')]"/><filter name="approuvees" string="Approuvées" domain="[('state', '=', 'approuvee')]"/><filter name="refusees" string="Refusées" domain="[('state', '=', 'refusee')]"/><separator/><filter name="conges" string="Congés" domain="[('type_demande', '=', 'conge')]"/><filter name="permissions" string="Permissions" domain="[('type_demande', '=', 'permission')]"/><filter name="absences" string="Absences" domain="[('type_demande', '=', 'absence')]"/><filter name="g_statut" string="Statut" context="{'group_by': 'state'}"/><filter name="g_type" string="Type" context="{'group_by': 'type_demande'}"/></search></field>
+</record>
+<record id="view_ka_rh_demande_calendar" model="ir.ui.view">
+    <field name="name">ka.rh.demande.ka.calendar</field>
+    <field name="model">ka.rh.demande</field>
+    <field name="arch" type="xml"><calendar date_start="date_debut" date_stop="date_fin" color="employe_id" mode="month" quick_create="0"><field name="employe_id"/><field name="tag"/></calendar></field>
+</record>
+<record id="view_ka_rh_solde_list" model="ir.ui.view">
+    <field name="name">ka.rh.solde.ka.list</field>
+    <field name="model">ka.rh.solde</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="employe_id"/><field name="type_id"/><field name="acquis" sum="Total"/><field name="pris" sum="Total"/><field name="solde" sum="Total"/><field name="derniere_acquisition" optional="hide"/></list></field>
+</record>
+<record id="action_ka_rh_conge" model="ir.actions.act_window"><field name="name">Mes congés</field><field name="res_model">ka.rh.demande</field><field name="view_mode">list,form</field><field name="domain">[('type_demande', '=', 'conge')]</field><field name="context">{'default_type_demande': 'conge'}</field><field name="search_view_id" ref="view_ka_rh_demande_search"/></record><record id="action_ka_rh_conge_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_conge"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_demande_list"/></record><record id="action_ka_rh_conge_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_conge"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_rh_conge_form"/></record>
+<record id="action_ka_rh_absence" model="ir.actions.act_window"><field name="name">Demandes d'absence</field><field name="res_model">ka.rh.demande</field><field name="view_mode">list,form</field><field name="domain">[('type_demande', '=', 'absence')]</field><field name="context">{'default_type_demande': 'absence'}</field><field name="search_view_id" ref="view_ka_rh_demande_search"/></record><record id="action_ka_rh_absence_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_absence"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_demande_list"/></record><record id="action_ka_rh_absence_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_absence"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_rh_absence_form"/></record>
+<record id="action_ka_rh_permission" model="ir.actions.act_window"><field name="name">Demandes de permission</field><field name="res_model">ka.rh.demande</field><field name="view_mode">list,form</field><field name="domain">[('type_demande', '=', 'permission')]</field><field name="context">{'default_type_demande': 'permission'}</field><field name="search_view_id" ref="view_ka_rh_demande_search"/></record><record id="action_ka_rh_permission_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_permission"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_demande_list"/></record><record id="action_ka_rh_permission_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_permission"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_rh_permission_form"/></record>
+<record id="action_ka_rh_demande" model="ir.actions.act_window"><field name="name">Demandes</field><field name="res_model">ka.rh.demande</field><field name="view_mode">list,calendar</field><field name="context">{'search_default_a_approuver': 1}</field><field name="search_view_id" ref="view_ka_rh_demande_search"/></record><record id="action_ka_rh_demande_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_demande"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_demande_list"/></record>
+<record id="action_ka_rh_calendrier" model="ir.actions.act_window"><field name="name">Calendrier de présence</field><field name="res_model">ka.rh.demande</field><field name="view_mode">calendar,list</field><field name="domain">[('state', '=', 'approuvee')]</field></record><record id="action_ka_rh_calendrier_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_calendrier"/><field name="sequence">1</field><field name="view_mode">calendar</field><field name="view_id" ref="view_ka_rh_demande_calendar"/></record>
+<record id="action_ka_rh_solde" model="ir.actions.act_window"><field name="name">Allocations</field><field name="res_model">ka.rh.solde</field><field name="view_mode">list</field></record><record id="action_ka_rh_solde_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_solde"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_solde_list"/></record>
+</odoo>

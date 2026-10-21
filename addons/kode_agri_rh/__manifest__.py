@@ -1,0 +1,25 @@
+{
+    'name': 'Kode Agri — Module 7 : Ressources humaines et paie',
+    'version': '19.0.1.0.0',
+    'category': 'Kode Agri',
+    'summary': "Dossier du personnel, pointage (borne, API externe), absences et congés, paie ivoirienne "
+               "(CNPS, ITS, FDFP), ordres de mission, recrutement, formation et suivi de carrière",
+    'depends': ['kode_agri_frais', 'account', 'analytic'],
+    'data': [
+        'security/ir.model.access.csv',
+        'data/sequences.xml',
+        'data/reference.xml',
+        'data/cron.xml',
+        'views/param_views.xml',
+        'views/employe_views.xml',
+        'views/pointage_views.xml',
+        'views/conge_views.xml',
+        'views/paie_views.xml',
+        'views/mission_views.xml',
+        'views/recrutement_views.xml',
+        'views/formation_views.xml',
+        'views/menus.xml',
+    ],
+    'license': 'LGPL-3',
+    'application': True,
+}

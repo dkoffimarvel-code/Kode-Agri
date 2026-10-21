@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_rh_employe" model="ir.sequence"><field name="name">Dossier du personnel</field><field name="code">ka.rh.employe</field><field name="prefix">EMP-</field><field name="padding">4</field><field name="number_next">211</field></record>
+    <record id="seq_rh_contrat" model="ir.sequence"><field name="name">Contrat de travail</field><field name="code">ka.rh.contrat</field><field name="prefix">CTR-%(year)s-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_rh_conge" model="ir.sequence"><field name="name">Demande de congé</field><field name="code">ka.rh.conge</field><field name="prefix">CG-</field><field name="padding">4</field><field name="number_next">87</field></record>
+    <record id="seq_rh_absence" model="ir.sequence"><field name="name">Demande d&apos;absence</field><field name="code">ka.rh.absence</field><field name="prefix">AB-</field><field name="padding">4</field><field name="number_next">142</field></record>
+    <record id="seq_rh_permission" model="ir.sequence"><field name="name">Demande de permission</field><field name="code">ka.rh.permission</field><field name="prefix">PM-</field><field name="padding">4</field><field name="number_next">1</field></record>
+    <record id="seq_rh_bulletin" model="ir.sequence"><field name="name">Bulletin de paie</field><field name="code">ka.rh.bulletin</field><field name="prefix">PAY-</field><field name="padding">4</field><field name="number_next">621</field></record>
+    <record id="seq_rh_mission" model="ir.sequence"><field name="name">Ordre de mission</field><field name="code">ka.rh.mission</field><field name="prefix">OM-</field><field name="padding">4</field><field name="number_next">148</field></record>
+    <record id="seq_rh_dp" model="ir.sequence"><field name="name">Demande de personnel</field><field name="code">ka.rh.demande.personnel</field><field name="prefix">DP-</field><field name="padding">4</field><field name="number_next">34</field></record>
+    <record id="seq_rh_candidature" model="ir.sequence"><field name="name">Candidature</field><field name="code">ka.rh.candidature</field><field name="prefix">CAND-</field><field name="padding">4</field><field name="number_next">182</field></record>
+    <record id="seq_rh_session" model="ir.sequence"><field name="name">Session de formation</field><field name="code">ka.rh.session</field><field name="prefix">SF-</field><field name="padding">4</field><field name="number_next">21</field></record>
+</odoo>

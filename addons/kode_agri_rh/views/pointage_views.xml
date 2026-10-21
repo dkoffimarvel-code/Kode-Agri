@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_rh_feuille_form" model="ir.ui.view">
+    <field name="name">ka.rh.feuille.ka.form</field>
+    <field name="model">ka.rh.feuille</field>
+    <field name="arch" type="xml">
+        <form string="Feuille de pointage" class="o_ka_form">
+            <header><button string="Importer les pointages" name="action_importer" type="object" class="btn-secondary" invisible="state not in ('brut', 'controlee')"/><button string="Régulariser" name="action_regulariser" type="object" class="btn-secondary" invisible="state != 'controlee'"/><button string="Valider" name="action_valider" type="object" class="btn-primary" invisible="state not in ('brut', 'controlee')"/><button string="Transmettre à la paie" name="action_transmettre" type="object" class="btn-primary" invisible="state != 'validee'"/><field name="state" widget="statusbar" statusbar_visible="brut,controlee,validee,transmise"/></header>
+            <sheet>
+                <div class="oe_title"><h1><field name="titre" readonly="1"/></h1><div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div></div><group><group><field name="employe_id" string="Employé" readonly="state != 'brut'"/></group><group><field name="date_debut" string="Semaine du" readonly="state != 'brut'"/></group></group><notebook><page string="Pointages" name="pointages"><field name="ligne_ids" nolabel="1"><list editable="bottom"><field name="jour" string="Jour"/><field name="date" column_invisible="1"/><field name="entree" string="Entrée" widget="float_time"/><field name="sortie" string="Sortie" widget="float_time"/><field name="mode" string="Mode de saisie"/><field name="heures_txt" string="Heures"/><field name="ecart" string="Écart" decoration-danger="anomalie != 'aucune' and not resolue" decoration-success="heures_sup &gt; 0 and anomalie == 'aucune'"/><field name="anomalie" column_invisible="1"/><field name="resolue" column_invisible="1"/><field name="heures_sup" column_invisible="1"/></list></field></page><page string="Écarts" name="ecarts"><field name="ecart_ids" nolabel="1"><list editable="bottom"><field name="jour" string="Jour"/><field name="anomalie" string="Anomalie"/><field name="ecart" string="Écart"/><field name="motif_regul" string="Motif de régularisation"/><field name="resolue" string="Arbitrée" widget="boolean_toggle"/></list></field></page><page string="Historique" name="historique"><field name="event_ids" nolabel="1" readonly="1"><list><field name="horodatage"/><field name="sens"/><field name="terminal"/><field name="mode"/><field name="transmission"/><field name="statut"/><field name="motif"/></list></field></page></notebook><div class="o_ka_h3">Total de la semaine</div><group><group><field name="theoriques_txt" string="Heures théoriques"/><field name="pointees_txt" string="Heures pointées"/><field name="sup_txt" string="Heures supplémentaires"/><field name="statut_txt" string="Statut de la feuille"/><field name="nb_anomalies" invisible="1"/></group><group></group></group><div class="o_ka_valid" invisible="nb_anomalies == 0"><span class="o_ka_valid_t"><field name="anomalie_titre" nolabel="1"/></span><field name="anomalie_html" nolabel="1"/></div>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+<record id="view_ka_rh_feuille_list" model="ir.ui.view">
+    <field name="name">ka.rh.feuille.ka.list</field>
+    <field name="model">ka.rh.feuille</field>
+    <field name="arch" type="xml"><list><field name="employe_id"/><field name="affectation_id"/><field name="date_debut"/><field name="date_fin"/><field name="heures_pointees" widget="float_time" sum="Total"/><field name="heures_sup" widget="float_time" sum="Total"/><field name="nb_anomalies" sum="Total"/><field name="state" widget="badge" decoration-warning="nb_anomalies &gt; 0" decoration-success="state in ('validee', 'transmise')"/></list></field>
+</record>
+<record id="view_ka_rh_feuille_search" model="ir.ui.view">
+    <field name="name">ka.rh.feuille.ka.search</field>
+    <field name="model">ka.rh.feuille</field>
+    <field name="arch" type="xml"><search><field name="employe_id"/><field name="affectation_id"/><filter name="anomalies" string="Anomalies en attente" domain="[('nb_anomalies', '&gt;', 0)]"/><filter name="g_site" string="Site" context="{'group_by': 'affectation_id'}"/><filter name="g_semaine" string="Semaine" context="{'group_by': 'date_debut'}"/></search></field>
+</record>
+<record id="view_ka_rh_event_list" model="ir.ui.view">
+    <field name="name">ka.rh.pointage.event.ka.list</field>
+    <field name="model">ka.rh.pointage.event</field>
+    <field name="arch" type="xml"><list create="0"><field name="horodatage"/><field name="identifiant"/><field name="employe_id"/><field name="sens"/><field name="terminal"/><field name="mode"/><field name="transmission"/><field name="statut" widget="badge" decoration-success="statut == 'rapproche'" decoration-warning="statut == 'anomalie'" decoration-danger="statut == 'rejete'"/><field name="motif"/></list></field>
+</record>
+<record id="view_ka_rh_event_search" model="ir.ui.view">
+    <field name="name">ka.rh.pointage.event.ka.search</field>
+    <field name="model">ka.rh.pointage.event</field>
+    <field name="arch" type="xml"><search><field name="identifiant"/><field name="employe_id"/><field name="terminal"/><filter name="a_traiter" string="À arbitrer" domain="[('statut', 'in', ('anomalie', 'rejete'))]"/><filter name="g_statut" string="Statut" context="{'group_by': 'statut'}"/></search></field>
+</record>
+<record id="action_ka_rh_feuille" model="ir.actions.act_window"><field name="name">Feuilles de pointage</field><field name="res_model">ka.rh.feuille</field><field name="view_mode">list,form</field><field name="search_view_id" ref="view_ka_rh_feuille_search"/></record><record id="action_ka_rh_feuille_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_feuille"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_feuille_list"/></record><record id="action_ka_rh_feuille_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_feuille"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_rh_feuille_form"/></record>
+<record id="action_ka_rh_feuille_anomalies" model="ir.actions.act_window"><field name="name">Feuilles en anomalie</field><field name="res_model">ka.rh.feuille</field><field name="view_mode">list,form</field><field name="context">{'search_default_anomalies': 1}</field><field name="search_view_id" ref="view_ka_rh_feuille_search"/></record><record id="action_ka_rh_feuille_anomalies_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_feuille_anomalies"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_feuille_list"/></record><record id="action_ka_rh_feuille_anomalies_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_feuille_anomalies"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_rh_feuille_form"/></record>
+<record id="action_ka_rh_event" model="ir.actions.act_window"><field name="name">Présences</field><field name="res_model">ka.rh.pointage.event</field><field name="view_mode">list</field><field name="search_view_id" ref="view_ka_rh_event_search"/></record><record id="action_ka_rh_event_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_event"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_event_list"/></record>
+</odoo>

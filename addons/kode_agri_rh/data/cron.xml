@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cron_rh_pointage" model="ir.cron">
+        <field name="name">Kode Agri RH : rapprochement des pointages reçus de la pointeuse</field>
+        <field name="model_id" ref="model_ka_rh_pointage_event"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_rapprocher()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+    <record id="cron_rh_conges" model="ir.cron">
+        <field name="name">Kode Agri RH : acquisition mensuelle des congés</field>
+        <field name="model_id" ref="model_ka_rh_solde"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_acquisition()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+    <record id="cron_rh_entretiens" model="ir.cron">
+        <field name="name">Kode Agri RH : entretiens de carrière à générer et échus</field>
+        <field name="model_id" ref="model_ka_rh_entretien"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_entretiens()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_rh_bulletin_form" model="ir.ui.view">
+    <field name="name">ka.rh.bulletin.ka.form</field>
+    <field name="model">ka.rh.bulletin</field>
+    <field name="arch" type="xml">
+        <form string="Bulletin de paie" class="o_ka_form">
+            <header><button string="Calculer" name="action_calculer" type="object" class="btn-secondary" invisible="state not in ('brouillon', 'calcule')"/><button string="Confirmer" name="action_confirmer" type="object" class="btn-primary" invisible="state not in ('brouillon', 'calcule')"/><button string="Comptabiliser" name="action_comptabiliser" type="object" class="btn-secondary" invisible="state not in ('confirme', 'paye') or move_id"/><button string="Payer" name="action_payer" type="object" class="btn-secondary" invisible="state != 'confirme'"/><button string="Remettre en brouillon" name="action_brouillon" type="object" class="btn-secondary" invisible="state != 'calcule'"/><field name="state" widget="statusbar" statusbar_visible="brouillon,calcule,confirme,paye"/></header>
+            <sheet>
+                <div class="oe_button_box" name="button_box"><button name="action_voir_piece" type="object" class="oe_stat_button" invisible="not move_id"><div class="o_stat_info"><span class="o_stat_value"><field name="net"/></span><span class="o_stat_text">Net à payer</span></div></button></div><div class="oe_title"><h1><field name="titre" readonly="1"/></h1><div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div></div><group><group><field name="employe_id" string="Employé" readonly="state not in ('brouillon', 'calcule')"/><field name="move_id" invisible="1"/></group><group><field name="periode" string="Période" readonly="state not in ('brouillon', 'calcule')"/><field name="analytic_id" string="Compte analytique" readonly="state not in ('brouillon', 'calcule')"/></group></group><div class="o_ka_h3">Lignes de paie</div><field name="ligne_affichee_ids" nolabel="1" readonly="1"><list><field name="libelle" string="Rubrique"/><field name="base_txt" string="Base"/><field name="taux_txt" string="Taux"/><field name="montant" string="Montant"/></list></field><div class="o_ka_totalbar"><span>Net à payer</span><field name="net_txt" nolabel="1" readonly="1"/></div><div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span><field name="valid_txt" nolabel="1" readonly="1"/></div><notebook><page string="Détail du calcul" name="detail"><group><group><field name="brut" string="Salaire brut"/><field name="cotisations" string="Cotisations salariales"/><field name="imposable" string="Net imposable"/><field name="its" string="ITS"/></group><group><field name="autres_retenues" string="Autres retenues"/><field name="net" string="Net à payer"/><field name="charges_patronales" string="Charges patronales"/><field name="heures_sup" string="Heures supplémentaires" widget="float_time"/></group></group><div class="o_ka_h3">Journal des rubriques (y compris charges patronales)</div><field name="ligne_ids" nolabel="1" readonly="1"><list><field name="rubrique_id" string="Code"/><field name="libelle" string="Rubrique"/><field name="nature"/><field name="base"/><field name="taux"/><field name="montant"/></list></field></page></notebook>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+<record id="view_ka_rh_bulletin_list" model="ir.ui.view">
+    <field name="name">ka.rh.bulletin.ka.list</field>
+    <field name="model">ka.rh.bulletin</field>
+    <field name="arch" type="xml"><list><field name="name"/><field name="employe_id"/><field name="affectation_id"/><field name="periode_txt" string="Période"/><field name="brut" sum="Total"/><field name="cotisations" sum="Total"/><field name="its" sum="Total"/><field name="net" sum="Total"/><field name="charges_patronales" sum="Total" optional="hide"/><field name="state" widget="badge" decoration-info="state == 'calcule'" decoration-success="state in ('confirme', 'paye')"/></list></field>
+</record>
+<record id="view_ka_rh_bulletin_search" model="ir.ui.view">
+    <field name="name">ka.rh.bulletin.ka.search</field>
+    <field name="model">ka.rh.bulletin</field>
+    <field name="arch" type="xml"><search><field name="employe_id"/><field name="affectation_id"/><field name="periode"/><filter name="a_confirmer" string="À confirmer" domain="[('state', 'in', ('brouillon', 'calcule'))]"/><filter name="g_periode" string="Période" context="{'group_by': 'periode:month'}"/><filter name="g_aff" string="Affectation" context="{'group_by': 'affectation_id'}"/></search></field>
+</record>
+<record id="view_ka_rh_bulletin_ligne_list" model="ir.ui.view">
+    <field name="name">ka.rh.bulletin.ligne.ka.list</field>
+    <field name="model">ka.rh.bulletin.ligne</field>
+    <field name="arch" type="xml"><list create="0" edit="0"><field name="periode"/><field name="bulletin_id"/><field name="employe_id"/><field name="affectation_id"/><field name="rubrique_id"/><field name="libelle"/><field name="categorie"/><field name="base"/><field name="taux"/><field name="montant" sum="Total"/></list></field>
+</record>
+<record id="view_ka_rh_bulletin_ligne_search" model="ir.ui.view">
+    <field name="name">ka.rh.bulletin.ligne.ka.search</field>
+    <field name="model">ka.rh.bulletin.ligne</field>
+    <field name="arch" type="xml"><search><field name="employe_id"/><field name="rubrique_id"/><field name="affectation_id"/><filter name="cnps" string="CNPS" domain="[('rubrique_id.code', 'like', 'CNPS')]"/><filter name="its" string="ITS" domain="[('rubrique_id.code', '=', 'ITS')]"/><filter name="fdfp" string="FDFP" domain="[('rubrique_id.code', 'like', 'FDFP')]"/><filter name="g_rub" string="Rubrique" context="{'group_by': 'rubrique_id'}"/><filter name="g_periode" string="Période" context="{'group_by': 'periode:month'}"/><filter name="g_aff" string="Affectation" context="{'group_by': 'affectation_id'}"/></search></field>
+</record>
+<record id="view_ka_rh_bulletin_ligne_pivot" model="ir.ui.view">
+    <field name="name">ka.rh.bulletin.ligne.ka.pivot</field>
+    <field name="model">ka.rh.bulletin.ligne</field>
+    <field name="arch" type="xml"><pivot><field name="rubrique_id" type="row"/><field name="periode" interval="month" type="col"/><field name="montant" type="measure"/></pivot></field>
+</record>
+<record id="action_ka_rh_lot" model="ir.actions.server">
+    <field name="name">Calculer les bulletins du mois</field>
+    <field name="model_id" ref="model_ka_rh_bulletin"/>
+    <field name="state">code</field>
+    <field name="code">action = model.generer_lot()</field>
+</record>
+<record id="action_ka_rh_bulletin" model="ir.actions.act_window"><field name="name">Bulletins</field><field name="res_model">ka.rh.bulletin</field><field name="view_mode">list,form</field><field name="search_view_id" ref="view_ka_rh_bulletin_search"/></record><record id="action_ka_rh_bulletin_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_bulletin"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_bulletin_list"/></record><record id="action_ka_rh_bulletin_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_bulletin"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_rh_bulletin_form"/></record>
+<record id="action_ka_rh_livre" model="ir.actions.act_window"><field name="name">Livre de paie — journal des rubriques</field><field name="res_model">ka.rh.bulletin.ligne</field><field name="view_mode">list,pivot</field><field name="search_view_id" ref="view_ka_rh_bulletin_ligne_search"/></record><record id="action_ka_rh_livre_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_livre"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_bulletin_ligne_list"/></record><record id="action_ka_rh_livre_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_livre"/><field name="sequence">2</field><field name="view_mode">pivot</field><field name="view_id" ref="view_ka_rh_bulletin_ligne_pivot"/></record>
+<record id="action_ka_rh_declarations" model="ir.actions.act_window"><field name="name">Déclarations CNPS, ITS et FDFP</field><field name="res_model">ka.rh.bulletin.ligne</field><field name="view_mode">pivot,list</field><field name="domain">['|', '|', ('rubrique_id.code', 'like', 'CNPS'), ('rubrique_id.code', '=', 'ITS'), ('rubrique_id.code', 'like', 'FDFP')]</field><field name="search_view_id" ref="view_ka_rh_bulletin_ligne_search"/></record><record id="action_ka_rh_declarations_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_declarations"/><field name="sequence">1</field><field name="view_mode">pivot</field><field name="view_id" ref="view_ka_rh_bulletin_ligne_pivot"/></record><record id="action_ka_rh_declarations_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_declarations"/><field name="sequence">2</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_bulletin_ligne_list"/></record>
+<record id="action_ka_rh_masse" model="ir.actions.act_window"><field name="name">Masse salariale par affectation</field><field name="res_model">ka.rh.bulletin.ligne</field><field name="view_mode">pivot,list</field><field name="domain">[('nature', 'in', ('gain', 'patronal'))]</field><field name="context">{'pivot_row_groupby': ['affectation_id']}</field><field name="search_view_id" ref="view_ka_rh_bulletin_ligne_search"/></record><record id="action_ka_rh_masse_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_masse"/><field name="sequence">1</field><field name="view_mode">pivot</field><field name="view_id" ref="view_ka_rh_bulletin_ligne_pivot"/></record>
+</odoo>

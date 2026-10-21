@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_rh_session_form" model="ir.ui.view">
+    <field name="name">ka.rh.session.ka.form</field>
+    <field name="model">ka.rh.session</field>
+    <field name="arch" type="xml">
+        <form string="Session de formation" class="o_ka_form">
+            <header><button string="Enregistrer" special="save" class="btn-secondary"/><button string="Démarrer" name="action_demarrer" type="object" class="btn-secondary" invisible="state != 'planifiee'"/><button string="Clôturer la session" name="action_cloturer" type="object" class="btn-primary" invisible="state not in ('planifiee', 'en_cours')"/><button string="Évaluer" name="action_evaluer" type="object" class="btn-secondary" invisible="state != 'terminee'"/><field name="state" widget="statusbar" statusbar_visible="planifiee,en_cours,terminee,evaluee"/></header>
+            <sheet>
+                <div class="oe_title"><h1><span class="o_ka_title_tag"><field name="intitule"/><field name="type" widget="badge" class="ms-3" decoration-warning="type in ('securite', 'habilitation')"/></span></h1><div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div></div><group><group><field name="organisme" string="Organisme"/><field name="affectation_id" string="Atelier / service"/><field name="date_debut" string="Dates" widget="daterange" options="{'end_date_field': 'date_fin'}" required="1"/><field name="date_fin" invisible="1"/><field name="dates_txt" string="Durée"/><field name="lieu" string="Lieu"/><field name="cout" string="Coût de la session"/><field name="fdfp" string="Éligible au financement FDFP"/><field name="places" string="Places"/><field name="places_txt" string="Occupation"/><field name="origine" string="Origine du besoin"/><field name="plan" string="Plan de formation"/></group><group><field name="type" string="Type de formation"/><field name="competence_id" string="Compétence visée"/><field name="niveau_vise" string="Niveau visé"/></group></group><div class="o_ka_h3">Participants</div><field name="participant_ids" nolabel="1"><list editable="bottom"><field name="employe_id" string="Employé"/><field name="poste" string="Poste"/><field name="jours_presents" string="Jours présents"/><field name="presence" string="Présence"/><field name="resultat" string="Résultat" decoration-success="resultat == 'valide'" decoration-muted="resultat == 'attente'" decoration-danger="resultat == 'non_acquis'"/></list></field><div class="o_ka_info o_ka_noicon"><span class="o_ka_info_t">Mise à jour des compétences</span><field name="info_txt" nolabel="1" readonly="1"/></div>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+<record id="view_ka_rh_session_list" model="ir.ui.view">
+    <field name="name">ka.rh.session.ka.list</field>
+    <field name="model">ka.rh.session</field>
+    <field name="arch" type="xml"><list><field name="name"/><field name="intitule"/><field name="type"/><field name="organisme"/><field name="date_debut"/><field name="date_fin"/><field name="cout" sum="Total"/><field name="fdfp"/><field name="places_txt"/><field name="state" widget="badge" decoration-success="state in ('terminee', 'evaluee')"/></list></field>
+</record>
+<record id="view_ka_rh_session_pivot" model="ir.ui.view">
+    <field name="name">ka.rh.session.ka.pivot</field>
+    <field name="model">ka.rh.session</field>
+    <field name="arch" type="xml"><pivot><field name="type" type="row"/><field name="state" type="col"/><field name="cout" type="measure"/></pivot></field>
+</record>
+<record id="view_ka_rh_participant_list" model="ir.ui.view">
+    <field name="name">ka.rh.session.participant.ka.list</field>
+    <field name="model">ka.rh.session.participant</field>
+    <field name="arch" type="xml"><list create="0"><field name="employe_id"/><field name="session_id"/><field name="poste"/><field name="presence"/><field name="resultat" widget="badge"/><field name="certificat"/></list></field>
+</record>
+<record id="view_ka_rh_entretien_form" model="ir.ui.view">
+    <field name="name">ka.rh.entretien.ka.form</field>
+    <field name="model">ka.rh.entretien</field>
+    <field name="arch" type="xml">
+        <form string="Entretien de carrière" class="o_ka_form">
+            <header><button string="Enregistrer" special="save" class="btn-secondary"/><button string="Passer à l'entretien manager" name="action_entretien_manager" type="object" class="btn-secondary" invisible="state != 'auto'"/><button string="Finaliser" name="action_finaliser" type="object" class="btn-primary" invisible="state == 'finalise'"/><field name="state" widget="statusbar" statusbar_visible="auto,manager,finalise"/></header>
+            <sheet>
+                <div class="oe_title"><h1><field name="titre" readonly="1"/></h1><div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div></div><group><group><field name="employe_id" string="Collaborateur" readonly="state == 'finalise'"/><field name="type" string="Type"/><field name="date" string="Date prévue"/><field name="anciennete_txt" string="Ancienneté"/><field name="dernier_txt" string="Dernier entretien"/><field name="evaluateur" string="Évaluateur"/><field name="evaluation" string="Évaluation globale" required="state == 'manager'"/></group><group></group></group><notebook><page string="Compétences évaluées" name="competences"><field name="ligne_ids" nolabel="1"><list editable="bottom"><field name="competence_id" string="Compétence"/><field name="niveau_precedent" string="Niveau précédent"/><field name="niveau_actuel" string="Niveau actuel"/><field name="evolution" string="Évolution" decoration-success="evolution and evolution[:1] == '↑'"/></list></field></page><page string="Auto-évaluation" name="auto"><field name="auto_evaluation" nolabel="1" placeholder="Bilan du collaborateur sur la période écoulée"/></page></notebook><div class="o_ka_h3">Objectifs et plan de développement</div><field name="objectifs" nolabel="1" placeholder="Objectifs fixés pour la période suivante…"/><div class="o_ka_info o_ka_noicon"><span class="o_ka_info_t">Prochain entretien</span><field name="prochain_txt" nolabel="1" readonly="1"/></div>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+<record id="view_ka_rh_entretien_list" model="ir.ui.view">
+    <field name="name">ka.rh.entretien.ka.list</field>
+    <field name="model">ka.rh.entretien</field>
+    <field name="arch" type="xml"><list><field name="employe_id"/><field name="type"/><field name="date"/><field name="evaluateur"/><field name="evaluation"/><field name="en_retard" string="Échu" widget="boolean"/><field name="state" widget="badge" decoration-success="state == 'finalise'"/></list></field>
+</record>
+<record id="view_ka_rh_entretien_search" model="ir.ui.view">
+    <field name="name">ka.rh.entretien.ka.search</field>
+    <field name="model">ka.rh.entretien</field>
+    <field name="arch" type="xml"><search><field name="employe_id"/><filter name="retard" string="Échus non réalisés" domain="[('en_retard', '=', True)]"/><filter name="a_faire" string="À réaliser" domain="[('state', '!=', 'finalise')]"/></search></field>
+</record>
+<record id="view_ka_rh_competence_niveau_list" model="ir.ui.view">
+    <field name="name">ka.rh.competence.niveau.ka.list</field>
+    <field name="model">ka.rh.competence.niveau</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="employe_id"/><field name="competence_id"/><field name="niveau"/><field name="date"/><field name="origine"/></list></field>
+</record>
+<record id="view_ka_rh_competence_niveau_pivot" model="ir.ui.view">
+    <field name="name">ka.rh.competence.niveau.ka.pivot</field>
+    <field name="model">ka.rh.competence.niveau</field>
+    <field name="arch" type="xml"><pivot><field name="competence_id" type="row"/><field name="niveau" type="col"/></pivot></field>
+</record>
+<record id="action_ka_rh_session" model="ir.actions.act_window"><field name="name">Sessions</field><field name="res_model">ka.rh.session</field><field name="view_mode">list,form</field></record><record id="action_ka_rh_session_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_session"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_session_list"/></record><record id="action_ka_rh_session_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_session"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_rh_session_form"/></record>
+<record id="action_ka_rh_plan" model="ir.actions.act_window"><field name="name">Plan de formation</field><field name="res_model">ka.rh.session</field><field name="view_mode">pivot,list,form</field></record><record id="action_ka_rh_plan_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_plan"/><field name="sequence">1</field><field name="view_mode">pivot</field><field name="view_id" ref="view_ka_rh_session_pivot"/></record><record id="action_ka_rh_plan_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_plan"/><field name="sequence">2</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_session_list"/></record>
+<record id="action_ka_rh_participant" model="ir.actions.act_window"><field name="name">Présences et certificats</field><field name="res_model">ka.rh.session.participant</field><field name="view_mode">list</field></record><record id="action_ka_rh_participant_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_participant"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_participant_list"/></record>
+<record id="action_ka_rh_entretien" model="ir.actions.act_window"><field name="name">Entretiens</field><field name="res_model">ka.rh.entretien</field><field name="view_mode">list,form</field><field name="search_view_id" ref="view_ka_rh_entretien_search"/></record><record id="action_ka_rh_entretien_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_entretien"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_entretien_list"/></record><record id="action_ka_rh_entretien_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_entretien"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_rh_entretien_form"/></record>
+<record id="action_ka_rh_comp_niveau" model="ir.actions.act_window"><field name="name">Compétences</field><field name="res_model">ka.rh.competence.niveau</field><field name="view_mode">list,pivot</field></record><record id="action_ka_rh_comp_niveau_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_comp_niveau"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_competence_niveau_list"/></record><record id="action_ka_rh_comp_niveau_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_comp_niveau"/><field name="sequence">2</field><field name="view_mode">pivot</field><field name="view_id" ref="view_ka_rh_competence_niveau_pivot"/></record>
+<record id="action_ka_rh_matrice" model="ir.actions.act_window"><field name="name">Matrice des compétences</field><field name="res_model">ka.rh.competence.niveau</field><field name="view_mode">pivot,list</field></record><record id="action_ka_rh_matrice_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_matrice"/><field name="sequence">1</field><field name="view_mode">pivot</field><field name="view_id" ref="view_ka_rh_competence_niveau_pivot"/></record>
+</odoo>

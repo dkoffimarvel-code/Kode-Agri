@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_rh_rubrique_form" model="ir.ui.view">
+    <field name="name">ka.rh.rubrique.ka.form</field>
+    <field name="model">ka.rh.rubrique</field>
+    <field name="arch" type="xml">
+        <form string="Rubrique de paie" class="o_ka_form">
+            
+            <sheet>
+                <div class="oe_title"><h1><field name="name"/></h1></div><group><group><field name="code" string="Code"/><field name="nature" string="Nature"/><field name="categorie" string="Catégorie"/><field name="mode" string="Mode de calcul"/><field name="base" string="Base de calcul"/><field name="sequence" string="Séquence"/></group><group><field name="soumis_cnps" string="Soumis CNPS"/><field name="soumis_its" string="Soumis ITS"/><field name="affiche" string="Affichée sur le bulletin"/><field name="compte_code" string="Compte"/><field name="taux" string="Taux en vigueur"/><field name="plafond" string="Plafond en vigueur"/></group></group><div class="o_ka_info">Toute modification de taux, de montant ou de plafond se fait par une nouvelle ligne datée : les bulletins déjà confirmés ne sont jamais recalculés avec la nouvelle valeur (RG-7.4).</div><div class="o_ka_h3">Valeurs historisées</div><field name="valeur_ids" nolabel="1"><list editable="bottom"><field name="date_effet"/><field name="taux"/><field name="montant"/><field name="plafond"/></list></field>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_rh_rubrique_list" model="ir.ui.view">
+    <field name="name">ka.rh.rubrique.ka.list</field>
+    <field name="model">ka.rh.rubrique</field>
+    <field name="arch" type="xml"><list><field name="sequence" widget="handle"/><field name="code"/><field name="name"/><field name="nature"/><field name="categorie"/><field name="mode"/><field name="taux"/><field name="plafond"/><field name="soumis_cnps"/><field name="soumis_its"/><field name="affiche"/></list></field>
+</record>
+<record id="view_ka_rh_affectation_list" model="ir.ui.view">
+    <field name="name">ka.rh.affectation.ka.list</field>
+    <field name="model">ka.rh.affectation</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="name"/><field name="libelle"/><field name="type"/><field name="analytic_id"/><field name="responsable"/></list></field>
+</record>
+<record id="view_ka_rh_categorie_list" model="ir.ui.view">
+    <field name="name">ka.rh.categorie.ka.list</field>
+    <field name="model">ka.rh.categorie</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="sequence" widget="handle"/><field name="name"/><field name="essai_mois"/><field name="structure"/></list></field>
+</record>
+<record id="view_ka_rh_its_list" model="ir.ui.view">
+    <field name="name">ka.rh.its.tranche.ka.list</field>
+    <field name="model">ka.rh.its.tranche</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="date_effet"/><field name="borne_inf"/><field name="borne_sup"/><field name="taux"/></list></field>
+</record>
+<record id="view_ka_rh_ricf_list" model="ir.ui.view">
+    <field name="name">ka.rh.ricf.ka.list</field>
+    <field name="model">ka.rh.ricf</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="date_effet"/><field name="parts"/><field name="montant"/></list></field>
+</record>
+<record id="view_ka_rh_type_conge_list" model="ir.ui.view">
+    <field name="name">ka.rh.type.conge.ka.list</field>
+    <field name="model">ka.rh.type.conge</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="sequence" widget="handle"/><field name="code"/><field name="name"/><field name="acquisition"/><field name="deductible"/><field name="remunere"/><field name="report"/></list></field>
+</record>
+<record id="view_ka_rh_ferie_list" model="ir.ui.view">
+    <field name="name">ka.rh.ferie.ka.list</field>
+    <field name="model">ka.rh.ferie</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="date"/><field name="name"/></list></field>
+</record>
+<record id="view_ka_rh_bareme_list" model="ir.ui.view">
+    <field name="name">ka.rh.bareme.mission.ka.list</field>
+    <field name="model">ka.rh.bareme.mission</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="categorie_id"/><field name="zone"/><field name="per_diem"/><field name="hebergement"/></list></field>
+</record>
+<record id="view_ka_rh_competence_list" model="ir.ui.view">
+    <field name="name">ka.rh.competence.ka.list</field>
+    <field name="model">ka.rh.competence</field>
+    <field name="arch" type="xml"><list editable="bottom"><field name="name"/><field name="famille"/></list></field>
+</record>
+<record id="action_ka_rh_rubrique" model="ir.actions.act_window"><field name="name">Rubriques de paie</field><field name="res_model">ka.rh.rubrique</field><field name="view_mode">list,form</field></record><record id="action_ka_rh_rubrique_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_rubrique"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_rh_rubrique_list"/></record><record id="action_ka_rh_rubrique_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_rh_rubrique"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_rh_rubrique_form"/></record>
+<record id="action_ka_rh_affectation" model="ir.actions.act_window"><field name="name">Affectations</field><field name="res_model">ka.rh.affectation</field><field name="view_mode">list</field></record>
+<record id="action_ka_rh_categorie" model="ir.actions.act_window"><field name="name">Catégories professionnelles</field><field name="res_model">ka.rh.categorie</field><field name="view_mode">list</field></record>
+<record id="action_ka_rh_its" model="ir.actions.act_window"><field name="name">Barème ITS</field><field name="res_model">ka.rh.its.tranche</field><field name="view_mode">list</field></record>
+<record id="action_ka_rh_ricf" model="ir.actions.act_window"><field name="name">Réduction pour charges de famille</field><field name="res_model">ka.rh.ricf</field><field name="view_mode">list</field></record>
+<record id="action_ka_rh_type_conge" model="ir.actions.act_window"><field name="name">Types de congés</field><field name="res_model">ka.rh.type.conge</field><field name="view_mode">list</field></record>
+<record id="action_ka_rh_ferie" model="ir.actions.act_window"><field name="name">Jours fériés</field><field name="res_model">ka.rh.ferie</field><field name="view_mode">list</field></record>
+<record id="action_ka_rh_bareme" model="ir.actions.act_window"><field name="name">Barème des missions</field><field name="res_model">ka.rh.bareme.mission</field><field name="view_mode">list</field></record>
+<record id="action_ka_rh_competence" model="ir.actions.act_window"><field name="name">Catalogue des compétences</field><field name="res_model">ka.rh.competence</field><field name="view_mode">list</field></record>
+</odoo>
