@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cron_flo_entretien" model="ir.cron">
+        <field name="name">Kode Agri flotte : ordres d'entretien au kilométrage (RG-11.1)</field>
+        <field name="model_id" ref="model_ka_flo_plan"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_echeances()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+    <record id="cron_flo_documents" model="ir.cron">
+        <field name="name">Kode Agri flotte : alertes d'expiration des documents réglementaires</field>
+        <field name="model_id" ref="model_ka_flo_document"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_alertes()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

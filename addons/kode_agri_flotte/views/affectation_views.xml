@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_flo_affectation_form" model="ir.ui.view">
+    <field name="name">ka.flo.affectation.ka.form</field>
+    <field name="model">ka.flo.affectation</field>
+    <field name="arch" type="xml">
+        <form string="Affectation conducteur / mission" class="o_ka_form">
+            <header><button string="Planifier" name="action_planifier" type="object" class="btn-secondary" invisible="state != 'planifiee'"/><button string="Démarrer" name="action_demarrer" type="object" class="btn-secondary" invisible="state != 'planifiee'"/><button string="Terminer" name="action_terminer" type="object" class="btn-secondary" invisible="state != 'en_cours'"/><button string="Mission" name="action_mission" type="object" class="btn-primary" invisible="state != 'terminee' or mode != 'propre' or mission_id"/><button string="Déclarer un incident" name="action_declarer_incident" type="object" class="btn-secondary"/><field name="state" widget="statusbar" statusbar_visible="planifiee,en_cours,terminee"/></header>
+            <sheet>
+                <div class="oe_button_box" name="button_box"><button name="action_open_vehicule" type="object" class="oe_stat_button"><div class="o_stat_info"><span class="o_stat_value"><field name="distance_txt"/></span><span class="o_stat_text">Distance parcourue</span></div></button><button name="action_open_vehicule" type="object" class="oe_stat_button"><div class="o_stat_info"><span class="o_stat_value"><field name="duree_txt"/></span><span class="o_stat_text">Durée réelle</span></div></button></div><div class="oe_title"><h1><field name="titre" readonly="1"/></h1><div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div></div><div class="o_ka_info">Affectation reliée au conducteur (module 7) et au véhicule ; à la clôture, l'ordre de mission est transmis au module RH et Paie (§ 11.5).</div><group><group><field name="vehicule_id" string="Véhicule"/><field name="conducteur_id" string="Conducteur" required="mode == 'propre'" invisible="mode != 'propre'"/><field name="prestataire_id" string="Prestataire de transport" invisible="mode != 'prestataire'"/><field name="type_mission" string="Type de mission"/><field name="itineraire" string="Zone / itinéraire"/><field name="km_retour" string="Km au retour" invisible="mode != 'propre'"/></group><group><field name="date" string="Date"/><field name="horaires_txt" string="Départ / retour réels" invisible="not horaires_txt"/><field name="state" string="Statut" readonly="1"/><field name="km_depart" string="Km au départ" invisible="mode != 'propre'"/><field name="mission_id" string="Ordre de mission" invisible="not mission_id"/><field name="mode" string="Mode de réalisation"/></group></group><div class="o_ka_h3">Historique des affectations récentes</div><field name="historique_ids" nolabel="1" readonly="1"><list><field name="date" string="Date"/><field name="conducteur_id" string="Conducteur"/><field name="vehicule_id" string="Véhicule"/><field name="type_mission" string="Mission"/><field name="state" string="Statut" widget="badge" decoration-success="state == 'terminee'"/></list></field><div class="o_ka_valid"><span class="o_ka_valid_t">Incidents</span><field name="incident_txt" nolabel="1"/></div><notebook><page string="Planification" name="planif"><group><group><field name="depart_prevu" string="Départ prévu"/><field name="retour_prevu" string="Retour prévu"/><field name="zone_id" string="Zone de collecte"/><field name="voyage_id" string="Ordre de voyage (module 5)"/></group><group></group></group></page><page string="Incidents" name="incidents"><field name="incident_ids" nolabel="1"><list editable="bottom"><field name="date"/><field name="type"/><field name="description"/><field name="cout_estime"/></list></field></page><page string="Prestation externe" name="externe"><group><group><field name="externe" string="Intervention externe"/><field name="prestataire_id" string="Prestataire / garage"/><field name="commande_cadre" string="Prestataire sous contrat-cadre"/></group><group><field name="da_id" string="Demande d'achat"/><field name="ao_id" string="Appel d'offre"/><field name="commande_id" string="Commande"/><field name="commande_state" string="Statut de la commande"/><field name="facture_txt" string="Facturation"/></group></group><div class="o_ka_info">C'est toujours l'OT qui part en premier : fournisseur ponctuel → demande d'achat déjà validée → appel d'offre → commande (RG-11.2) ; prestataire sous contrat-cadre → la commande existante. La clôture exige la commande approuvée et déclenche la réception automatique ; la facture est rapprochée de la commande et de la réception (RG-11.3).</div></page></notebook>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+<record id="view_ka_flo_affectation_list" model="ir.ui.view">
+    <field name="name">ka.flo.affectation.ka.list</field>
+    <field name="model">ka.flo.affectation</field>
+    <field name="arch" type="xml"><list><field name="date"/><field name="name"/><field name="conducteur_id"/><field name="vehicule_id"/><field name="type_mission" string="Mission"/><field name="mode" optional="hide"/><field name="distance" sum="Total"/><field name="mission_id" optional="show"/><field name="state" widget="badge" decoration-success="state == 'terminee'" decoration-info="state == 'en_cours'"/></list></field>
+</record>
+<record id="view_ka_flo_affectation_search" model="ir.ui.view">
+    <field name="name">ka.flo.affectation.ka.search</field>
+    <field name="model">ka.flo.affectation</field>
+    <field name="arch" type="xml"><search><field name="vehicule_id"/><field name="conducteur_id"/><field name="name"/><filter name="en_cours" string="En cours" domain="[('state', '=', 'en_cours')]"/><filter name="missions" string="Ordres de mission générés" domain="[('mission_id', '!=', False)]"/><filter name="g_veh" string="Véhicule" context="{'group_by': 'vehicule_id'}"/><filter name="g_cond" string="Conducteur" context="{'group_by': 'conducteur_id'}"/></search></field>
+</record>
+<record id="view_ka_flo_affectation_calendar" model="ir.ui.view">
+    <field name="name">ka.flo.affectation.ka.calendar</field>
+    <field name="model">ka.flo.affectation</field>
+    <field name="arch" type="xml"><calendar date_start="depart_prevu" date_stop="retour_prevu" color="vehicule_id" mode="week" quick_create="0"><field name="vehicule_id"/><field name="conducteur_id"/></calendar></field>
+</record>
+<record id="view_ka_flo_incident_form" model="ir.ui.view">
+    <field name="name">ka.flo.incident.ka.form</field>
+    <field name="model">ka.flo.incident</field>
+    <field name="arch" type="xml">
+        <form string="Incident" class="o_ka_form">
+            
+            <sheet>
+                <group><group><field name="affectation_id" string="Affectation"/><field name="vehicule_id" string="Véhicule"/><field name="conducteur_id" string="Conducteur"/><field name="date" string="Date"/><field name="type" string="Type"/><field name="cout_estime" string="Coût estimé"/></group><group></group></group><field name="description" nolabel="1" placeholder="Circonstances…"/>
+            </sheet>
+        </form>
+    </field>
+</record>
+<record id="view_ka_rh_mission_form_flotte" model="ir.ui.view">
+    <field name="name">ka.rh.mission.form.flotte</field>
+    <field name="model">ka.rh.mission</field>
+    <field name="inherit_id" ref="kode_agri_rh.view_ka_rh_mission_form"/>
+    <field name="arch" type="xml">
+        <field name="vehicule_txt" position="before">
+            <field name="vehicule_id" string="Véhicule de service" invisible="moyen_transport != 'vehicule'"/>
+            <field name="affectation_id" string="Affectation" invisible="not affectation_id"/>
+        </field>
+    </field>
+</record>
+<record id="view_ka_flo_incident_list" model="ir.ui.view">
+    <field name="name">ka.flo.incident.ka.list</field>
+    <field name="model">ka.flo.incident</field>
+    <field name="arch" type="xml"><list><field name="date"/><field name="type"/><field name="vehicule_id"/><field name="conducteur_id"/><field name="affectation_id"/><field name="description"/><field name="cout_estime" sum="Total"/></list></field>
+</record>
+<record id="action_ka_flo_affectation" model="ir.actions.act_window"><field name="name">Affectations</field><field name="res_model">ka.flo.affectation</field><field name="view_mode">list,form,calendar</field><field name="search_view_id" ref="view_ka_flo_affectation_search"/></record><record id="action_ka_flo_affectation_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_affectation"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_flo_affectation_list"/></record><record id="action_ka_flo_affectation_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_affectation"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_flo_affectation_form"/></record>
+<record id="action_ka_flo_planning" model="ir.actions.act_window"><field name="name">Planning des véhicules et des conducteurs</field><field name="res_model">ka.flo.affectation</field><field name="view_mode">calendar,list,form</field></record><record id="action_ka_flo_planning_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_planning"/><field name="sequence">1</field><field name="view_mode">calendar</field><field name="view_id" ref="view_ka_flo_affectation_calendar"/></record><record id="action_ka_flo_planning_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_planning"/><field name="sequence">2</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_flo_affectation_list"/></record>
+<record id="action_ka_flo_missions" model="ir.actions.act_window"><field name="name">Ordres de mission générés et transmis</field><field name="res_model">ka.flo.affectation</field><field name="view_mode">list,form</field><field name="context">{'search_default_missions': 1}</field><field name="search_view_id" ref="view_ka_flo_affectation_search"/></record><record id="action_ka_flo_missions_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_missions"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_flo_affectation_list"/></record><record id="action_ka_flo_missions_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_missions"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_flo_affectation_form"/></record>
+<record id="action_ka_flo_incident" model="ir.actions.act_window"><field name="name">Incidents</field><field name="res_model">ka.flo.incident</field><field name="view_mode">list,form</field></record>
+</odoo>

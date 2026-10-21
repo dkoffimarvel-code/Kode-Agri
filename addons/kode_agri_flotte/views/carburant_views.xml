@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_ka_flo_plein_form" model="ir.ui.view">
+    <field name="name">ka.flo.plein.ka.form</field>
+    <field name="model">ka.flo.plein</field>
+    <field name="arch" type="xml">
+        <form string="Plein de carburant" class="o_ka_form">
+            <header><button string="Nouveau plein" name="action_nouveau_plein" type="object" class="btn-primary"/><button string="Enregistrer" special="save" class="btn-secondary"/><field name="state" widget="statusbar" statusbar_visible="saisi,rapproche"/></header>
+            <sheet>
+                <div class="oe_button_box" name="button_box"><button name="action_open_vehicule" type="object" class="oe_stat_button"><div class="o_stat_info"><span class="o_stat_value"><field name="conso_moy_txt"/></span><span class="o_stat_text">Conso moy.</span></div></button><button name="action_voir_piece" type="object" class="oe_stat_button"><div class="o_stat_info"><span class="o_stat_value"><field name="ecart_txt"/></span><span class="o_stat_text">Écart</span></div></button></div><div class="oe_title"><h1><field name="titre" readonly="1"/></h1><div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div></div><div class="o_ka_info">Le plein est rapproché du kilométrage parcouru pour calculer la consommation moyenne et détecter les dérives (surconsommation, fuite).</div><div class="o_ka_alert" invisible="not derive">Dérive : consommation supérieure de plus de 5 % à la moyenne du véhicule.</div><group><group><field name="vehicule_id" string="Véhicule" readonly="id"/><field name="date" string="Date du plein" readonly="id"/><field name="quantite" string="Quantité" readonly="id"/><field name="cout" string="Coût" readonly="id"/><field name="derive" invisible="1"/></group><group><field name="km" string="Km au plein" readonly="id"/><field name="km_parcourus" string="Km depuis dernier plein"/><field name="conso_txt" string="Conso calculée" widget="badge"/><field name="zone_id" string="Zone de collecte"/><field name="mode" string="Mode"/><field name="support" string="N° de carte ou de bon"/></group></group><div class="o_ka_h3">Historique des pleins (suivi de consommation)</div><field name="historique_ids" nolabel="1" readonly="1"><list><field name="date" string="Date"/><field name="quantite_txt" string="Quantité"/><field name="km" string="Km"/><field name="conso_liste" string="Conso (L/100)"/><field name="support_txt" string="Bon / carte"/></list></field>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+<record id="view_ka_flo_plein_list" model="ir.ui.view">
+    <field name="name">ka.flo.plein.ka.list</field>
+    <field name="model">ka.flo.plein</field>
+    <field name="arch" type="xml"><list decoration-danger="derive"><field name="name"/><field name="date"/><field name="vehicule_id"/><field name="quantite" sum="Total"/><field name="km"/><field name="km_parcourus"/><field name="conso"/><field name="support_txt" string="Bon / carte"/><field name="zone_id" optional="show"/><field name="cout" sum="Total"/><field name="state" widget="badge" decoration-success="state == 'rapproche'"/></list></field>
+</record>
+<record id="view_ka_flo_plein_search" model="ir.ui.view">
+    <field name="name">ka.flo.plein.ka.search</field>
+    <field name="model">ka.flo.plein</field>
+    <field name="arch" type="xml"><search><field name="vehicule_id"/><field name="support"/><field name="zone_id"/><filter name="derives" string="Dérives" domain="[('derive', '=', True)]"/><filter name="non_rapproches" string="Non rapprochés" domain="[('state', '=', 'saisi')]"/><filter name="g_veh" string="Véhicule" context="{'group_by': 'vehicule_id'}"/><filter name="g_zone" string="Zone" context="{'group_by': 'zone_id'}"/><filter name="g_mois" string="Mois" context="{'group_by': 'date:month'}"/></search></field>
+</record>
+<record id="view_ka_flo_plein_pivot" model="ir.ui.view">
+    <field name="name">ka.flo.plein.ka.pivot</field>
+    <field name="model">ka.flo.plein</field>
+    <field name="arch" type="xml"><pivot><field name="vehicule_id" type="row"/><field name="date" interval="month" type="col"/><field name="quantite" type="measure"/><field name="cout" type="measure"/></pivot></field>
+</record>
+<record id="view_ka_flo_releve_import_form" model="ir.ui.view">
+    <field name="name">ka.flo.releve.import.form</field>
+    <field name="model">ka.flo.releve.import</field>
+    <field name="arch" type="xml">
+        <form string="Import du relevé de cartes carburant" class="o_ka_form">
+            <div class="o_ka_info">Fichier CSV séparé par des points-virgules : carte;date (AAAA-MM-JJ);quantité;montant. Chaque ligne est rapprochée du plein saisi (même carte, même date, quantité à 1 % près).</div><group><group><field name="fichier" string="Relevé" filename="nom"/><field name="nom" invisible="1"/></group><group></group></group><field name="rapport" nolabel="1" invisible="not rapport"/>
+            <footer><button string="Importer et rapprocher" name="action_importer" type="object" class="btn-primary"/><button string="Fermer" special="cancel" class="btn-secondary"/></footer>
+        </form>
+    </field>
+</record>
+<record id="action_ka_flo_plein" model="ir.actions.act_window"><field name="name">Carburant</field><field name="res_model">ka.flo.plein</field><field name="view_mode">list,form,pivot</field><field name="search_view_id" ref="view_ka_flo_plein_search"/></record><record id="action_ka_flo_plein_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_plein"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_flo_plein_list"/></record><record id="action_ka_flo_plein_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_plein"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_flo_plein_form"/></record>
+<record id="action_ka_flo_derives" model="ir.actions.act_window"><field name="name">Suivi de consommation et dérives</field><field name="res_model">ka.flo.plein</field><field name="view_mode">pivot,list</field><field name="search_view_id" ref="view_ka_flo_plein_search"/></record><record id="action_ka_flo_derives_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_derives"/><field name="sequence">1</field><field name="view_mode">pivot</field><field name="view_id" ref="view_ka_flo_plein_pivot"/></record><record id="action_ka_flo_derives_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_flo_derives"/><field name="sequence">2</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_flo_plein_list"/></record>
+<record id="action_ka_flo_import" model="ir.actions.act_window"><field name="name">Importer un relevé de cartes</field><field name="res_model">ka.flo.releve.import</field><field name="view_mode">form</field><field name="target">new</field></record>
+</odoo>

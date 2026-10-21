@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ka_flo_affectation,ka.flo.affectation,model_ka_flo_affectation,base.group_user,1,1,1,1
+access_ka_flo_document,ka.flo.document,model_ka_flo_document,base.group_user,1,1,1,1
+access_ka_flo_entretien,ka.flo.entretien,model_ka_flo_entretien,base.group_user,1,1,1,1
+access_ka_flo_entretien_ligne,ka.flo.entretien.ligne,model_ka_flo_entretien_ligne,base.group_user,1,1,1,1
+access_ka_flo_incident,ka.flo.incident,model_ka_flo_incident,base.group_user,1,1,1,1
+access_ka_flo_plan,ka.flo.plan,model_ka_flo_plan,base.group_user,1,1,1,1
+access_ka_flo_plan_operation,ka.flo.plan.operation,model_ka_flo_plan_operation,base.group_user,1,1,1,1
+access_ka_flo_plein,ka.flo.plein,model_ka_flo_plein,base.group_user,1,1,1,1
+access_ka_flo_releve,ka.flo.releve,model_ka_flo_releve,base.group_user,1,1,1,1
+access_ka_flo_releve_import,ka.flo.releve.import,model_ka_flo_releve_import,base.group_user,1,1,1,1
+access_ka_flo_vehicule,ka.flo.vehicule,model_ka_flo_vehicule,base.group_user,1,1,1,1

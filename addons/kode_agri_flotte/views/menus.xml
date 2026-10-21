@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<menuitem id="menu_ka_flo_root" name="Parc automobile" sequence="71"/>
+<menuitem id="menu_ka_flo_vehicules" name="Véhicules" parent="menu_ka_flo_root" action="action_ka_flo_vehicule" sequence="10"/>
+<menuitem id="menu_ka_flo_entretien" name="Entretien" parent="menu_ka_flo_root" sequence="20"/>
+<menuitem id="menu_ka_flo_entretien_ordres" name="Ordres d'entretien" parent="menu_ka_flo_entretien" action="action_ka_flo_entretien" sequence="10"/>
+<menuitem id="menu_ka_flo_entretien_plans" name="Plans d'entretien" parent="menu_ka_flo_entretien" action="action_ka_flo_plan" sequence="20"/>
+<menuitem id="menu_ka_flo_carburant" name="Carburant" parent="menu_ka_flo_root" sequence="30"/>
+<menuitem id="menu_ka_flo_pleins" name="Pleins" parent="menu_ka_flo_carburant" action="action_ka_flo_plein" sequence="10"/>
+<menuitem id="menu_ka_flo_import" name="Importer un relevé de cartes" parent="menu_ka_flo_carburant" action="action_ka_flo_import" sequence="20"/>
+<menuitem id="menu_ka_flo_documents" name="Documents" parent="menu_ka_flo_root" action="action_ka_flo_document" sequence="40"/>
+<menuitem id="menu_ka_flo_affectations" name="Affectations" parent="menu_ka_flo_root" action="action_ka_flo_affectation" sequence="50"/>
+<menuitem id="menu_ka_flo_etats" name="États" parent="menu_ka_flo_root" sequence="60"/>
+<menuitem id="menu_ka_flo_etat_facturer" name="OT clôturés en attente de facturation" parent="menu_ka_flo_etats" action="action_ka_flo_a_facturer" sequence="10"/>
+<menuitem id="menu_ka_flo_etat_derives" name="Consommation de carburant et dérives" parent="menu_ka_flo_etats" action="action_ka_flo_derives" sequence="20"/>
+<menuitem id="menu_ka_flo_etat_echeancier" name="Échéancier des documents réglementaires" parent="menu_ka_flo_etats" action="action_ka_flo_echeancier" sequence="30"/>
+<menuitem id="menu_ka_flo_etat_cout" name="Coût de revient kilométrique" parent="menu_ka_flo_etats" action="action_ka_flo_cout" sequence="40"/>
+<menuitem id="menu_ka_flo_etat_planning" name="Planning des véhicules et des conducteurs" parent="menu_ka_flo_etats" action="action_ka_flo_planning" sequence="50"/>
+<menuitem id="menu_ka_flo_etat_missions" name="Ordres de mission transmis à la paie" parent="menu_ka_flo_etats" action="action_ka_flo_missions" sequence="60"/>
+<menuitem id="menu_ka_flo_etat_externes" name="OT externalisés" parent="menu_ka_flo_etats" action="action_ka_flo_externes" sequence="70"/>
+<menuitem id="menu_ka_flo_etat_incidents" name="Incidents" parent="menu_ka_flo_etats" action="action_ka_flo_incident" sequence="80"/>
+<menuitem id="menu_ka_flo_config" name="Configuration" parent="menu_ka_flo_root" sequence="90"/>
+<menuitem id="menu_ka_flo_cfg_releves" name="Relevés de compteur" parent="menu_ka_flo_config" action="action_ka_flo_releve" sequence="10"/>
+</odoo>

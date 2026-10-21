@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_flo_plein" model="ir.sequence"><field name="name">Plein de carburant</field><field name="code">ka.flo.plein</field><field name="prefix">CARB-</field><field name="padding">4</field><field name="number_next">1042</field></record>
+    <record id="seq_flo_entretien" model="ir.sequence"><field name="name">Ordre d&apos;entretien</field><field name="code">ka.flo.entretien</field><field name="prefix">ENT-</field><field name="padding">4</field><field name="number_next">277</field></record>
+    <record id="seq_flo_affectation" model="ir.sequence"><field name="name">Affectation conducteur</field><field name="code">ka.flo.affectation</field><field name="prefix">AFF-</field><field name="padding">4</field><field name="number_next">89</field></record>
+</odoo>
