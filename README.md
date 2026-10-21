@@ -1,57 +1,55 @@
 # Kode Agri — ERP Odoo (caoutchouc naturel)
 
-Addons Odoo 19 implémentant le cahier des charges *Kode Agri Odoo v4.0*, avec les écrans reproduits
-à l'identique des maquettes (barre noire « Kode Agri », fil d'Ariane, titre + pastille de statut, KPI,
-bandeau d'information, sections, panneau **ACTIONS / LIENS** à droite).
+Addons Odoo 19 implémentant le cahier des charges *Kode Agri Odoo v4.5* (onze modules), avec les écrans reproduits
+à l'identique des maquettes du cahier. Depuis la v4.2, les maquettes sont dessinées dans l'interface native d'Odoo :
+barre d'application violette et ses menus, fil d'Ariane, boutons d'action et barre d'état dans l'en-tête, cartes KPI
+à droite du titre, champs sur deux colonnes, onglets, bandeau bleu « ℹ » et encadré jaune « Validation / Approbation ».
+Les règles de réalisation des écrans sont décrites dans [`docs/GUIDE_ECRANS.md`](docs/GUIDE_ECRANS.md).
 
-| Addon | Contenu |
-|---|---|
-| `kode_agri_base` | Habillage (CSS + contexte dans la barre de navigation), devise XOF « FCFA », mixin `ka.document` |
-| `kode_agri_planteur` | **Module 1** : fiche planteur/coop + parcelles EUDR, tarifs Apromac, primes, avances (circuit de signature), import tickets de pesée → commandes d'achat, génération réceptions/factures (RG-1.7), proposition de virement multiple, règlement par chèque |
+| Addon | Application(s) | Contenu |
+|---|---|---|
+| `kode_agri_base` | — | Habillage (CSS, libellé « ERP KODE »), devise XOF « FCFA », mixin `ka.document` |
+| `kode_agri_planteur` | Collecte FDT | **Module 1** : fiche planteur/coopérative et parcelles EUDR, prix Apromac, primes, avances (circuit de signature), import des tickets de pesée → commandes d'achat, génération des réceptions et factures (RG-1.7), virement multiple, chèque de règlement |
+| `kode_agri_achats` | Achats, Inventaire | **Module 2** : données de base (articles, catégories, fournisseurs, entrepôts, structure), demande d'achat → appel d'offres → commande, réception partielle, facture et pièces obligatoires (RG-2.2), transferts, inventaire, dossiers d'import et frais d'approche |
+| `kode_agri_immo` | Immobilisations | **Module 3** : catégories, fiche (manuelle ou depuis une facture), plan d'amortissement, dotations comptabilisées par section analytique, cessions et mises au rebut, parc |
+| `kode_agri_production` | Fabrication, Qualité | **Module 4** : nomenclature et gamme TSR, OF de mélange / production / essai, paniers et colis (36 balles × 35 kg), DRC porté par le lot, spécification laboratoire (7 tests) et reclassement, reconditionnements, contrôles qualité, libération par équivalent conteneur |
+| `kode_agri_vente` | Ventes | **Module 5** : client, contrats Spot / Long terme, sous-contrats, ordre de transit, jalons, voyage, empotage, bon d'expédition, déclaration d'exportation (DUS, parafiscalité), transfert au port, départ du navire |
+| `kode_agri_frais` | Notes de frais | **Module 6** : saisie avec plafonds et justificatifs, approbation, comptabilisation ventilée, remboursement |
+| `kode_agri_rh` | Employés, Présences, Congés, Paie, Missions, Recrutement, Formation | **Module 7** : dossier du personnel et contrat, feuilles de pointage (borne, PIN, API de pointeuse externe, anomalies RG-7.1), absences, congés et permissions (RG-7.2, RG-7.3), soldes et acquisition mensuelle, paie ivoirienne paramétrable (CNPS, ITS au barème progressif avec RICF, FDFP ; rubriques historisées RG-7.4) et écritures de paie analytiques, ordres de mission avec avance, per diem et régularisation (RG-7.5), demandes de personnel et candidatures (RG-7.6, RG-7.7), formations et compétences (RG-7.8), entretiens de carrière (RG-7.9) |
+| `kode_agri_compta` | Comptabilité | **Module 8** : facture export en devise, rapprochement commande / réception / facture (RG-8.1), lettrage, planning de trésorerie, régularisations avec extourne (RG-8.5), schémas d'écritures |
+| `kode_agri_gestion` | Contrôle de gestion | **Module 9** : cascade analytique par activité, unités d'œuvre et clés, budgets à deux couches, CAPEX, écarts, KPI, compte de résultat de gestion, trésorerie glissante |
+| `kode_agri_maintenance` | Maintenance | **Module 10** : parc d'équipements hiérarchisé (site → atelier → ligne → machine → sous-ensemble) relié au poste de charge et à l'immobilisation, relevés de compteur, plans préventifs calendaires ou sur compteur (RG-10.1), demandes d'intervention, ordres de travail (main-d'œuvre, pièces sorties du magasin, demande d'achat si pièce indisponible RG-10.2), contrats de maintenance et sous-traitance avec réception à la clôture (RG-10.3), MTBF / MTTR / disponibilité, coût imputé au coût d'usinage |
+| `kode_agri_flotte` | Parc automobile | **Module 11** : véhicules et engins, documents réglementaires avec alertes et blocage, entretien au kilométrage (RG-11.1), prestations externes de la commande à la facture (RG-11.2, RG-11.3), carburant (consommation, dérives, import des relevés de cartes, écriture analytique), affectations conducteur / véhicule (RG-11.4, RG-11.5) et ordre de mission vers la paie (RG-11.6), coût de revient kilométrique |
+| `kode_agri_demo` | — | Données de démonstration chargées par les vrais flux (rapport étape par étape) et tests automatisés |
 
-Installation : ajouter `addons/` à l'`addons_path`, puis installer `kode_agri_planteur`
-(dépend de contacts, purchase, stock, account). Édition Community suffisante pour le module 1.
-
-| `kode_agri_production` | **Module 4** : nomenclature/gamme TSR et 21 postes de charge U01, OF de mélange / production / essai (estimation du TSR RG-4.8, statut EUDR hérité), déclaration de paniers et de colis (36 balles × 35 kg), DRC porté par le lot avec historique, spécification laboratoire (7 tests, grades TSR10/TSR20/OFFSPECS) avec reclassement 1 pour 1, reconditionnement texture / spécifications, contrôles qualité (réception, essai DRC, granulés, panier P0/PRI, libération par équivalent conteneur) |
-
-| `kode_agri_vente` | **Module 5** : fiche client (spécifications 7 tests, documents requis), contrats Spot / Long terme avec conversion kg → conteneurs/balles et héritage des spécifications (RG-5.3/5.5), sous-contrats (booking 48 h / 7 j, BMC), ordre de transit, jalons départ port, ordre de voyage (2 conteneurs max, détention par armateur), empotage avec filtre de conformité et capacité 16/17 colis, bon d'expédition, déclaration d'exportation (DUS, parafiscalité), transfert au port, départ navire et clôture documentaire |
-
-| `kode_agri_frais` | **Module 6** : notes de frais (saisie par catégorie avec plafonds et justificatifs, approbation, pièce comptable NDF ventilée par section analytique avec contrepartie 421000, remboursement du salarié par virement lettré) |
-
-| `kode_agri_achats` | **Module 2** : données de base (articles, catégories avec code comptable et section analytique « achats stockés », fournisseurs frais généraux, dépôts, structure), demande d'achat → appel d'offres → commande (génère la commande et la réception Odoo), réception partielle avec reliquat, facture et pièces obligatoires (RG-2.2), transfert intersites, inventaire valorisé, dossiers d'import avec ventilation des frais d'approche (valeur / poids / quantité) et coût complet d'entrée |
-
-| `kode_agri_immo` | **Module 3** : familles d'immobilisations, fiche (manuelle ou issue d'une facture fournisseur à la validation), plan d'amortissement mensuel linéaire ou dégressif avec prorata, comptabilisation des dotations par pièce ventilée sur la section analytique, cessions et mises au rebut (VNC, plus ou moins-value), consultation du parc |
-
-| `kode_agri_compta` | **Module 7** : facture de vente export en devise, contrôle à trois niveaux commande / réception / facture avec tolérances (RG-7.1), lettrage automatique, prévisions de trésorerie en six rubriques (vues mensuelle et hebdomadaire), régularisations d'arrêté CCA / PCA / CAP / PAR avec extourne automatique (RG-7.5) et provisions, schémas d'écritures du cahier en données de paramétrage |
-
-| `kode_agri_gestion` | **Module 8** : cascade analytique par activité (axes croisés grade / campagne / site), unités d'œuvre et clés de répartition mensuelles, budgets à deux couches (détail et consolidé) avec génération de la maquette depuis le réalisé, import, validation verrouillée et révisions, drill-down, bons à budgétiser CAPEX avec circuit de signature, analyse des écarts avec alertes, KPI, compte de résultat de gestion, trésorerie glissante |
-
-| `kode_agri_demo` | Données de démonstration chargées par les vrais flux (rapport étape par étape) et tests automatisés de bout en bout |
-
-Les huit modules du cahier des charges sont couverts (voir les limites ci-dessous). (même patron de vues).
-
-**Non testé sur une instance Odoo** : la syntaxe Python/XML et la cohérence champs ↔ vues sont vérifiées
-statiquement, mais le chargement réel dans Odoo 19 reste à valider.
-
+Les modules 7, 10 et 11 sont des modules spécifiques Kode Agri : ils n'exigent pas les applications Enterprise
+(Paie, Évaluations…) ni les applications Maintenance / Flotte d'Odoo, et s'installent sur l'édition Community.
 
 ## Installation et contrôle
 
 **Procédure complète avec données de démonstration : [`docs/INSTALLATION.md`](docs/INSTALLATION.md)** (`./scripts/install.sh`),
 parcours écran par écran : [`docs/PARCOURS_DEMO.md`](docs/PARCOURS_DEMO.md), tests : `./scripts/run_tests.sh`.
 
-
 Ordre d'installation (dépendances) : `kode_agri_base` → `kode_agri_planteur` → `kode_agri_production` → `kode_agri_achats`
-→ `kode_agri_vente` → `kode_agri_frais` → `kode_agri_compta` → `kode_agri_gestion` ; `kode_agri_immo` après `kode_agri_achats`.
-Il suffit d'installer `kode_agri_gestion` et `kode_agri_immo` : leurs dépendances viennent avec.
+→ `kode_agri_vente` → `kode_agri_frais` → `kode_agri_compta` → `kode_agri_gestion` → `kode_agri_immo` → `kode_agri_rh`
+→ `kode_agri_maintenance` → `kode_agri_flotte` → `kode_agri_demo`.
+Installer `kode_agri_flotte` suffit pour tout installer sans la démonstration ; `kode_agri_demo` installe tout et charge la démonstration.
 
 Avant toute installation, `python3 tools/check_addons.py` vérifie sans Odoo les manifestes, les champs et boutons des vues,
-les identifiants externes et les `env.ref()`. Il ne remplace pas un test sur une instance réelle.
+les identifiants externes, les `env.ref()`, les définitions de champs et les pièges d'Odoo 17-19 (`tree`, `attrs`,
+`decoration_…`, One2many affiché deux fois, ancienne mise en page). Il ne remplace pas un test sur une instance réelle.
 
 ## Limites connues
 
-- Aucun addon n'a encore été chargé dans une instance Odoo 19 : le premier test d'installation révélera des erreurs que
-  l'analyse statique ne voit pas (signatures d'API, comportements propres à la version 19).
-- Rapports d'impression (certificats, bordereaux, ordre de transit, contrat…) : les boutons affichent une notification.
+- Les addons n'ont pas été chargés dans une instance Odoo 19 depuis cet environnement : la première installation peut révéler
+  des erreurs que l'analyse statique ne voit pas (signatures d'API, comportements propres à la version 19).
+- Paie : les taux CNPS, le barème ITS et la réduction pour charges de famille sont des **paramètres** (tables datées) chargés avec
+  des valeurs indicatives ; ils doivent être validés par le service paie avant usage. Les déclarations CNPS / ITS sont des
+  états d'analyse, pas les formulaires officiels.
+- Rapports d'impression (bulletin, ordre de mission, certificats, bordereaux…) : les boutons affichent une notification ou
+  s'appuient sur les vues d'analyse.
 - Règles d'approbation hiérarchiques : les circuits sont des étapes à boutons, sans contrôle de droits par rôle.
-- Paramétrage standard à réaliser dans Odoo : plan SYSCOHADA, taxes et positions fiscales, journaux de banque, rapprochement bancaire.
-- Abonnement des charges et charges à répartir (§ 7.7.3-7.7.4) : non couverts (fonctions de report d'Odoo Enterprise).
+- Paramétrage standard à réaliser dans Odoo : plan SYSCOHADA, taxes et positions fiscales, journaux (dont PAIE), rapprochement bancaire.
+- Abonnement des charges et charges à répartir (§ 8.7.3-8.7.4) : non couverts (fonctions de report d'Odoo Enterprise).
+- Applications natives homonymes : si les applications Achats, Inventaire, Ventes d'Odoo sont installées, leurs menus restent
+  visibles à côté des applications Kode Agri de même nom.

@@ -3,18 +3,18 @@
 Connexion : <http://localhost:8069>, base `kode_demo`, `admin` / `admin`. Les chiffres ci-dessous sont ceux que la
 démonstration produit ; quand ils diffèrent des maquettes du cahier des charges, l'écart est expliqué.
 
-## Module 1 — Planteurs et coopératives  (menu : *Achats › Fond de tasse*)
+## Module 1 — Planteurs et coopératives  (application : *Collecte FDT*)
 
 | Écran | À voir | Valeurs attendues |
 |---|---|---|
-| Planteurs et coopératives | 3 planteurs (`PLT-…`) + la coopérative (`COOP-…`), parcelles EUDR | solde d'avance du 1er planteur : **1 500 000** |
+| Planteurs | 3 planteurs (`PLT-…`) + la coopérative (`COOP-…`), parcelles EUDR | solde d'avance du 1er planteur : **1 500 000** |
 | Avances | avance versée, circuit de signature (3 étapes faites) | règle « Taux fixe 30 % » |
-| Tarifs › Saisie des tarifs | prix Apromac du mois | usine **615**, bord champ **590** FCFA/kg |
-| Tickets de pesée | lot d'import `DEMO`, 5 tickets validés, 5 commandes générées | 127 400 kg ; total commandes **78 351 000** |
-| Traitements › Génération réceptions et factures | tâche terminée, trace | 5 commandes, 5 factures |
-| *À faire à la main* | Comptabilité › Règlements › Propositions de règlement : saisir une plage de dates, vérifier la liste des nets à payer, **Approuver** puis **Générer les règlements** | |
+| Prix Apromac | prix Apromac du mois | usine **615**, bord champ **590** FCFA/kg |
+| Tickets | lot d'import `DEMO`, 5 tickets validés, 5 commandes générées | 127 400 kg ; total commandes **78 351 000** |
+| Décomptes › Génération réceptions et factures | tâche terminée, trace | 5 commandes, 5 factures |
+| *À faire à la main* | Comptabilité › Paiements › Virement multiple : saisir une plage de dates, vérifier la liste des nets à payer, **Approuver** puis **Générer les règlements** | |
 
-## Module 4 — Production et qualité  (menus : *Production*, *Qualité*)
+## Module 4 — Production et qualité  (applications : *Fabrication*, *Qualité*)
 
 | Écran | À voir | Valeurs attendues |
 |---|---|---|
@@ -27,7 +27,7 @@ démonstration produit ; quand ils diffèrent des maquettes du cahier des charge
 | Reconditionnement | *à faire* : créer un ordre « spécifications » pour un colis TSR10 et saisir les nouveaux résultats **P0 32, PRI 45, impuretés 0,15, VM 0,95, azote 0,80, cendres 1,1** → grade **TSR20** (la grille du cahier l'exige) ; P0 28 donnerait OFFSPECS | OF de reclassement 1 pour 1, anciens résultats historisés |
 | Libération conteneur | 15 colis libérés (statut A) ; *à essayer* : créer un contrôle contenant le colis points blancs → ligne **Bloqué — à remplacer**, et « Valider le conteneur » refusé (RG-4.12) | |
 
-## Module 5 — Vente et logistique export  (menu : *Ventes Kode Agri*)
+## Module 5 — Vente et logistique export  (application : *Ventes*)
 
 | Écran | À voir | Valeurs attendues |
 |---|---|---|
@@ -41,13 +41,13 @@ démonstration produit ; quand ils diffèrent des maquettes du cahier des charge
 | Déclarations d'exportation | DUS : TCT 0,1 % du CAF, TS douane 20 000, agios 0,2 %, gestion crédit 0,4 % ; parafiscalité 22 FCFA/kg | DUS **59 540** ; parafiscalité **887 040** |
 | *À faire à la main* | Transferts port → Départ navire → Générer la facture ; essayer de clôturer sans cocher la liasse (RG-5.14) | |
 
-## Module 6 — Notes de frais  (menu : *Comptabilité › Tiers › Notes de frais*)
+## Module 6 — Notes de frais  (application : *Notes de frais*)
 
 Note « Tournée collecte Sud » : 3 dépenses, **96 500 FCFA** ✔ maquette, comptabilisée (journal NDF, compte 421000).
 *À faire* : *Proposer au règlement* puis *Régler le salarié* (nécessite un journal de banque).
 Test de plafond : créer une nouvelle note avec 60 000 sur une ligne carburant, puis soumettre → refus (plafond 50 000).
 
-## Module 2 — Achats et stock  (menus : *Données de base*, *Achats*, *Stocks Kode Agri*)
+## Module 2 — Achats et stock  (applications : *Achats*, *Inventaire*)
 
 | Écran | À voir | Valeurs attendues |
 |---|---|---|
@@ -70,7 +70,24 @@ Test de plafond : créer une nouvelle note avec 60 000 sur une ligne carburant, 
 | Cessions et mises au rebut | Laminoir 1, prix 4 500 000, VNC et plus-value calculées *(à valider)* | VNC dépend de la date du jour |
 | Consultation du parc | indicateurs, regroupement par famille | |
 
-## Module 7 — Comptabilité et finance  (menu : *Comptabilité Kode Agri*)
+## Module 7 — Ressources humaines et paie  (applications : *Employés*, *Présences*, *Congés*, *Paie*, *Missions*, *Recrutement*, *Formation*)
+
+| Écran | À voir | Valeurs attendues |
+|---|---|---|
+| 7.1 Employés | `EMP-0211 — Opérateur séchage`, CDI, Atelier / Ligne 2 ; onglet Contrat : éléments de rémunération | salaire de base **185 000**, prime de poste **25 000**, indemnité transport **15 000** |
+| 7.2.1 Présences › Feuilles de pointage | semaine précédente : pointages reçus par l'API (mode « Import API » ou « Badge »), jeudi **Anomalie : pointage manquant**, encadré « 1 anomalie à régulariser » ; *Valider* est refusé (RG-7.1) | heures théoriques 40h00 ; mercredi **+2h13 (heures sup.)** |
+| Présences › Présences | événements de pointeuse rapprochés / en anomalie / rejetés | |
+| 7.2.4 Congés › Mes congés | demande de congé annuel *À approuver*, tableau des soldes | acquis **26,4**, pris **11,9**, solde **14,5** ; solde après validation **9,5** |
+| 7.2.5 Congés › Demandes › Demandes d'absence | absence maladie approuvée (2 niveaux), barème d'ancienneté avec « Cas du collaborateur » | maintien : 1 mois plein puis 2 mois à demi-salaire |
+| 7.3 Paie › Bulletins | bulletin du mois précédent *Confirmé* et comptabilisé ; bulletins du mois *Calculés* | salaire de base 185 000, cotisations sociales −6,3 %, net à payer ; écriture 661 / 664 / 431 / 447 / 422 |
+| Paie › Configuration | rubriques datées (RG-7.4), barème ITS 2024, RICF | *valeurs indicatives à valider par le service paie* |
+| 7.4 Missions › Ordres de mission | `OM-…` « Tournée collecte Sud » *À régulariser* : avance 175 000 versée, per diem 35 000 × 5 jours, frais réels de la note de frais | régularisation **+96 500 FCFA (complément à verser)** ; un second ordre *À approuver* |
+| 7.5.1 Recrutement › Demandes de personnel | DP « Opérateur séchage » approuvée puis poste ouvert ; DP de création de poste *À valider* (la direction valide toujours, RG-7.6) | |
+| 7.5.2 Recrutement › Candidatures | Awa Koffi `CAND-…` en *Entretien*, grille 4/5 · 5/5 · 5/5 | |
+| 7.6.2 Formation › Sessions | « Habilitation électrique BR » *En cours*, 3 / 6 places occupées, participants Validé / En attente / Validé ; *Clôturer la session* met à jour la compétence (RG-7.8) | coût 450 000, FDFP taxe d'apprentissage |
+| 7.6.3 Formation › Entretiens | entretien annuel *Entretien manager*, compétences Progression / Nouvelle compétence ; *Finaliser* programme le suivant (RG-7.9) | |
+
+## Module 8 — Comptabilité et finance  (application : *Comptabilité*)
 
 | Écran | À voir | Valeurs attendues |
 |---|---|---|
@@ -81,7 +98,7 @@ Test de plafond : créer une nouvelle note avec 60 000 sur une ligne carburant, 
 | Régularisations | CCA de 1 200 000 en brouillon : *Comptabiliser*, puis *Extourner* (au lendemain de la clôture) | |
 | Schémas d'écritures | 35 lignes issues des 13 grilles du cahier, groupées par domaine | |
 
-## Module 8 — Contrôle de gestion  (menu : *Contrôle de gestion*)
+## Module 9 — Contrôle de gestion  (application : *Contrôle de gestion*)
 
 | Écran | À voir | Valeurs attendues |
 |---|---|---|
@@ -95,9 +112,31 @@ Test de plafond : créer une nouvelle note avec 60 000 sur une ligne carburant, 
 | Compte de résultat de gestion | mois, cumul, % CA, N-1 | |
 | Trésorerie glissante | 6 colonnes, alerte sous le seuil de 150 M FCFA | |
 
+## Module 10 — Maintenance des engins et des machines  (application : *Maintenance*)
+
+| Écran | À voir | Valeurs attendues |
+|---|---|---|
+| 10.1 Équipements | `EQ-SECH-02 — Séchoir n°2`, poste de charge Séchoir 2, immobilisation « Séchoir ligne 2 », sous-ensembles Brûleur 1 et Brûleur biomasse ; onglet Fiabilité | compteur **12 480 h**, criticité **Critique** |
+| 10.3 Préventif | plan « Graissage paliers » toutes les 500 h : le relevé de 12 480 h a franchi le seuil d'anticipation → **OT préventif généré automatiquement** (RG-10.1) ; révision trimestrielle, contrôle réglementaire annuel | prochaine échéance **12 500 h (proche)** |
+| 10.2 Ordres de travail | OT correctif « brûleur 1 défaillant » *En cours* : main-d'œuvre 3,7 h, injecteurs ×2, joints ×4 ; *Demander pièce* crée une demande d'achat si le stock manque (RG-10.2) | coût de l'OT **262 000 FCFA** |
+| 10.5 Demandes de maintenance | « Allumage instable — brûleur biomasse » *En qualification*, équipement à l'arrêt total ; *Convertir en ordre de travail* / *Traiter en urgence* | |
+| 10.6 Contrats & prestataires | 5 contrats : AfricTherm *À renouveler* (activité « renégocier l'échéance »), Atlas *Expiré* ; OT externalisé : demande d'achat → commande signée → clôture = réception automatique (RG-10.3) | 45 000 F CFA / h |
+| États | plan de charge, carnet de santé, coûts, tableau de bord fiabilité (MTBF, MTTR, disponibilité), pièces critiques, suivi des factures | |
+
+## Module 11 — Gestion du parc automobile  (application : *Parc automobile*)
+
+| Écran | À voir | Valeurs attendues |
+|---|---|---|
+| 11.1 Véhicules | `AA-123-BC — Camion collecte`, Renault Kerax, 15 t, conducteur Traoré Issa, immobilisation ; documents : visite technique **Échéance proche** ; le 4×4 AA-456-CD a une visite échue → bloqué à l'affectation (§ 11.4) | compteur **148 405 km** après la tournée du jour |
+| 11.2 Entretien | ordre `ENT-…` « Révision des 150 000 km » **généré au kilométrage** (seuil d'anticipation 148 000 km franchi par le plein, RG-11.1), *En cours* à l'atelier interne ; entretien externe du 4×4 : demande d'achat validée → appel d'offre (RG-11.2) | coût **743 000 FCFA** |
+| 11.3 Carburant | 4 pleins, consommation et dérives, écriture 602200 / 4081 ventilée par activité, véhicule et zone ; *Importer un relevé de cartes* pour les rapprocher | conso **12,4 L/100 km** au dernier plein |
+| 11.5 Affectations | `AFF-…` du jour *Terminée* : 85 km, 06:05 → 12:20 ; **ordre de mission généré** et transmis à la paie (RG-11.6) ; une deuxième affectation simultanée du camion est refusée (RG-11.5) | durée réelle **6 h 15** |
+| États | OT en attente de facture, consommation et dérives, échéancier des documents, coût de revient kilométrique, planning, ordres de mission | |
+
 ## Différences connues avec les maquettes
 
-- Les écrans reprennent les **libellés, la disposition et les règles**, pas l'ergonomie exacte d'Odoo (listes déroulantes, saisie).
+- Les écrans sont des formulaires Odoo natifs reprenant les **libellés, la disposition et les règles** des maquettes v4.5 ;
+  les écarts propres à chaque écran sont décrits dans `docs/GUIDE_ECRANS.md` et dans l'historique des modifications.
 - Les maquettes contiennent quelques incohérences internes (nombre de conteneurs d'un contrat, clés de répartition,
   sens de l'écart budgétaire) : voir `README.md` et les comptes rendus de chaque module.
 - Les impressions (contrat, ordre de transit, certificats, bordereaux) affichent une notification : les rapports
