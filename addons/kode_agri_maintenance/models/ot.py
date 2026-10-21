@@ -247,11 +247,11 @@ class KaMntOt(models.Model):
             if not o.duree_arret and o.date_debut and o.type == 'correctif':
                 vals['duree_arret'] = (fields.Datetime.now() - o.date_debut).total_seconds() / 3600.0
             o.write(vals)
+            o.plan_id.executer(o)   # avant le relevé : sinon le plan, encore « proche », générerait un nouvel OT
             if o.compteur_cloture and o.compteur_cloture > o.machine_id.compteur_heures:
                 self.env['ka.mnt.releve'].create({'equipement_id': o.machine_id.id, 'type': 'heures',
                                                   'valeur': o.compteur_cloture, 'origine': o.name})
             o.machine_id.filtered(lambda m: m.state == 'arret').write({'state': 'service'})
-            o.plan_id.executer(o)
             o.demande_id.filtered(lambda d: d.state != 'cloture').write({'state': 'cloture'})
             o._imputer()
 

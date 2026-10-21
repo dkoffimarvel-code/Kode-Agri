@@ -34,9 +34,11 @@ COMPTES = [  # code, intitulé, type
     ('2411100', 'Matériel et outillage industriel', 'asset_fixed'),
     # paie (module 7), missions, carburant (module 11)
     ('661100', 'Rémunérations directes versées au personnel', 'expense'), ('664100', 'Charges sociales', 'expense'),
-    ('422100', 'Personnel, rémunérations dues', 'liability_current'), ('425100', 'Personnel, avances et acomptes', 'asset_current'),
-    ('431100', 'Sécurité sociale (CNPS)', 'liability_current'), ('447200', 'État, impôts retenus à la source (ITS)', 'liability_current'),
-    ('447300', 'État, contributions FDFP', 'liability_current'), ('625100', 'Frais de mission', 'expense'),
+    ('641300', 'Taxes sur appointements et salaires (FDFP)', 'expense'), ('422000', 'Personnel, rémunérations dues', 'liability_current'),
+    ('421100', 'Personnel, avances et acomptes', 'asset_current'), ('431000', 'Sécurité sociale (CNPS)', 'liability_current'),
+    ('447200', 'État, impôts retenus à la source (ITS)', 'liability_current'),
+    ('447800', 'État, autres impôts et contributions (FDFP)', 'liability_current'), ('618100', 'Voyages et déplacements', 'expense'),
+    ('604200', 'Matières combustibles (carburant)', 'expense'),
 ]
 
 

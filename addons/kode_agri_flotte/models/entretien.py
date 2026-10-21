@@ -174,9 +174,9 @@ class KaFloEntretien(models.Model):
             e._sortie_pieces()
             e.write({'state': 'cloture', 'date_cloture': fields.Date.context_today(self)})
             v = e.vehicule_id
-            v.maj_compteur(e.km_cloture or e.km_declenchement, e.name)
-            if e.plan_id:
+            if e.plan_id:   # avant le relevé : sinon le plan, encore échu, générerait un nouvel ordre
                 e.plan_id.derniere = e.seuil or e.km_cloture or v.odometre
+            v.maj_compteur(e.km_cloture or e.km_declenchement, e.name)
             if v.state == 'en_entretien':
                 v.state = 'disponible'
             if not e.imputation_faite:

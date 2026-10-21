@@ -16,5 +16,8 @@ class ProductTemplate(models.Model):
             t.ka_alerte_reappro = t.ka_piece_mnt and t.qty_available <= t.ka_stock_mini
 
     def _search_ka_alerte(self, operator, value):
+        # Odoo 19 normalise les conditions booléennes en ('in', [True]) / ('not in', [True])
+        if operator not in ('in', 'not in'):
+            return NotImplemented
         ids = self.search([('ka_piece_mnt', '=', True)]).filtered(lambda t: t.qty_available <= t.ka_stock_mini).ids
-        return [('id', 'in' if (operator == '=') == bool(value) else 'not in', ids)]
+        return [('id', operator, ids)]

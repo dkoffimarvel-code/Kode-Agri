@@ -119,7 +119,7 @@ class KaRhBulletin(models.Model):
                 soumis_its += m
             # absences non rémunérées (absence injustifiée, permission au-delà du plafond, congé sans solde)
             nr = sum(self.env['ka.rh.demande'].search([('employe_id', '=', e.id), ('state', '=', 'approuvee'),
-                                                       ('date_debut', '>=', d), ('date_debut', '<=', fin)]).mapped('jours_non_remuneres'))
+                                                       ('date_debut', '>=', d), ('date_debut', '<=', fin)]).mapped('jours_retenus'))
             if nr:
                 m = ligne('ABS', -e.salaire_base / 26.0 * nr, base=nr, base_txt='%g j' % nr)
                 gains += m
@@ -179,11 +179,11 @@ class KaRhBulletin(models.Model):
             cot_pat = sum(b.ligne_ids.filtered(lambda l: l.rubrique_id.code.startswith('CNPS_')
                                                and l.nature == 'patronal').mapped('montant'))
             fdfp = b.charges_patronales - cot_pat
-            mouvements = [  # compte, débit, crédit, analytique, tiers
-                ('661100', b.brut, 0.0, ana, False), ('664100', b.charges_patronales, 0.0, ana, False),
-                ('431100', 0.0, b.cotisations + cot_pat, False, False), ('447200', 0.0, b.its, False, False),
-                ('447300', 0.0, fdfp, False, False), ('425100', 0.0, b.autres_retenues, False, p.id),
-                ('422100', 0.0, b.net, False, p.id)]
+            mouvements = [  # compte (SYSCOHADA), débit, crédit, analytique, tiers
+                ('661100', b.brut, 0.0, ana, False), ('664100', cot_pat, 0.0, ana, False), ('641300', fdfp, 0.0, ana, False),
+                ('431000', 0.0, b.cotisations + cot_pat, False, False), ('447200', 0.0, b.its, False, False),
+                ('447800', 0.0, fdfp, False, False), ('421100', 0.0, b.autres_retenues, False, p.id),
+                ('422000', 0.0, b.net, False, p.id)]
             lignes = [Command.create({'account_id': compte(self.env, c).id, 'name': lib, 'debit': dt, 'credit': ct,
                                       'analytic_distribution': a, 'partner_id': t})
                       for c, dt, ct, a, t in mouvements if dt or ct]

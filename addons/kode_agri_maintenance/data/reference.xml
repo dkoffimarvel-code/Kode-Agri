@@ -4,7 +4,6 @@
     <record id="location_conso_mnt" model="stock.location">
         <field name="name">Consommation maintenance</field>
         <field name="usage">inventory</field>
-        <field name="location_id" ref="stock.stock_location_locations_virtual"/>
     </record>
     <!-- Prestation de maintenance sous-traitée (commande d'achat de service liée à l'OT) -->
     <record id="product_prestation_mnt" model="product.template">

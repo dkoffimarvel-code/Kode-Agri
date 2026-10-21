@@ -106,9 +106,12 @@ class KaFloVehicule(models.Model):
             v.documents_echus = any(d.obligatoire and d.echeance and d.echeance < today for d in v.document_ids)
 
     def _search_echus(self, operator, value):
+        # Odoo 19 normalise les conditions booléennes en ('in', [True]) / ('not in', [True])
+        if operator not in ('in', 'not in'):
+            return NotImplemented
         today = fields.Date.context_today(self)
         ids = self.env['ka.flo.document'].search([('obligatoire', '=', True), ('echeance', '<', today)]).vehicule_id.ids
-        return [('id', 'in' if (operator == '=') == bool(value) else 'not in', ids)]
+        return [('id', operator, ids)]
 
     def _compute_couts(self):
         today = fields.Date.context_today(self)

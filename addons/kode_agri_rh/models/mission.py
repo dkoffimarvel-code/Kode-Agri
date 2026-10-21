@@ -3,8 +3,8 @@ from odoo.exceptions import UserError
 
 from .common import compte, fcfa, journal
 
-COMPTE_AVANCE = '425100'    # avances sur missions (compte de tiers soldé au décompte, RG-7.5)
-COMPTE_CHARGE = '625100'    # frais de mission (indemnités forfaitaires)
+COMPTE_AVANCE = '421100'    # personnel, avances et acomptes : avances sur missions, soldé au décompte (RG-7.5)
+COMPTE_CHARGE = '618100'    # voyages et déplacements (indemnités forfaitaires de mission)
 
 
 class KaRhMission(models.Model):

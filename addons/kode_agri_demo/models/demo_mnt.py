@@ -101,6 +101,7 @@ class KaDemoMaintenance(models.AbstractModel):
         ancien.action_planifier()
         ancien.action_demarrer()
         ancien.action_cloturer()
+        ancien.date_cloture = ancien.date_demande + timedelta(days=1)   # panne réparée le lendemain de la demande
         # demande d'intervention en qualification (écran 10.5)
         di = self.env['ka.mnt.demande'].create({
             'titre': 'Allumage instable — brûleur biomasse', 'equipement_id': sech2.id, 'sous_ensemble_id': biom.id,
@@ -111,17 +112,6 @@ class KaDemoMaintenance(models.AbstractModel):
         di.action_qualifier()
         di.message_post(body="Confirmation terrain : allumage instable, forte suspicion de sonde d'allumage défectueuse. Équipement "
                              "critique, arrêt total en cours.")
-        # OT correctif en cours (écran 10.2)
-        demain = fields.Datetime.to_datetime(datetime.combine(today + timedelta(days=1), time(2, 0)))
-        ot = self.env['ka.mnt.ot'].create({
-            'equipement_id': sech2.id, 'sous_ensemble_id': brul1.id, 'objet': 'brûleur 1 défaillant', 'type': 'correctif',
-            'priorite': 'critique', 'technicien_id': tech.id, 'fenetre_debut': demain, 'fenetre_fin': demain + timedelta(hours=4),
-            'duree_arret': 3 + 40 / 60.0,
-            'ligne_ids': [Command.create({'type': 'main_oeuvre', 'detail': 'Technicien × 3,7 h', 'technicien_id': tech.id, 'quantite': 3.7}),
-                          Command.create({'type': 'piece', 'product_id': pieces['P-0301'].id, 'detail': 'Injecteur brûleur (magasin)', 'quantite': 2}),
-                          Command.create({'type': 'piece', 'product_id': pieces['P-0302'].id, 'detail': 'Joint haute température', 'quantite': 4})]})
-        ot.action_planifier()
-        ot.action_demarrer()
         # contrats de maintenance (écran 10.6)
         C = self.env['ka.mnt.contrat']
         prest = lambda n: self._partner(n, is_company=True, supplier_rank=1, ka_categorie='frais_generaux')
@@ -146,6 +136,17 @@ class KaDemoMaintenance(models.AbstractModel):
         ext.commande_id.action_signer()
         ext.action_demarrer()
         ext.action_cloturer()
+        # OT correctif en cours (écran 10.2)
+        demain = fields.Datetime.to_datetime(datetime.combine(today + timedelta(days=1), time(2, 0)))
+        ot = self.env['ka.mnt.ot'].create({
+            'equipement_id': sech2.id, 'sous_ensemble_id': brul1.id, 'objet': 'brûleur 1 défaillant', 'type': 'correctif',
+            'priorite': 'critique', 'technicien_id': tech.id, 'fenetre_debut': demain, 'fenetre_fin': demain + timedelta(hours=4),
+            'duree_arret': 3 + 40 / 60.0,
+            'ligne_ids': [Command.create({'type': 'main_oeuvre', 'detail': 'Technicien × 3,7 h', 'technicien_id': tech.id, 'quantite': 3.7}),
+                          Command.create({'type': 'piece', 'product_id': pieces['P-0301'].id, 'detail': 'Injecteur brûleur (magasin)', 'quantite': 2}),
+                          Command.create({'type': 'piece', 'product_id': pieces['P-0302'].id, 'detail': 'Joint haute température', 'quantite': 4})]})
+        ot.action_planifier()
+        ot.action_demarrer()
         return '%d équipements, 3 plans, OT préventif %s généré au compteur, OT %s en cours, OT externe %s réceptionné, %d contrats' % (
             E.search_count([]), ot_prev.name or '—', ot.name, ext.name, len(contrats))
 

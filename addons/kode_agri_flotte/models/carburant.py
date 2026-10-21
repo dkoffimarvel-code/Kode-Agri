@@ -11,7 +11,7 @@ from .achat import SECTION_USAGE
 from .vehicule import dec
 
 TOLERANCE_DERIVE = 0.05   # au-delà de +5 % de la consommation moyenne : dérive (surconsommation, fuite, usage non conforme)
-COMPTE_CARBURANT = '602200'
+COMPTE_CARBURANT = '604200'   # matières combustibles
 COMPTE_FNP = '4081'        # fournisseurs — factures non parvenues (relevé de cartes carburant)
 
 

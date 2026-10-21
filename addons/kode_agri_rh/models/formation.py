@@ -207,10 +207,12 @@ class KaRhEntretien(models.Model):
             e.en_retard = e.state != 'finalise' and e.date and e.date < today
 
     def _search_retard(self, operator, value):
+        # Odoo 19 normalise les conditions booléennes en ('in', [True]) / ('not in', [True])
+        if operator not in ('in', 'not in'):
+            return NotImplemented
         today = fields.Date.context_today(self)
-        if (operator == '=') == bool(value):
-            return [('state', '!=', 'finalise'), ('date', '<', today)]
-        return ['|', ('state', '=', 'finalise'), ('date', '>=', today)]
+        vrai = [('state', '!=', 'finalise'), ('date', '<', today)]
+        return vrai if operator == 'in' else ['|', ('state', '=', 'finalise'), ('date', '>=', today)]
 
     @api.onchange('employe_id')
     def _onchange_employe(self):
@@ -258,10 +260,13 @@ class KaRhEntretienLigne(models.Model):
     niveau_precedent = fields.Selection(NIVEAUX, string='Niveau précédent')
     niveau_actuel = fields.Selection(NIVEAUX, string='Niveau actuel')
     evolution = fields.Char(compute='_compute_evolution', string='Évolution')
+    tendance = fields.Selection([('up', 'Hausse'), ('down', 'Baisse'), ('stable', 'Stable')], compute='_compute_evolution')
 
     @api.depends('niveau_precedent', 'niveau_actuel')
     def _compute_evolution(self):
         for l in self:
+            l.tendance = 'up' if (not l.niveau_precedent and l.niveau_actuel) or RANG.get(l.niveau_actuel, 0) > RANG.get(
+                l.niveau_precedent, 0) else ('down' if RANG.get(l.niveau_actuel, 0) < RANG.get(l.niveau_precedent, 0) else 'stable')
             if not l.niveau_precedent and l.niveau_actuel:
                 l.evolution = _('↑ Nouvelle compétence')
             elif RANG.get(l.niveau_actuel, 0) > RANG.get(l.niveau_precedent, 0):

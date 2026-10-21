@@ -39,8 +39,7 @@ class KaMntContrat(models.Model):
     periodicite_visite = fields.Integer(string='Visites préventives (mois)', help='0 = pas de visite contractuelle')
     prochaine_visite = fields.Date(string='Prochaine visite contractuelle')
     product_id = fields.Many2one('product.product', string='Prestation (article de service)',
-                                 default=lambda s: s.env.ref('kode_agri_maintenance.product_prestation_mnt',
-                                                             raise_if_not_found=False).product_variant_id)
+                                 default=lambda s: s._default_product())
     ot_ids = fields.One2many('ka.mnt.ot', 'contrat_id', string='Historique des interventions')
     nb_ot = fields.Integer(compute='_compute_cumul', string='Ordres de travail')
     cout_cumule = fields.Monetary(compute='_compute_cumul', string='Cumul de l\'année')
@@ -51,6 +50,10 @@ class KaMntContrat(models.Model):
     state = fields.Selection([('brouillon', 'Brouillon'), ('actif', 'Actif'), ('a_renouveler', 'À renouveler'),
                               ('expire', 'Expiré'), ('cloture', 'Clôturé')], default='brouillon', string='Statut',
                              tracking=True)
+
+    def _default_product(self):
+        tmpl = self.env.ref('kode_agri_maintenance.product_prestation_mnt', raise_if_not_found=False)
+        return tmpl.product_variant_id if tmpl else self.env['product.product']
 
     @api.depends('name', 'prestataire_id')
     def _compute_display_name(self):

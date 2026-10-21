@@ -7,16 +7,23 @@ MOIS = ('Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août
 
 def compte(env, code):
     """Compte du plan comptable par son code exact, à défaut par préfixe (plans à 6 ou 8 chiffres)."""
-    acc = env['account.account'].search([('code', '=', code)], limit=1) \
-        or env['account.account'].search([('code', '=like', code + '%')], limit=1)
+    Acc = env['account.account']
+    acc = Acc.search([('code', '=', code)], limit=1) or Acc.search([('code', '=like', code + '%')], order='code', limit=1)
+    racine = code.rstrip('0')
+    while not acc and len(racine) >= 3:   # 661100 → 6611… → 661… (plans complétés par des zéros)
+        acc = Acc.search([('code', '=like', racine + '%')], order='code', limit=1)
+        racine = racine[:-1]
     if not acc:
         raise UserError(_("Le compte %s est introuvable dans le plan comptable.") % code)
     return acc
 
 
 def journal(env, code, typ='general'):
-    return env['account.journal'].search([('code', '=', code)], limit=1) \
-        or env['account.journal'].search([('type', '=', typ)], limit=1)
+    J = env['account.journal']
+    dom = [('company_id', '=', env.company.id)]
+    return J.search(dom + [('code', '=', code)], limit=1) \
+        or J.search(dom + [('type', '=', typ), ('code', 'in', ('OD', 'MISC', 'DIV'))], limit=1) \
+        or J.search(dom + [('type', '=', typ)], order='sequence, id', limit=1)
 
 
 def fcfa(montant):

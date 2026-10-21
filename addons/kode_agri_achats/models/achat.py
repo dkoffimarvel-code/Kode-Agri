@@ -312,7 +312,7 @@ class KaCommande(models.Model):
                 raise UserError(_('La commande ne contient aucune ligne.'))
             po = self.env['purchase.order'].create({
                 'partner_id': c.partner_id.id, 'date_order': c.date_commande, 'origin': c.name,
-                'picking_type_id': c.depot_id.in_type_id.id or False,
+                **({'picking_type_id': c.depot_id.in_type_id.id} if c.depot_id.in_type_id else {}),
                 'order_line': [Command.create({'product_id': l.product_id.id, 'name': l.designation or l.product_id.name,
                                                'product_qty': l.qty, 'price_unit': l.prix}) for l in c.line_ids]})
             po.button_confirm()

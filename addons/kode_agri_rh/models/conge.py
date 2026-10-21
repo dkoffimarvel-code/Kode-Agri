@@ -44,7 +44,9 @@ class KaRhDemande(models.Model):
     valide_hierarchie = fields.Boolean(string='Approuvée par le responsable', readonly=True, copy=False)
     solde_disponible = fields.Float(compute='_compute_solde', string='Solde disponible', digits=(5, 1))
     solde_apres = fields.Float(compute='_compute_solde', string='Solde après validation', digits=(5, 1))
-    jours_non_remuneres = fields.Float(compute='_compute_solde', string='Jours non rémunérés', store=True, digits=(5, 1))
+    jours_non_remuneres = fields.Float(compute='_compute_solde', string='Jours non rémunérés', digits=(5, 1))
+    jours_retenus = fields.Float(string='Jours non rémunérés (arrêtés)', readonly=True, copy=False, digits=(5, 1),
+                                 help="Jours non rémunérés figés à l'approbation : base de la paie et de l'acquisition des congés")
     anciennete_txt = fields.Char(related='employe_id.anciennete_txt', string='Ancienneté du collaborateur')
     bareme_html = fields.Html(compute='_compute_bareme', sanitize=False)
     effet_txt = fields.Char(compute='_compute_bareme', string='Effet sur le solde de congés')
@@ -124,7 +126,7 @@ class KaRhDemande(models.Model):
                 nr = d.duree
             d.jours_non_remuneres = nr
 
-    @api.depends('type_demande', 'motif', 'employe_id', 'type_conge_id')
+    @api.depends('type_demande', 'motif', 'employe_id', 'type_conge_id', 'foyer')
     def _compute_bareme(self):
         for d in self:
             mois = d.employe_id.anciennete_mois
@@ -216,7 +218,7 @@ class KaRhDemande(models.Model):
                 if not solde:
                     solde = self.env['ka.rh.solde'].create({'employe_id': d.employe_id.id, 'type_id': d.type_conge_id.id})
                 solde.pris += d.duree
-            d.state = 'approuvee'
+            d.write({'state': 'approuvee', 'jours_retenus': d.jours_non_remuneres})
             d.activity_ids.action_feedback(feedback=_('Approuvée'))
 
     def action_refuser(self):
@@ -266,8 +268,8 @@ class KaRhSolde(models.Model):
             for s in e.solde_ids.filtered(lambda x: x.type_id.acquisition and
                                           (not x.derniere_acquisition or x.derniere_acquisition < debut_mois)):
                 non_remunere = sum(self.env['ka.rh.demande'].search([
-                    ('employe_id', '=', e.id), ('state', '=', 'approuvee'), ('jours_non_remuneres', '>', 0),
+                    ('employe_id', '=', e.id), ('state', '=', 'approuvee'), ('jours_retenus', '>', 0),
                     ('date_debut', '>=', debut_mois - timedelta(days=31)), ('date_debut', '<', debut_mois)]).mapped(
-                    'jours_non_remuneres'))
+                    'jours_retenus'))
                 prorata = max(0.0, 1 - non_remunere / 22.0)   # absences non assimilées : prorata du travail effectif
                 s.write({'acquis': s.acquis + s.type_id.acquisition * prorata, 'derniere_acquisition': debut_mois})
