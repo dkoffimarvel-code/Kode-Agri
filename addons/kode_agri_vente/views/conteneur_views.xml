@@ -1,23 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 5.4 — Empotage conteneur — affectation des palettes conformes [Saisie] -->
 <record id="view_ka_conteneur_form" model="ir.ui.view">
     <field name="name">ka.conteneur.ka.form</field>
     <field name="model">ka.conteneur</field>
     <field name="arch" type="xml">
-        <form string="Empotage conteneur — allocation des colis" class="o_ka_form">
+        <form string="Conteneur" class="o_ka_form">
+            <header>
+                <button string="Affecter palettes" name="action_allouer" type="object" class="btn-secondary"/>
+                <button string="Plomber" name="action_plomber" type="object" class="btn-primary"/>
+                <button string="Empoter" name="action_empoter" type="object" class="btn-secondary"/>
+                <button string="Imprimer documents" name="action_documents" type="object" class="btn-secondary"/>
+                <field name="state" widget="statusbar" statusbar_visible="affecte,charge,plombe,empote"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Logistique export</span><span class="o_ka_cur">Empotage</span><span class="o_ka_fn">Fonction : YEMP · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Empotage conteneur — allocation des colis</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-info="state in ('affecte','plombe')" decoration-success="state in ('empote','au_port','embarque')"/>
-                        </div>
-                        <field name="state" widget="statusbar" class="o_ka_pills" statusbar_visible="affecte,plombe,empote"/><div class="o_ka_kpis"><div class="o_ka_kpi"><field name="colis_txt" nolabel="1"/><span class="o_ka_kl">Colis alloués</span></div><div class="o_ka_kpi"><field name="spec_txt" nolabel="1"/><span class="o_ka_kl">Spécifications</span></div></div><div class="o_ka_info">Seuls les lots (colis) au statut A, conformes aux spécifications du contrat et sans sous-statut de défaut sont proposés. Capacité : 16 colis en palette, 17 en vrac (paramétrable).</div><div class="o_ka_sec">Équivalent conteneur</div><div class="o_ka_grid"><div class="o_ka_f"><label for="sous_contrat_id" string="Sous-contrat" class="o_ka_req"/><field name="sous_contrat_id"/></div><div class="o_ka_f"><label for="mode_chargement" string="Mode de chargement"/><field name="mode_chargement" readonly="1"/></div><div class="o_ka_f"><label for="serie" string="N° série conteneur" class="o_ka_req"/><field name="serie"/></div><div class="o_ka_f"><label for="plomb" string="N° de plomb" class="o_ka_req"/><field name="plomb"/></div></div><div class="o_ka_h3">Colis alloués (allocation détaillée)</div><field name="colis_ids" nolabel="1"><list><field name="palette" string="Palette"/><field name="lot_id" string="Lot (colis)"/><field name="product_id" string="Article"/><field name="statut" string="Statut"/><field name="p0_pri" string="P0 / PRI"/><field name="conformite" string="Conformité" widget="badge" decoration-success="conformite=='conforme'" decoration-danger="conformite=='non_conforme'"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Allouer les colis conformes" name="action_allouer" type="object" class="o_ka_btn o_ka_primary"/><button string="Empoter" name="action_empoter" type="object" class="o_ka_btn"/><button string="Imprimer les documents" name="action_documents" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_colis" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="colis_txt"/></span><span class="o_stat_text"><field name="colis_label"/></span></div>
+                    </button>
+                    <button name="action_open_colis" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="spec_kpi"/></span><span class="o_stat_text">Spécifications</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1>Conteneur <field name="name" readonly="1" class="d-inline"/></h1>
+                    <div class="o_ka_sub">Équivalent conteneur · spécifications héritées du sous-contrat</div>
+                </div>
+                <div class="o_ka_info">Seules les palettes conformes aux spécifications du contrat sont proposées. Capacité : 16 colis (palette) / 17 colis (vrac), paramétrable.</div>
+                <group>
+                    <group>
+                        <field name="sous_contrat_id" string="Sous-contrat" required="1"/>
+                        <field name="serie" string="N° série conteneur" required="1"/>
+                        <field name="plomb" string="N° de plomb" class="fw-bold" required="state not in ('affecte', 'charge')"/>
+                    </group>
+                    <group>
+                        <field name="mode_chargement" string="Mode chargement" widget="badge"/>
+                        <field name="tare" string="Tare conteneur" class="o_ka_u_kg"/>
+                        <field name="spec_txt" string="Spécifications"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Spécifications" name="specs">
+                        <div class="o_ka_h3">Spécifications de l'équivalent conteneur (héritées du sous-contrat)</div>
+                        <field name="spec_html" nolabel="1"/>
+                        <div class="o_ka_h3">Palettes affectées (conformes aux spécifications du contrat)</div>
+                        <field name="palettes_html" nolabel="1"/>
+                    </page>
+                    <page string="Palettes" name="palettes">
+                        <field name="colis_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="palette" string="Palette"/>
+                                <field name="lot_id" string="Colis (série)"/>
+                                <field name="product_id" string="Article"/>
+                                <field name="statut" string="Statut"/>
+                                <field name="p0_pri" string="P0 / PRI"/>
+                                <field name="conformite" string="Conformité" widget="badge" decoration-success="conformite == 'conforme'" decoration-danger="conformite == 'non_conforme'"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Documents" name="documents">
+                        <div class="o_ka_info o_ka_noicon">Documents par conteneur (« Imprimer documents ») : bordereau d'expédition, certificat d'analyse par palette et certificat de traitement thermique.</div>
+                        <group>
+                            <group>
+                                <field name="voyage_id" string="Ordre de voyage"/>
+                                <field name="armateur" string="Armateur"/>
+                                <field name="lot_conteneur_id" string="Article conteneur (série)"/>
+                            </group>
+                            <group>
+                                <field name="date_entree_parc" string="Entrée parc externe"/>
+                                <field name="date_entree_port" string="Entrée au port"/>
+                                <field name="statut_transitaire" string="Statut transitaire"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
             </sheet>
+            <chatter/>
         </form>
     </field>
 </record>
@@ -26,5 +84,7 @@
     <field name="model">ka.conteneur</field>
     <field name="arch" type="xml"><list string="ka_conteneur"><field name="name"/><field name="serie"/><field name="sous_contrat_id"/><field name="plomb"/><field name="colis_txt"/><field name="state" widget="badge"/></list></field>
 </record>
-<record id="action_ka_conteneur" model="ir.actions.act_window"><field name="name">Empotage</field><field name="res_model">ka.conteneur</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_conteneur" model="ir.actions.act_window"><field name="name">Empotement</field><field name="res_model">ka.conteneur</field><field name="view_mode">list,form</field><field name="context">{'ka_nom_long_ctn': True}</field></record>
+<!-- Barre « Ventes › Conteneurs » : liste de tous les équivalents conteneurs -->
+<record id="action_ka_conteneur_liste" model="ir.actions.act_window"><field name="name">Conteneurs</field><field name="res_model">ka.conteneur</field><field name="view_mode">list,form</field></record>
 </odoo>

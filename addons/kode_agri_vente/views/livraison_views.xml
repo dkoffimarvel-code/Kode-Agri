@@ -1,23 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 5.4b — Bon d'expédition — sortie usine et transfert de stock [Saisie] -->
 <record id="view_ka_livraison_form" model="ir.ui.view">
     <field name="name">ka.livraison.ka.form</field>
     <field name="model">ka.livraison</field>
     <field name="arch" type="xml">
-        <form string="Livraison — sortie usine et transfert" class="o_ka_form">
+        <form string="Bon d'expédition" class="o_ka_form">
+            <header>
+                <button string="Enregistrer enlèvement" name="action_enregistrer_enlevement" type="object" class="btn-secondary"/>
+                <button string="Valider le BL" name="action_valider" type="object" class="btn-primary"/>
+                <button string="Planning camions" name="action_planning" type="object" class="btn-secondary"/>
+                <button string="Imprimer le bordereau" name="action_bordereau" type="object" class="btn-secondary"/>
+                <field name="state" widget="statusbar" statusbar_visible="pret,brouillon,empote,parc"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Livraisons</span><span class="o_ka_cur">Livraisons</span><span class="o_ka_fn">Fonction : GESSDH</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Livraison — sortie usine et transfert</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-success="state in ('empote')" decoration-warning="state in ('brouillon')"/>
-                        </div>
-                        <div class="o_ka_info">La validation sort le stock de l'usine et le transfère vers le parc terre-plein de l'ordre de voyage ; le statut « Empoté » est porté par l'équivalent conteneur et le numéro de série armateur.</div><div class="o_ka_sec">Expédition</div><div class="o_ka_grid"><div class="o_ka_f"><label for="conteneur_id" string="Conteneur" class="o_ka_req"/><field name="conteneur_id"/></div><div class="o_ka_f"><label for="voyage_id" string="Ordre de voyage"/><field name="voyage_id"/></div><div class="o_ka_f"><label for="plomb" string="N° de plomb"/><field name="plomb" readonly="1"/></div><div class="o_ka_f"><label for="date_sortie" string="Date de sortie usine" class="o_ka_req"/><field name="date_sortie"/></div><div class="o_ka_f"><label for="transporteur_id" string="Transporteur"/><field name="transporteur_id"/></div><div class="o_ka_f"><label for="immatriculation" string="Immatriculation"/><field name="immatriculation"/></div><div class="o_ka_f"><label for="chauffeur" string="Chauffeur"/><field name="chauffeur"/></div><div class="o_ka_f"><label for="destination_id" string="Site de destination"/><field name="destination_id"/></div></div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider la livraison" name="action_valider" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'brouillon'"/><button string="Imprimer le bordereau" name="action_bordereau" type="object" class="o_ka_btn"/><button string="Planning camions" name="action_planning" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <div class="float-end"><field name="statut_conteneur_txt" widget="badge" decoration-success="statut_conteneur in ('empote', 'au_port', 'embarque')" decoration-warning="statut_conteneur not in ('empote', 'au_port', 'embarque')"/></div>
+                    <h1>Bon d'expédition <field name="name" readonly="1" class="d-inline"/></h1>
+                    <div class="o_ka_sub">Sortie usine → transfert vers le parc terre-plein de l'ordre de voyage</div>
                 </div>
+                <field name="statut_conteneur" invisible="1"/>
+                <div class="o_ka_info">La validation du BL fait sortir le stock usine et génère une commande de transfert vers le parc terre-plein indiqué sur l'ordre de voyage. Le statut « Empoté » est attribué à l'équivalent conteneur et au numéro de série armateur.</div>
+                <group>
+                    <group>
+                        <field name="conteneur_id" string="Conteneur" required="1"/>
+                        <field name="voyage_id" string="N° ordre de voyage"/>
+                        <field name="transporteur_id" string="Fournisseur transporteur"/>
+                        <field name="immatriculation" string="Immatriculation camion"/>
+                    </group>
+                    <group>
+                        <field name="chauffeur" string="Chauffeur"/>
+                        <field name="plomb" string="N° de plomb"/>
+                        <field name="destination_id" string="Parc terre-plein destination"/>
+                        <field name="date_sortie" string="Date sortie usine" required="1"/>
+                        <field name="date_arrivee_parc" string="Date d'arrivée au parc terre-plein" invisible="state not in ('empote', 'parc')"/>
+                    </group>
+                </group>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Validation BL → sortie du stock usine, transfert vers parc terre-plein (commande transfert à réceptionner), alimentation du planning des camions (immatriculation + fournisseur transporteur).</div>
             </sheet>
+            <chatter/>
         </form>
     </field>
 </record>
@@ -26,5 +47,5 @@
     <field name="model">ka.livraison</field>
     <field name="arch" type="xml"><list string="ka_livraison"><field name="name"/><field name="conteneur_id"/><field name="sous_contrat_id"/><field name="date_sortie"/><field name="state" widget="badge"/></list></field>
 </record>
-<record id="action_ka_livraison" model="ir.actions.act_window"><field name="name">Livraisons</field><field name="res_model">ka.livraison</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_livraison" model="ir.actions.act_window"><field name="name">Expéditions</field><field name="res_model">ka.livraison</field><field name="view_mode">list,form</field><field name="context">{'ka_nom_long_bl': True}</field></record>
 </odoo>

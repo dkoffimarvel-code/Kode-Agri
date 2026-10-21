@@ -11,7 +11,7 @@ class KaFraisReglement(models.Model):
 
     name = fields.Char(string='N° règlement', readonly=True, copy=False, default='Nouveau')
     note_id = fields.Many2one('ka.frais.note', string='Note de frais', required=True)
-    type_reglement = fields.Selection([('vir', 'VIR — Virement salarié')], string='Type de règlement',
+    type_reglement = fields.Selection([('vir', 'Virement bancaire')], string='Mode de paiement',
                                       required=True, default='vir')
     salarie_id = fields.Many2one('res.partner', string='Tiers', required=True)
     currency_id = fields.Many2one('res.currency', default=lambda s: s.env.company.currency_id)
@@ -27,7 +27,7 @@ class KaFraisReglement(models.Model):
     def _ka_subtitle(self):
         self.ensure_one()
         d = self.date.strftime('%d/%m/%Y') if self.date else ''
-        return '%s — %s · virement du %s' % (self.name, self.note_id.name or '', d)
+        return '%s · %s le %s' % (self.salarie_id.name or '', 'viré' if self.state == 'rembourse' else 'virement prévu', d)
 
     @api.depends('salarie_id')
     def _compute_iban(self):
@@ -61,9 +61,11 @@ class KaFraisReglement(models.Model):
                 dette.reconcile()
             r.piece_ids.unlink()
             r.write({'payment_id': payment.id, 'state': 'rembourse', 'piece_ids': [
-                Command.create({'compte': '421000', 'intitule': 'Solde note de frais %s' % note.name, 'debit': r.montant}),
+                Command.create({'compte': '421000', 'intitule': 'Solde note de frais %s' % note.name, 'debit': r.montant,
+                                'detail': 'Solde note de frais %s' % note.name}),
                 Command.create({'compte': r.journal_id.default_account_id.code or '521000',
-                                'intitule': 'Virement %s — %s' % (r.salarie_id.name, r.name), 'credit': r.montant})]})
+                                'intitule': 'Virement %s — %s' % (r.salarie_id.name, r.name), 'credit': r.montant,
+                                'detail': 'Virement %s · réf. %s' % (r.salarie_id.name, r.name)})]})
             note.state = 'remboursee'
 
     def action_imprimer(self):

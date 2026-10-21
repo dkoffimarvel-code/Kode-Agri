@@ -2,8 +2,8 @@ import re
 
 from odoo.addons.kode_agri_production.models.common import POIDS_COLIS, ka_param  # noqa: F401
 
-TESTS_SPEC = [('p0', 'P0'), ('pri', 'PRI'), ('ml', 'ML'), ('vm', 'VM'), ('azote', 'Azote'),
-              ('cendres', 'Cendres'), ('imp', 'Imp.')]
+TESTS_SPEC = [('p0', 'P0'), ('pri', 'PRI'), ('ml', 'ML'), ('vm', 'VM'), ('azote', 'AZOTE'),
+              ('cendres', 'CENDRES'), ('imp', 'IMP')]
 LIBELLES = {'p0': 'Plasticité Wallace initiale', 'pri': 'Indice de rétention', 'ml': 'Viscosité Mooney',
             'vm': 'Matières volatiles', 'azote': 'Azote', 'cendres': 'Taux de cendres', 'imp': "Taux d'impuretés"}
 # Grille standard par grade (§ 5.2.2, RG-5.10)

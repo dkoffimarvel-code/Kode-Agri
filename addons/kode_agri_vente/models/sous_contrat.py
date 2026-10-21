@@ -101,7 +101,7 @@ class KaScontrat(models.Model):
     decl_date = fields.Date(string='Date de déclaration')
     prix_caf = fields.Monetary(compute='_compute_caf', string='Prix de référence CAF', currency_field='company_currency_id')
     droits_taxes = fields.Monetary(compute='_compute_caf', string='Droits et taxes (base)', currency_field='company_currency_id')
-    decl_state = fields.Selection([('attente', 'En attente'), ('recue', 'Reçue'), ('dus', 'DUS générée'),
+    decl_state = fields.Selection([('attente', 'En attente'), ('recue', 'Déclaration reçue'), ('dus', 'DUS générée'),
                                    ('complete', 'Complète')], default='attente', string='Statut déclaration')
     dus_ids = fields.One2many('ka.sc.achat', 'sc_id', string="Commande d'achat DUS", domain=[('type', '=', 'dus')])
     parafisc_ids = fields.One2many('ka.sc.achat', 'sc_id', string='Commande parafiscalité', domain=[('type', '=', 'parafisc')])
@@ -129,12 +129,47 @@ class KaScontrat(models.Model):
     po_transit_id = fields.Many2one('purchase.order', readonly=True, copy=False)
     invoice_id = fields.Many2one('account.move', readonly=True, copy=False)
     state = fields.Selection([('brouillon', 'Brouillon'), ('instructions', 'Instructions saisies'),
-                              ('booke', 'Booking validé'), ('en_cours', 'En cours'), ('expedie', 'Expédié'),
+                              ('booke', 'Booking validé'), ('en_cours', 'En cours'), ('expedie', 'Embarqué'),
                               ('cloture', 'Clôturé')], default='brouillon', string='Statut', tracking=True)
+
+    # écrans 5.2c à 5.6 (v4.5) : cartes KPI, titres et statuts affichés
+    empotes_kpi = fields.Char(compute='_compute_kpi', string='Empoté')
+    restant_empoter_kpi = fields.Char(compute='_compute_kpi', string='Restant à empoter')
+    embarques_ctn_kpi = fields.Char(compute='_compute_kpi', string='Embarqué')
+    quantite_kpi = fields.Char(compute='_compute_kpi', string='Quantité')
+    conversion_txt = fields.Char(compute='_compute_kpi', string='→ Conversion')
+    transferts_kpi = fields.Char(compute='_compute_kpi', string='Transferts effectués')
+    ctn_transferes_kpi = fields.Char(compute='_compute_kpi', string='Conteneurs transférés')
+    embarques_kpi = fields.Char(compute='_compute_kpi', string='Conteneurs embarqués')
+    tous_embarques_txt = fields.Char(compute='_compute_kpi', string='Tous les colis embarqués ?')
+    frais_declares_txt = fields.Char(compute='_compute_kpi', string='Frais supplémentaires déclarés ?')
+    spec_note = fields.Char(compute='_compute_spec_note', string='Origine des spécifications')
+    depart_sub = fields.Char(compute='_compute_spec_note', string='Sous-titre départ navire')
+    depart_state = fields.Selection([('en_cours', 'En cours'), ('cloture', 'Clôturé')], compute='_compute_spec_note',
+                                    string='Statut départ port')
+    ot_state = fields.Selection([('prepare', 'Préparé'), ('transmis', 'Transmis')], default='prepare', copy=False,
+                                string='Statut ordre de transit', tracking=True)
 
     def _ka_subtitle(self):
         self.ensure_one()
         return "%s — ligne de programme de la commande ouverte %s" % (self.name, self.contrat_id.name or '')
+
+    @api.depends('name', 'contrat_id')
+    @api.depends_context('ka_nom_long_sc')
+    def _compute_display_name(self):
+        """Fil d'Ariane de l'écran 5.2c : « SC-0061-03 (CV-0061) » ; ailleurs le seul numéro « SC-0061-03 »."""
+        long = self.env.context.get('ka_nom_long_sc')
+        for sc in self:
+            sc.display_name = ('%s (%s)' % (sc.name, sc.contrat_id.name)) if long and sc.contrat_id else (sc.name or '')
+
+    @api.depends('contrat_id', 'product_id', 'bl_numero', 'armateur', 'state')
+    def _compute_spec_note(self):
+        for sc in self:
+            sc.spec_note = 'Héritées du contrat %s (grade %s, fiche client prioritaire — RG-5.3).' % (
+                sc.contrat_id.name or '', sc.product_id.default_code or '')
+            sc.depart_sub = ' · '.join(x for x in (sc.contrat_id.name, sc.armateur,
+                                                   'Connaissement reçu' if sc.bl_numero else 'Connaissement attendu') if x)
+            sc.depart_state = 'cloture' if sc.state in ('expedie', 'cloture') else 'en_cours'
 
     # ---- calculs -------------------------------------------------------------------------------------------
     @api.depends('poids_kg', 'prix_t', 'currency_id')
@@ -185,11 +220,14 @@ class KaScontrat(models.Model):
             else:
                 sc.limite_booking = '7 jours'
             quand = 'le mois de livraison' if sc.limite_booking == '48 h' else 'le mois précédent la livraison'
-            bmc = ("BMC requis par l'armateur %s : validation du booking + 1 jour." % sc.armateur) if sc.bmc_requis else 'BMC non requis.'
-            sc.info_booking = "Instructions saisies %s : booking sous %s. %s « Scinder » sert aux conteneurs restés à quai (§ 5.6)." % (
-                quand, sc.limite_booking, bmc)
+            bmc = 'BMC requis (armateur) : J+1 après validation booking.' if sc.bmc_requis else "BMC non requis par l'armateur."
+            sc.info_booking = ("Instructions saisies %s → date limite de booking à %s. %s Un sous-contrat peut provenir de "
+                               "deux contrats de vente différents. « Scinder le sous-contrat » : à utiliser si des conteneurs "
+                               "restent à quai au départ du navire (§ 5.6) — crée un nouveau sous-contrat et un nouveau "
+                               "booking pour ces conteneurs.") % (quand, sc.limite_booking, bmc)
 
     @api.depends('poids_kg', 'conteneur_ids.state', 'conteneur_ids.transfert_effectue', 'conteneur_ids.embarque',
+                 'conteneur_ids.date_entree_port',
                  'conditionnement', 'frais_ids')
     def _compute_kpi(self):
         for sc in self:
@@ -206,13 +244,26 @@ class KaScontrat(models.Model):
             sc.embarques_txt = '%s / %s embarqués' % (emb, len(ctns))
             sc.tous_embarques = bool(ctns) and emb == len(ctns)
             sc.frais_declares = 'oui' if sc.frais_ids else 'non'
+            sc.frais_declares_txt = 'Oui' if sc.frais_ids else 'Non'
+            sc.tous_embarques_txt = 'Oui' if sc.tous_embarques else 'Non'
+            sc.embarques_kpi = '%s / %s' % (emb, len(ctns))
+            sc.ctn_transferes_kpi = '%s / %s' % (tr, len(ctns))
+            dates = {c.date_entree_port for c in ctns if c.date_entree_port}
+            faits = {c.date_entree_port for c in ctns if c.date_entree_port and c.transfert_effectue}
+            sc.transferts_kpi = '%s / %s' % (len(faits), len(dates))
+            sc.empotes_kpi = '%s ctn' % sc.nb_empotes
+            sc.restant_empoter_kpi = '%s ctn' % max(n - sc.nb_empotes, 0)
+            sc.embarques_ctn_kpi = '%s ctn' % emb
+            sc.quantite_kpi = '%s ctn' % n
+            balles = n * sc.colis_par_conteneur() * 36 if sc.conditionnement else 0
+            sc.conversion_txt = '%s conteneurs · %s balles' % (n, fmt_int(balles))
 
     @api.depends('name', 'navire', 'date_embarquement_prevue')
     def _compute_ot(self):
         for sc in self:
             sc.ot_numero = 'OT-' + (sc.name or '').replace('SC-', '')
             d = sc.date_embarquement_prevue.strftime('%d/%m/%Y') if sc.date_embarquement_prevue else ''
-            sc.navire_arrivee = ('%s — %s' % (sc.navire, d)).strip(' —')
+            sc.navire_arrivee = ' · '.join(x for x in (sc.navire, d) if x)
 
     @api.onchange('contrat_id')
     def _onchange_contrat(self):
@@ -255,21 +306,47 @@ class KaScontrat(models.Model):
 
     def action_ordre_transit(self):
         self.ensure_one()
-        return {'type': 'ir.actions.act_window', 'res_model': 'ka.sous.contrat', 'res_id': self.id,
-                'view_mode': 'form', 'views': [(self.env.ref('kode_agri_vente.view_ka_sc_transit_form').id, 'form')]}
+        return {'type': 'ir.actions.act_window', 'name': 'Ordre de transit', 'res_model': 'ka.sous.contrat',
+                'res_id': self.id, 'view_mode': 'form',
+                'views': [(self.env.ref('kode_agri_vente.view_ka_sc_transit_form').id, 'form')]}
 
     def action_retour_sc(self):
         self.ensure_one()
         return {'type': 'ir.actions.act_window', 'res_model': 'ka.sous.contrat', 'res_id': self.id,
-                'view_mode': 'form', 'views': [(self.env.ref('kode_agri_vente.view_ka_sc_form').id, 'form')]}
+                'view_mode': 'form', 'context': {'ka_nom_long_sc': True},
+                'views': [(self.env.ref('kode_agri_vente.view_ka_sc_form').id, 'form')]}
 
     def action_envoyer_email(self):
+        self.write({'ot_state': 'transmis'})
         return {'type': 'ir.actions.client', 'tag': 'display_notification',
                 'params': {'title': _('Ordre de transit'), 'type': 'success', 'sticky': False,
                            'message': _('Ordre de transit envoyé au transitaire.')}}
 
     def action_imprimer(self):
-        return self.action_envoyer_email()
+        return {'type': 'ir.actions.client', 'tag': 'display_notification',
+                'params': {'title': _('Ordre de transit'), 'type': 'success', 'sticky': False,
+                           'message': _('Ordre de transit %s généré en PDF.') % ', '.join(self.mapped('ot_numero'))}}
+
+    def action_open_conteneurs(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Conteneurs', 'res_model': 'ka.conteneur',
+                'view_mode': 'list,form', 'domain': [('sous_contrat_id', '=', self.id)],
+                'context': {'default_sous_contrat_id': self.id}}
+
+    def action_consulter(self):
+        """Consultation des conteneurs du sous-contrat (le bouton « Consulter » des lignes ouvre le conteneur)."""
+        return self.action_open_conteneurs()
+
+    def action_open_contrat(self):
+        self.ensure_one()
+        vue = 'view_ka_contrat_spot_form' if self.contrat_id.type == 'spot' else 'view_ka_contrat_clt_form'
+        return {'type': 'ir.actions.act_window', 'name': 'Contrats de vente', 'res_model': 'ka.contrat',
+                'res_id': self.contrat_id.id, 'view_mode': 'form', 'context': {'ka_nom_long_contrat': True},
+                'views': [(self.env.ref('kode_agri_vente.%s' % vue).id, 'form')]}
+
+    def action_actualiser_statuts(self):
+        """Écran 5.5 : relecture des statuts de la plateforme du transitaire (saisis sur les conteneurs)."""
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_scinder(self):
         """§ 5.6 : les conteneurs laissés à quai passent sur un nouveau sous-contrat à nouveau booking."""
@@ -283,7 +360,8 @@ class KaScontrat(models.Model):
         restes.write({'sous_contrat_id': nouveau.id})
         self.poids_kg -= poids_restant
         return {'type': 'ir.actions.act_window', 'res_model': 'ka.sous.contrat', 'res_id': nouveau.id,
-                'view_mode': 'form', 'views': [(self.env.ref('kode_agri_vente.view_ka_sc_form').id, 'form')]}
+                'view_mode': 'form', 'context': {'ka_nom_long_sc': True},
+                'views': [(self.env.ref('kode_agri_vente.view_ka_sc_form').id, 'form')]}
 
     def action_cloturer_jalons(self):
         for sc in self:
@@ -384,6 +462,13 @@ class KaScontrat(models.Model):
                                for p, lib, m in lignes]})
             sc.write({'date_depart_bateau': sc.date_depart_navire, 'state': 'expedie', 'doc_bl': True})
 
+    def action_valider_bl(self):
+        """Écran 5.6 : validation du connaissement (BL vente) reçu de l'armateur."""
+        for sc in self:
+            if not sc.bl_numero or not sc.date_depart_navire:
+                raise UserError(_('Renseignez le N° de connaissement et la date de départ du navire.'))
+            sc.write({'doc_bl': True, 'date_depart_bateau': sc.date_depart_bateau or sc.date_depart_navire})
+
     def action_liste_colisage(self):
         self.write({'doc_colisage': True})
         return {'type': 'ir.actions.client', 'tag': 'display_notification',
@@ -421,8 +506,10 @@ class KaScFrais(models.Model):
     _description = 'Frais supplémentaires du sous-contrat'
 
     sc_id = fields.Many2one('ka.sous.contrat', required=True, ondelete='cascade')
-    libelle = fields.Char(string='Libellé', required=True, help='Ex. changement de navire')
+    libelle = fields.Char(string='Motif', required=True, help='Ex. changement de navire')
+    fournisseur_id = fields.Many2one('res.partner', string='Fournisseur')
     montant = fields.Float(string='Montant (FCFA)', digits=(12, 0))
+    saisi_par_id = fields.Many2one('res.users', string='Saisi par', default=lambda s: s.env.user, readonly=True)
 
 
 class KaScAchat(models.Model):

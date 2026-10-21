@@ -30,9 +30,31 @@ class ResPartner(models.Model):
     ka_doc_colisage = fields.Boolean(string='liste de colisage', default=True)
     ka_doc_bl = fields.Boolean(string='connaissement (BL)', default=True)
     ka_doc_daex = fields.Boolean(string="déclaration d'exportation (DAEX)", default=True)
-    ka_client_state = fields.Selection([('creation', 'En création'), ('actif', 'Actif')], default='creation',
+    ka_client_state = fields.Selection([('creation', 'Brouillon'), ('actif', 'Actif')], default='creation',
                                        string='Statut client')
+    # écran 5.1 (v4.5) : adresse de livraison distincte, incoterms et grades acceptés, coordonnées bancaires
+    ka_liv_identique = fields.Boolean(string="Identique à l'adresse de facturation")
+    ka_liv_street = fields.Char(string='Rue (livraison)')
+    ka_liv_zip = fields.Char(string='Code postal (livraison)')
+    ka_liv_city = fields.Char(string='Ville (livraison)')
+    ka_liv_country_id = fields.Many2one('res.country', string='Pays (livraison)')
+    ka_inco_fob = fields.Boolean(string='FOB', default=True)
+    ka_inco_cfr = fields.Boolean(string='CFR')
+    ka_inco_cif = fields.Boolean(string='CIF')
+    ka_inco_cpt = fields.Boolean(string='CPT')
+    ka_grade_tsr10 = fields.Boolean(string='TSR10', default=True)
+    ka_grade_tsr20 = fields.Boolean(string='TSR20')
+    ka_grade_offspecs = fields.Boolean(string='OFFSPECS')
+    ka_iban = fields.Char(string='IBAN')
+    ka_bic = fields.Char(string='BIC / SWIFT')
+    ka_compta_nom = fields.Char(string='Contact comptabilité')
+    ka_compta_email = fields.Char(string='E-mail comptabilité')
     ka_subtitle_client = fields.Char(compute='_compute_ka_subtitle_client')
+
+    @api.onchange('ka_liv_identique', 'street', 'zip', 'city', 'country_id')
+    def _onchange_ka_liv_identique(self):
+        for p in self.filtered('ka_liv_identique'):
+            p.ka_liv_street, p.ka_liv_zip, p.ka_liv_city, p.ka_liv_country_id = p.street, p.zip, p.city, p.country_id
 
     @api.depends('name', 'ka_client_state')
     def _compute_ka_subtitle_client(self):
@@ -64,7 +86,7 @@ class KaClientSpec(models.Model):
     _order = 'id'
 
     partner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
-    test = fields.Selection([('p0', 'P0'), ('pri', 'PRI'), ('ml', 'ML'), ('vm', 'VM'), ('azote', 'N'),
+    test = fields.Selection([('p0', 'P0'), ('pri', 'PRI'), ('ml', 'ML'), ('vm', 'VM'), ('azote', 'Azote (N)'),
                              ('cendres', 'Cendres'), ('imp', 'Impuretés')], required=True, string='Test')
     libelle = fields.Char(compute='_compute_libelle', string='Libellé')
     vmin = fields.Char(string='Min')

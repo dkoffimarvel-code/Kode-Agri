@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<menuitem id="menu_ka_ventes_root" name="Ventes Kode Agri" sequence="42"/>
-<menuitem id="menu_ka_base" name="Données de base" parent="menu_ka_ventes_root" sequence="5"/>
-<menuitem id="menu_ka_client" name="Clients" parent="menu_ka_base" action="action_ka_client" sequence="10"/>
-<menuitem id="menu_ka_co" name="Commandes ouvertes" parent="menu_ka_ventes_root" sequence="10"/>
-<menuitem id="menu_ka_co_clt" name="Commandes ouvertes (Long terme)" parent="menu_ka_co" action="action_ka_contrat_clt" sequence="10"/>
-<menuitem id="menu_ka_co_sc" name="Sous-contrats" parent="menu_ka_co" action="action_ka_sc" sequence="20"/>
-<menuitem id="menu_ka_co_jalons" name="Jalons départ port" parent="menu_ka_co" action="action_ka_sc_jalons" sequence="30"/>
-<menuitem id="menu_ka_cmd" name="Commandes" parent="menu_ka_ventes_root" sequence="15"/>
-<menuitem id="menu_ka_cmd_spot" name="Commandes de vente (Spot)" parent="menu_ka_cmd" action="action_ka_contrat_spot" sequence="10"/>
-<menuitem id="menu_ka_log" name="Logistique export" parent="menu_ka_ventes_root" sequence="20"/>
-<menuitem id="menu_ka_voyage" name="Ordres de voyage" parent="menu_ka_log" action="action_ka_voyage" sequence="10"/>
-<menuitem id="menu_ka_empotage" name="Empotage" parent="menu_ka_log" action="action_ka_conteneur" sequence="20"/>
-<menuitem id="menu_ka_decl" name="Déclarations d'exportation" parent="menu_ka_log" action="action_ka_sc_decl" sequence="30"/>
-<menuitem id="menu_ka_port" name="Transferts port" parent="menu_ka_log" action="action_ka_sc_port" sequence="40"/>
-<menuitem id="menu_ka_depart" name="Départ navire" parent="menu_ka_log" action="action_ka_sc_depart" sequence="50"/>
-<menuitem id="menu_ka_livr" name="Livraisons" parent="menu_ka_ventes_root" sequence="30"/>
-<menuitem id="menu_ka_livr_l" name="Livraisons" parent="menu_ka_livr" action="action_ka_livraison" sequence="10"/>
+<!-- Application « Ventes » (maquettes v4.5) : Contrats · Sous-contrats · Conteneurs · Expéditions · Clients · Départ port · États -->
+<menuitem id="menu_ka_ventes_root" name="Ventes" sequence="42"/>
+<menuitem id="menu_ka_co" name="Contrats" parent="menu_ka_ventes_root" sequence="10"/>
+<menuitem id="menu_ka_co_clt" name="Contrats Long terme" parent="menu_ka_co" action="action_ka_contrat_clt" sequence="10"/>
+<menuitem id="menu_ka_cmd_spot" name="Contrats Spot" parent="menu_ka_co" action="action_ka_contrat_spot" sequence="20"/>
+<menuitem id="menu_ka_co_sc" name="Sous-contrats" parent="menu_ka_ventes_root" action="action_ka_sc" sequence="20"/>
+<menuitem id="menu_ka_log" name="Conteneurs" parent="menu_ka_ventes_root" sequence="30"/>
+<menuitem id="menu_ka_conteneurs" name="Conteneurs" parent="menu_ka_log" action="action_ka_conteneur_liste" sequence="5"/>
+<menuitem id="menu_ka_empotage" name="Empotement" parent="menu_ka_log" action="action_ka_conteneur" sequence="10"/>
+<menuitem id="menu_ka_livr" name="Expéditions" parent="menu_ka_ventes_root" sequence="40"/>
+<menuitem id="menu_ka_livr_l" name="Bons d'expédition" parent="menu_ka_livr" action="action_ka_livraison" sequence="10"/>
+<menuitem id="menu_ka_client" name="Clients" parent="menu_ka_ventes_root" action="action_ka_client" sequence="50"/>
+<menuitem id="menu_ka_cmd" name="Départ port" parent="menu_ka_ventes_root" sequence="60"/>
+<menuitem id="menu_ka_co_jalons" name="Suivi départ port" parent="menu_ka_cmd" action="action_ka_sc_jalons" sequence="10"/>
+<menuitem id="menu_ka_decl" name="Déclarations export" parent="menu_ka_cmd" action="action_ka_sc_decl" sequence="20"/>
+<menuitem id="menu_ka_port" name="Transferts port" parent="menu_ka_cmd" action="action_ka_sc_port" sequence="30"/>
+<menuitem id="menu_ka_depart" name="Départ navire" parent="menu_ka_cmd" action="action_ka_sc_depart" sequence="40"/>
+<menuitem id="menu_ka_base" name="États" parent="menu_ka_ventes_root" sequence="90"/>
+<menuitem id="menu_ka_etat_contrats" name="Portefeuille des contrats" parent="menu_ka_base" action="action_ka_contrat_etat" sequence="10"/>
+
+<!-- Application « Inventaire » (écran 5.3) : Conteneurs · Voyages · Réceptions · Expéditions · États -->
+<menuitem id="menu_ka_voyage" name="Voyages" parent="stock.menu_stock_root" action="action_ka_voyage" sequence="3"/>
 
 </odoo>

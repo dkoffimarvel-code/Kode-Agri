@@ -1,127 +1,369 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 5.2c — Sous-contrat — instructions client et booking [Approbation] -->
 <record id="view_ka_sc_form" model="ir.ui.view">
     <field name="name">ka.sous.contrat.ka.form</field>
     <field name="model">ka.sous.contrat</field>
+    <field name="priority">10</field>
     <field name="arch" type="xml">
-        <form string="Sous-contrat — instructions client et booking" class="o_ka_form">
+        <form string="Sous-contrat" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-secondary"/>
+                <button string="Valider le booking" name="action_valider_booking" type="object" class="btn-primary"/>
+                <button string="Imprimer ordre de transit" name="action_ordre_transit" type="object" class="btn-secondary"/>
+                <button string="Scinder le sous-contrat" name="action_scinder" type="object" class="btn-secondary"/>
+                <button string="Instructions saisies" name="action_instructions" type="object" class="btn-secondary" invisible="state != 'brouillon'"/>
+                <field name="state" widget="statusbar" statusbar_visible="brouillon,instructions,booke,expedie"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Commandes ouvertes</span><span class="o_ka_cur">Sous-contrats</span><span class="o_ka_fn">Fonction : YSCT · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Sous-contrat — instructions client et booking</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-info="state in ('instructions','booke','en_cours')" decoration-success="state in ('expedie','cloture')"/>
-                        </div>
-                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="poids_txt" nolabel="1"/><span class="o_ka_kl">À livrer</span></div><div class="o_ka_kpi"><field name="conteneurs_txt" nolabel="1"/><span class="o_ka_kl">Conteneurs</span></div><div class="o_ka_kpi"><field name="nb_empotes" nolabel="1"/><span class="o_ka_kl">Empotés</span></div><div class="o_ka_kpi"><field name="limite_booking" nolabel="1"/><span class="o_ka_kl">Limite de booking</span></div></div><div class="o_ka_info"><field name="info_booking" nolabel="1"/></div><div class="o_ka_sec">Instructions client</div><div class="o_ka_grid"><div class="o_ka_f"><label for="contrat_id" string="Commande ouverte 1" class="o_ka_req"/><field name="contrat_id"/></div><div class="o_ka_f"><label for="contrat2_id" string="Commande ouverte 2"/><field name="contrat2_id"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité" class="o_ka_req"/><field name="tracabilite" readonly="1"/></div><div class="o_ka_f"><label for="warehouse_id" string="Usine" class="o_ka_req"/><field name="warehouse_id"/></div><div class="o_ka_f"><label for="product_id" string="Grade chargé" class="o_ka_req"/><field name="product_id"/></div><div class="o_ka_f"><label for="poids_kg" string="Poids à livrer (kg)" class="o_ka_req"/><field name="poids_kg"/></div><div class="o_ka_f"><label for="conditionnement" string="Conditionnement" class="o_ka_req"/><field name="conditionnement"/></div><div class="o_ka_f"><label for="marquage" string="Marquage palette" class="o_ka_req"/><field name="marquage"/></div><div class="o_ka_f"><label for="country_id" string="Pays de destination" class="o_ka_req"/><field name="country_id"/></div><div class="o_ka_f o_ka_check"><field name="doc_phyto_requis"/><label for="doc_phyto_requis" string="Document phyto"/></div><div class="o_ka_f o_ka_check"><field name="certificat_garantie"/><label for="certificat_garantie" string="Certificat de garantie"/></div><div class="o_ka_f"><label for="paiement" string="Condition de paiement" class="o_ka_req"/><field name="paiement"/></div></div><div class="o_ka_sec">Booking</div><div class="o_ka_grid"><div class="o_ka_f"><label for="armateur" string="Armateur" class="o_ka_req"/><field name="armateur"/></div><div class="o_ka_f"><label for="transitaire_id" string="Transitaire" class="o_ka_req"/><field name="transitaire_id"/></div><div class="o_ka_f"><label for="navire" string="Navire souhaité" class="o_ka_req"/><field name="navire"/></div><div class="o_ka_f"><label for="voyage_no" string="N° voyage" class="o_ka_req"/><field name="voyage_no"/></div><div class="o_ka_f"><label for="booking" string="N° booking" class="o_ka_req"/><field name="booking"/></div><div class="o_ka_f"><label for="bmc" string="N° BMC" class="o_ka_req"/><field name="bmc"/></div><div class="o_ka_f"><label for="date_embarquement_prevue" string="Embarquement prévu" class="o_ka_req"/><field name="date_embarquement_prevue"/></div><div class="o_ka_f"><label for="date_fermeture_navire" string="Fermeture du navire" class="o_ka_req"/><field name="date_fermeture_navire"/></div><div class="o_ka_f"><label for="prix_t" string="Prix" class="o_ka_req"/><field name="prix_t" readonly="1" class="o_ka_u_eurt"/></div><div class="o_ka_f"><label for="montant" string="Montant en devise"/><field name="montant" readonly="1"/></div><div class="o_ka_f"><label for="contre_valeur" string="Contre-valeur"/><field name="contre_valeur" readonly="1"/></div><div class="o_ka_f"><label for="banque" string="Banque de domiciliation"/><field name="banque"/></div></div><notebook><page string="Général"><field name="remarques" placeholder="Autres remarques client"/><div class="o_ka_grid"><div class="o_ka_f"><label for="date_embarquement_maj" string="Mise à jour de l'embarquement"/><field name="date_embarquement_maj"/></div></div></page><page string="Spécifications"><field name="spec_ids" nolabel="1" readonly="1"><list><field name="test"/><field name="libelle"/><field name="standard"/><field name="applique"/><field name="source"/></list></field></page><page string="Frais supplémentaires"><field name="frais_ids" nolabel="1"><list editable="bottom"><field name="libelle"/><field name="montant" sum="Total"/></list></field></page></notebook>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider le booking" name="action_valider_booking" type="object" class="o_ka_btn o_ka_primary"/><button string="Imprimer l'ordre de transit" name="action_ordre_transit" type="object" class="o_ka_btn"/><button string="Scinder le sous-contrat" name="action_scinder" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="empotes_kpi"/></span><span class="o_stat_text">Empoté</span></div>
+                    </button>
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="restant_empoter_kpi"/></span><span class="o_stat_text">Restant à empoter</span></div>
+                    </button>
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="embarques_ctn_kpi"/></span><span class="o_stat_text">Embarqué</span></div>
+                    </button>
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="quantite_kpi"/></span><span class="o_stat_text">Quantité</span></div>
+                    </button>
+                    <button name="action_open_contrat" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="poids_txt"/></span><span class="o_stat_text">Poids à livrer</span></div>
+                    </button>
+                    <button name="action_open_contrat" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="limite_booking"/></span><span class="o_stat_text">Limite booking</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1>Sous-contrat <field name="name" readonly="1" class="d-inline"/></h1>
+                    <div class="o_ka_sub">Créé à réception des instructions client</div>
+                </div>
+                <div class="o_ka_info"><field name="info_booking"/></div>
+                <field name="bmc_requis" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="company_currency_id" invisible="1"/>
+                <group>
+                    <group>
+                        <field name="contrat_id" string="N° contrat de vente 1" required="1" options="{'no_create': True}"/>
+                        <field name="contrat2_id" string="N° contrat de vente 2 (optionnel)" options="{'no_create': True}"/>
+                        <field name="tracabilite" string="Statut traçabilité" widget="badge" decoration-success="tracabilite == 'eudr'" decoration-warning="tracabilite == 'non_eudr'"/>
+                        <field name="warehouse_id" string="Usine" required="1"/>
+                        <field name="armateur" string="Armateur" widget="badge" required="1"/>
+                        <field name="transitaire_id" string="Transitaire" required="1"/>
+                        <field name="navire" string="Navire souhaité" required="1"/>
+                        <field name="voyage_no" string="N° voyage" required="1"/>
+                        <field name="booking" string="N° booking" required="state != 'brouillon'"/>
+                        <field name="bmc" string="N° BMC" required="bmc_requis and state != 'brouillon'"/>
+                        <field name="marquage" string="Marquage palette" required="1"/>
+                        <field name="product_id" string="Grade de l'article" required="1" options="{'no_create': True}"/>
+                        <field name="poids_kg" string="Poids à livrer (kg)" class="o_ka_u_kg" required="1"/>
+                        <field name="conversion_txt" string="→ Conversion"/>
+                        <field name="conditionnement" string="Conditionnement" required="1"/>
+                    </group>
+                    <group>
+                        <field name="prix_t" string="Prix en devise" class="o_ka_u_eurt"/>
+                        <field name="montant" string="Montant en devise"/>
+                        <field name="contre_valeur" string="Montant en FCFA"/>
+                        <field name="doc_phyto_requis" string="Document phyto"/>
+                        <field name="certificat_garantie" string="Certificat garantie"/>
+                        <field name="banque" string="Banque domiciliation"/>
+                        <field name="paiement" string="Paiement" required="1"/>
+                        <field name="country_id" string="Pays destination" required="1"/>
+                        <field name="date_embarquement_prevue" string="Date prévue embarq." required="1"/>
+                        <field name="date_fermeture_navire" string="Date fermeture navire" required="1"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Général" name="general">
+                        <div class="o_ka_h3">Spécifications (7 tests)</div>
+                        <div class="o_ka_note"><field name="spec_note"/></div>
+                        <field name="spec_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="test" string="Test"/>
+                                <field name="libelle" string="Libellé"/>
+                                <field name="standard" string="Standard"/>
+                                <field name="applique" string="Appliqué"/>
+                                <field name="source" string="Source"/>
+                            </list>
+                        </field>
+                        <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Booking validé → date limite calculée (48 h même mois / 7 j mois précédent). BMC obligatoire pour MAERSK : date BMC = validation booking + 1 jour. Détention conteneur MAERSK : prise + 13 jours.</div>
+                        <group>
+                            <group>
+                                <field name="date_instructions" string="Instructions saisies le"/>
+                                <field name="date_booking_valide" string="Booking validé le"/>
+                                <field name="date_bmc" string="Date du BMC"/>
+                            </group>
+                            <group>
+                                <field name="date_embarquement_maj" string="Mise à jour de l'embarquement"/>
+                                <field name="remarques" string="Autres remarques client"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Frais supplémentaires" name="frais">
+                        <div class="o_ka_h3">Frais supplémentaires du sous-contrat (RG-5.21)</div>
+                        <field name="frais_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="libelle" string="Motif"/>
+                                <field name="fournisseur_id" string="Fournisseur"/>
+                                <field name="montant" string="Montant" sum="Total"/>
+                                <field name="saisi_par_id" string="Saisi par"/>
+                            </list>
+                        </field>
+                        <div class="o_ka_info">À utiliser pour tout frais non prévu (ex. changement de navire) survenant avant l'expédition du sous-contrat. Cette saisie est requise avant la validation de l'expédition (RG-5.21).</div>
+                    </page>
+                </notebook>
             </sheet>
+            <chatter/>
         </form>
     </field>
 </record>
+<!-- Écran 5.2d — Ordre de transit — imprimé depuis le sous-contrat [Consultation] -->
 <record id="view_ka_sc_transit_form" model="ir.ui.view">
-    <field name="name">ka.sous.contrat.ka.form</field>
+    <field name="name">ka.sous.contrat.transit.ka.form</field>
     <field name="model">ka.sous.contrat</field>
     <field name="arch" type="xml">
         <form string="Ordre de transit" class="o_ka_form">
+            <header>
+                <button string="Générer PDF" name="action_imprimer" type="object" class="btn-primary"/>
+                <button string="Envoyer au transitaire" name="action_envoyer_email" type="object" class="btn-secondary"/>
+                <button string="Retour au sous-contrat" name="action_retour_sc" type="object" class="btn-secondary"/>
+                <field name="ot_state" widget="statusbar" statusbar_visible="prepare,transmis"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Commandes ouvertes</span><span class="o_ka_c">Sous-contrats</span><span class="o_ka_cur">Ordre de transit</span><span class="o_ka_fn">Fonction : YSCT · état spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Ordre de transit</h1><div class="o_ka_sub"><field name="ot_numero" nolabel="1" readonly="1"/> — à destination du transitaire</div></div>
-                            
-                        </div>
-                        <div class="o_ka_sec">Expédition</div><div class="o_ka_grid"><div class="o_ka_f"><label for="armateur" string="Compagnie maritime"/><field name="armateur" readonly="1"/></div><div class="o_ka_f"><label for="navire_arrivee" string="Navire et arrivée"/><field name="navire_arrivee" readonly="1"/></div><div class="o_ka_f"><label for="booking" string="N° booking"/><field name="booking" readonly="1"/></div><div class="o_ka_f"><label for="shipper" string="Shipper"/><field name="shipper"/></div><div class="o_ka_f"><label for="notify1" string="Notify party 1"/><field name="notify1"/></div><div class="o_ka_f"><label for="notify2" string="Notify party 2"/><field name="notify2"/></div><div class="o_ka_f"><label for="notify3" string="Notify party 3"/><field name="notify3"/></div><div class="o_ka_f"><label for="consignee" string="Consignee"/><field name="consignee"/></div></div><div class="o_ka_sec">Marchandise et liasse documentaire</div><div class="o_ka_grid"><div class="o_ka_f"><label for="description_marchandise" string="Description de la marchandise"/><field name="description_marchandise"/></div><div class="o_ka_f"><label for="liasse_demandee" string="Liasse documentaire demandée"/><field name="liasse_demandee"/></div></div><p class="o_ka_note">L'ordre de transit reprend les informations du sous-contrat et la liste des documents demandés par le client.</p>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Imprimer" name="action_imprimer" type="object" class="o_ka_btn o_ka_primary"/><button string="Envoyer par e-mail" name="action_envoyer_email" type="object" class="o_ka_btn"/><button string="Retour au sous-contrat" name="action_retour_sc" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <h1>Ordre de transit <field name="ot_numero" class="d-inline"/></h1>
+                    <div class="o_ka_sub">À destination du transitaire</div>
                 </div>
+                <group>
+                    <group>
+                        <field name="armateur" string="Compagnie maritime" required="1"/>
+                        <field name="navire_arrivee" string="Navire + arrivée"/>
+                        <field name="booking" string="N° booking" required="1"/>
+                        <field name="shipper" string="Shipper"/>
+                    </group>
+                    <group>
+                        <field name="notify1" string="Notify party 1" placeholder="—"/>
+                        <field name="notify2" string="Notify party 2" placeholder="—"/>
+                        <field name="notify3" string="Notify party 3" placeholder="—"/>
+                        <field name="consignee" string="Consignee 1" placeholder="—"/>
+                        <field name="consignee2" string="Consignee 2" placeholder="—"/>
+                    </group>
+                </group>
+                <div class="o_ka_h3">Marchandise et liasse documentaire</div>
+                <table class="o_ka_tbl">
+                    <thead><tr><th>Description marchandise</th><th>Liasse documentaire demandée</th></tr></thead>
+                    <tbody><tr>
+                        <td><field name="description_marchandise" nolabel="1"/></td>
+                        <td><field name="liasse_demandee" nolabel="1"/></td>
+                    </tr></tbody>
+                </table>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>L'ordre de transit reprend les informations du sous-contrat et la liste des documents demandés par le client.</div>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 5.2e — Suivi des dates au départ port [Saisie] -->
 <record id="view_ka_sc_jalons_form" model="ir.ui.view">
-    <field name="name">ka.sous.contrat.ka.form</field>
+    <field name="name">ka.sous.contrat.jalons.ka.form</field>
     <field name="model">ka.sous.contrat</field>
     <field name="arch" type="xml">
-        <form string="Suivi des dates au départ port" class="o_ka_form">
+        <form string="Suivi départ port" class="o_ka_form">
+            <header>
+                <button string="Enregistrer dates" special="save" class="btn-primary"/>
+                <button string="Clôturer le départ" name="action_cloturer_jalons" type="object" class="btn-secondary"/>
+                <field name="depart_state" widget="statusbar" statusbar_visible="en_cours,cloture"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Commandes ouvertes</span><span class="o_ka_c">Sous-contrats</span><span class="o_ka_cur">Jalons départ port</span><span class="o_ka_fn">Fonction : YSCT · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Suivi des dates au départ port</h1><div class="o_ka_sub"><field name="name" nolabel="1" readonly="1"/> — jalons et références réglementaires</div></div>
-                            <field name="state" widget="badge" decoration-info="state in ('instructions','booke','en_cours')" decoration-success="state in ('expedie','cloture')"/>
-                        </div>
-                        <div class="o_ka_sec">Jalons</div><div class="o_ka_grid"><div class="o_ka_f"><label for="date_bl_impression" string="Impression du BL"/><field name="date_bl_impression"/></div><div class="o_ka_f"><label for="date_depart_bateau" string="Départ du bateau"/><field name="date_depart_bateau"/></div><div class="o_ka_f"><label for="date_bl_reception" string="Réception du BL"/><field name="date_bl_reception"/></div><div class="o_ka_f"><label for="date_docs_expedies" string="Expédition des documents"/><field name="date_docs_expedies"/></div><div class="o_ka_f"><label for="date_phyto_reception" string="Réception phyto"/><field name="date_phyto_reception"/></div><div class="o_ka_f"><label for="date_bae_reception" string="Réception du bon à embarquer"/><field name="date_bae_reception"/></div></div><div class="o_ka_sec">Références réglementaires</div><div class="o_ka_grid"><div class="o_ka_f"><label for="daex" string="Numéro DAEX"/><field name="daex"/></div><div class="o_ka_f"><label for="d6_numero" string="Numéro D6"/><field name="d6_numero"/></div><div class="o_ka_f"><label for="d6_date" string="Date D6"/><field name="d6_date"/></div><div class="o_ka_f"><label for="ae_ec" string="Numéros AE / EC"/><field name="ae_ec"/></div></div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Clôturer le départ" name="action_cloturer_jalons" type="object" class="o_ka_btn o_ka_primary"/></aside>
+                <div class="oe_title">
+                    <h1>Suivi départ port — <field name="name" readonly="1" class="d-inline"/></h1>
+                    <div class="o_ka_sub">Jalons et références réglementaires</div>
                 </div>
+                <group>
+                    <group>
+                        <field name="date_bl_impression" string="Date impression BL"/>
+                        <field name="date_depart_bateau" string="Date départ bateau"/>
+                        <field name="date_bl_reception" string="Date réception BL"/>
+                        <field name="date_docs_expedies" string="Date expédition doc."/>
+                        <field name="date_phyto_reception" string="Date réception phyto"/>
+                    </group>
+                    <group>
+                        <field name="date_bae_reception" string="Date réception bon à embarquer"/>
+                        <field name="daex" string="Numéro DAEX"/>
+                        <label for="d6_numero" string="Numéro D6 + date"/>
+                        <div class="o_row">
+                            <field name="d6_numero" nolabel="1"/>
+                            <span>·</span>
+                            <field name="d6_date" nolabel="1"/>
+                        </div>
+                        <field name="ae_ec" string="Numéro AE + EC"/>
+                    </group>
+                </group>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Suivi des jalons de départ port jusqu'à la clôture documentaire de l'expédition.</div>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 5.4c — Déclaration d'exportation — DUS et Parafiscalité [Saisie] -->
 <record id="view_ka_sc_decl_form" model="ir.ui.view">
-    <field name="name">ka.sous.contrat.ka.form</field>
+    <field name="name">ka.sous.contrat.decl.ka.form</field>
     <field name="model">ka.sous.contrat</field>
     <field name="arch" type="xml">
-        <form string="Déclaration d'exportation — DUS et parafiscalité" class="o_ka_form">
+        <form string="Déclaration d'exportation" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-secondary"/>
+                <field name="decl_state" widget="statusbar" statusbar_visible="recue"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Logistique export</span><span class="o_ka_cur">Déclarations d'exportation</span><span class="o_ka_fn">Fonction : YDEX · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Déclaration d'exportation — DUS et parafiscalité</h1><div class="o_ka_sub"><field name="name" nolabel="1" readonly="1"/> — commande ouverte <field name="contrat_id" nolabel="1" readonly="1"/> · reçue du transitaire <field name="transitaire_id" nolabel="1" readonly="1"/></div></div>
-                            <field name="decl_state" widget="badge" decoration-info="decl_state in ('recue','attente')" decoration-success="decl_state in ('dus','complete')"/>
-                        </div>
-                        <div class="o_ka_sec">Déclaration</div><div class="o_ka_grid"><div class="o_ka_f"><label for="decl_numero" string="N° déclaration" class="o_ka_req"/><field name="decl_numero"/></div><div class="o_ka_f"><label for="decl_date" string="Date de déclaration" class="o_ka_req"/><field name="decl_date"/></div><div class="o_ka_f"><label for="prix_caf" string="Prix de référence CAF"/><field name="prix_caf" readonly="1"/></div><div class="o_ka_f"><label for="droits_taxes" string="Droits et taxes (base)"/><field name="droits_taxes" readonly="1"/></div></div><div class="o_ka_h3">Commande d'achat DUS (générée)</div><field name="dus_ids" nolabel="1" readonly="1"><list><field name="ligne" string="Ligne"/><field name="base" string="Base de calcul"/><field name="taux" string="Taux / paramètre"/><field name="montant" string="Montant" sum="Total commande DUS"/></list></field><div class="o_ka_h3">Commande d'achat parafiscalité (générée)</div><field name="parafisc_ids" nolabel="1" readonly="1"><list><field name="ligne" string="Ligne"/><field name="base" string="Base de calcul"/><field name="taux" string="Taux"/><field name="montant" string="Montant"/></list></field><p class="o_ka_note">Les taux et les lignes de chaque commande sont paramétrés ; les commandes d'achat générées sont des commandes standard Kode Agri.</p>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Générer la commande DUS" name="action_generer_dus" type="object" class="o_ka_btn o_ka_primary"/><button string="Générer la commande parafiscalité" name="action_generer_parafiscalite" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <h1>Déclaration d'exportation — <field name="name" readonly="1" class="d-inline"/></h1>
+                    <div class="o_ka_sub"><field name="contrat_id" readonly="1" options="{'no_open': True}"/> · Reçue du transitaire <field name="transitaire_id" readonly="1" options="{'no_open': True}"/></div>
                 </div>
+                <field name="company_currency_id" invisible="1"/>
+                <group>
+                    <group>
+                        <field name="decl_numero" string="N° déclaration d'exportation" required="1"/>
+                        <field name="decl_date" string="Date de déclaration" required="1"/>
+                    </group>
+                    <group>
+                        <field name="prix_caf" string="Prix de référence CAF"/>
+                        <field name="droits_taxes" string="Droits de douane et taxes (base)"/>
+                    </group>
+                </group>
+                <div class="o_ka_h3">Commande d'achat — DUS <button string="Générer DUS" name="action_generer_dus" type="object" class="btn btn-primary btn-sm ms-2"/></div>
+                <field name="dus_ids" nolabel="1" readonly="1">
+                    <list>
+                        <field name="ligne" string="Ligne"/>
+                        <field name="base" string="Base de calcul"/>
+                        <field name="taux" string="Taux"/>
+                        <field name="montant" string="Montant" class="o_ka_u_fcfa" sum="Total commande DUS"/>
+                    </list>
+                </field>
+                <div class="o_ka_h3">Commande d'achat — Parafiscalité <button string="Générer Parafiscalité" name="action_generer_parafiscalite" type="object" class="btn btn-primary btn-sm ms-2"/></div>
+                <field name="parafisc_ids" nolabel="1" readonly="1">
+                    <list>
+                        <field name="ligne" string="Ligne"/>
+                        <field name="base" string="Base de calcul"/>
+                        <field name="taux" string="Taux"/>
+                        <field name="montant" string="Montant" class="o_ka_u_fcfa" sum="Total commande Parafiscalité"/>
+                    </list>
+                </field>
+                <div class="o_ka_info">Les taux et lignes de chaque commande sont paramétrés dans le système. Agios trésor et gestion crédit se calculent sur les droits de douane et taxes ; TCT sur le prix de référence CAF ; TS douane est un forfait par dossier ; la parafiscalité se calcule sur le poids du contrat.</div>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 5.5 — Transfert des conteneurs vers le port [Saisie] -->
 <record id="view_ka_sc_port_form" model="ir.ui.view">
-    <field name="name">ka.sous.contrat.ka.form</field>
+    <field name="name">ka.sous.contrat.port.ka.form</field>
     <field name="model">ka.sous.contrat</field>
     <field name="arch" type="xml">
-        <form string="Transfert des conteneurs vers le port" class="o_ka_form">
+        <form string="Transfert conteneurs" class="o_ka_form">
+            <header>
+                <button string="Actualiser statuts" name="action_actualiser_statuts" type="object" class="btn-secondary"/>
+                <button string="Transférer les conteneurs sélectionnés" name="action_transferer_port" type="object" class="btn-primary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Logistique export</span><span class="o_ka_cur">Transferts port</span><span class="o_ka_fn">Fonction : YTRP · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Transfert des conteneurs vers le port</h1><div class="o_ka_sub"><field name="name" nolabel="1" readonly="1"/> — commande ouverte <field name="contrat_id" nolabel="1" readonly="1"/> · armateur <field name="armateur" nolabel="1" readonly="1"/></div></div>
-                            <field name="transferts_txt" widget="badge" decoration-success="1"/>
-                        </div>
-                        <div class="o_ka_info">La logistique suit chaque jour la plateforme du transitaire, puis transfère les conteneurs vers le port à leur date d'entrée ; les colis liés suivent avec leur traçabilité.</div><div class="o_ka_sec">Références</div><div class="o_ka_grid"><div class="o_ka_f"><label for="bae_numero" string="N° BAE" class="o_ka_req"/><field name="bae_numero"/></div><div class="o_ka_f"><label for="bae_date" string="Date de réception du BAE"/><field name="bae_date"/></div><div class="o_ka_f"><label for="plateforme_transitaire" string="Plateforme transitaire"/><field name="plateforme_transitaire"/></div><div class="o_ka_f"><label for="plateforme_armateur" string="Plateforme armateur"/><field name="plateforme_armateur"/></div><div class="o_ka_f"><label for="transporteur_id" string="Transporteur"/><field name="transporteur_id"/></div><div class="o_ka_f"><label for="proprietaire_parc" string="Propriétaire du parc"/><field name="proprietaire_parc"/></div></div><field name="conteneur_ids" nolabel="1"><list editable="bottom"><field name="serie" string="N° série conteneur"/><field name="statut_transitaire" string="Statut transitaire"/><field name="date_entree_port" string="Entrée au port"/><field name="transfert_label" string="Transfert armateur" widget="badge" decoration-success="transfert_effectue" decoration-warning="not transfert_effectue"/><field name="transfert_effectue" column_invisible="1"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Transférer les conteneurs sélectionnés" name="action_transferer_port" type="object" class="o_ka_btn o_ka_primary"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="transferts_kpi"/></span><span class="o_stat_text">Transferts effectués</span></div>
+                    </button>
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="ctn_transferes_kpi"/></span><span class="o_stat_text">Conteneurs transférés</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1>Transfert conteneurs — <field name="name" readonly="1" class="d-inline"/></h1>
+                    <div class="o_ka_sub">Sous-contrat <field name="contrat_id" readonly="1" options="{'no_open': True}"/> · Armateur <field name="armateur" readonly="1"/></div>
+                </div>
+                <div class="o_ka_info">La logistique consulte chaque jour la plateforme du transitaire pour suivre le statut des conteneurs, puis transfère les numéros de série vers la plateforme de l'armateur à la date d'entrée au port. Cette opération transfère les colis liés vers le port en conservant leur traçabilité. Un sous-contrat peut faire l'objet d'un ou plusieurs transferts.</div>
+                <group>
+                    <group>
+                        <field name="bae_numero" string="N° BAE (bon à embarquer)" required="1"/>
+                        <field name="bae_date" string="Date de réception du BAE"/>
+                        <field name="transporteur_id" string="Transporteur"/>
+                        <field name="proprietaire_parc" string="Propriétaire parc"/>
+                    </group>
+                    <group>
+                        <field name="plateforme_transitaire" string="Plateforme transitaire"/>
+                        <field name="plateforme_armateur" string="Plateforme armateur"/>
+                    </group>
+                </group>
+                <div class="o_ka_h3">Conteneurs du sous-contrat — statuts et transfert vers le port</div>
+                <field name="conteneur_ids" nolabel="1">
+                    <list editable="bottom" create="0" delete="0">
+                        <field name="serie" string="N° série conteneur" readonly="1" class="fw-bold"/>
+                        <field name="statut_transitaire" string="Statut plateforme transitaire" widget="badge" decoration-success="1"/>
+                        <field name="date_entree_port" string="Date d'entrée au port"/>
+                        <field name="transfert_label" string="Transfert armateur" widget="badge" decoration-success="transfert_effectue" decoration-warning="not transfert_effectue"/>
+                        <field name="transfert_effectue" column_invisible="1"/>
+                        <button string="Consulter" name="action_consulter" type="object" class="btn-secondary btn-sm"/>
+                    </list>
+                </field>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 5.6 — Départ du navire et clôture documentaire [Approbation] -->
 <record id="view_ka_sc_depart_form" model="ir.ui.view">
-    <field name="name">ka.sous.contrat.ka.form</field>
+    <field name="name">ka.sous.contrat.depart.ka.form</field>
     <field name="model">ka.sous.contrat</field>
     <field name="arch" type="xml">
-        <form string="Départ du navire et clôture documentaire" class="o_ka_form">
+        <form string="Départ du navire" class="o_ka_form">
+            <header>
+                <button string="Valider le BL vente" name="action_valider_bl" type="object" class="btn-secondary"/>
+                <button string="Éditer liste de colisage" name="action_liste_colisage" type="object" class="btn-secondary"/>
+                <button string="Expédier le sous-contrat" name="action_valider_livraison" type="object" class="btn-primary"/>
+                <button string="Générer la facture" name="action_generer_facture" type="object" class="btn-secondary" invisible="state not in ('expedie', 'cloture') or invoice_id"/>
+                <button string="Clôturer le dossier" name="action_cloturer_dossier" type="object" class="btn-secondary" invisible="state != 'expedie'"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Logistique export</span><span class="o_ka_cur">Départ navire</span><span class="o_ka_fn">Fonction : YDEP · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Départ du navire et clôture documentaire</h1><div class="o_ka_sub"><field name="name" nolabel="1" readonly="1"/> — commande ouverte <field name="contrat_id" nolabel="1" readonly="1"/> · connaissement reçu</div></div>
-                            <field name="embarques_txt" widget="badge" decoration-success="1"/>
-                        </div>
-                        <div class="o_ka_info">Tous les conteneurs du sous-contrat sont embarqués : la livraison est validée à la date d'embarquement du BL, puis facturée en devise.</div><div class="o_ka_sec">Connaissement</div><div class="o_ka_grid"><div class="o_ka_f"><label for="bl_numero" string="N° connaissement (BL)" class="o_ka_req"/><field name="bl_numero"/></div><div class="o_ka_f"><label for="date_depart_navire" string="Date de départ du navire" class="o_ka_req"/><field name="date_depart_navire"/></div><div class="o_ka_f"><label for="plateforme_transitaire" string="Plateforme transitaire"/><field name="plateforme_transitaire"/></div><div class="o_ka_f o_ka_check"><field name="tous_embarques"/><label for="tous_embarques" string="Tous les colis embarqués"/></div></div><field name="conteneur_ids" nolabel="1" readonly="1"><list><field name="serie" string="N° série conteneur"/><field name="embarquement_label" string="Statut d'embarquement" widget="badge" decoration-success="embarquement_label=='Embarqué'" decoration-warning="embarquement_label=='À quai'"/><field name="sous_contrat_id" string="Sous-contrat"/></list></field><div class="o_ka_docs"><span>Liasse documentaire (RG-5.14) :</span><span class="o_ka_doc"><field name="doc_bl"/> <label for="doc_bl"/></span><span class="o_ka_doc"><field name="doc_colisage"/> <label for="doc_colisage"/></span><span class="o_ka_doc"><field name="doc_analyse"/> <label for="doc_analyse"/></span><span class="o_ka_doc"><field name="doc_facture"/> <label for="doc_facture"/></span><span>. Frais supplémentaires déclarés : <field name="frais_declares" nolabel="1" readonly="1"/>.</span></div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Valider la livraison (BL vente)" name="action_valider_livraison" type="object" class="o_ka_btn o_ka_primary"/><button string="Éditer la liste de colisage" name="action_liste_colisage" type="object" class="o_ka_btn"/><button string="Générer la facture" name="action_generer_facture" type="object" class="o_ka_btn"/><button string="Clôturer le dossier" name="action_cloturer_dossier" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="embarques_kpi"/></span><span class="o_stat_text">Conteneurs embarqués</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1>Départ du navire — <field name="name" readonly="1" class="d-inline"/></h1>
+                    <div class="o_ka_sub"><field name="depart_sub"/></div>
+                </div>
+                <field name="invoice_id" invisible="1"/>
+                <field name="state" invisible="1"/>
+                <group>
+                    <group>
+                        <field name="bl_numero" string="N° connaissement (BL)" required="1"/>
+                        <field name="date_depart_navire" string="Date de départ du navire" required="1"/>
+                    </group>
+                    <group>
+                        <field name="plateforme_transitaire" string="Plateforme transitaire"/>
+                        <field name="tous_embarques_txt" string="Tous les colis embarqués ?" widget="badge" decoration-success="tous_embarques_txt == 'Oui'" decoration-warning="tous_embarques_txt != 'Oui'"/>
+                    </group>
+                </group>
+                <div class="o_ka_info">Tous les conteneurs du sous-contrat ont été embarqués. La logistique expédie le sous-contrat à la date d'embarquement portée sur le BL ; la comptabilité facture ensuite le sous-contrat.</div>
+                <div class="o_ka_h3">Conteneurs concernés</div>
+                <field name="conteneur_ids" nolabel="1" readonly="1">
+                    <list>
+                        <field name="serie" string="N° série conteneur" class="fw-bold"/>
+                        <field name="embarquement_label" string="Statut embarquement" widget="badge" decoration-success="embarquement_label == 'Embarqué'" decoration-warning="embarquement_label == 'À quai'"/>
+                        <field name="sous_contrat_id" string="Sous-contrat"/>
+                    </list>
+                </field>
+                <div class="o_ka_h3">Liasse documentaire client (RG-5.14)</div>
+                <div><field name="doc_bl" nolabel="1"/> <label for="doc_bl" string="Connaissement (BL vente)"/></div>
+                <div><field name="doc_colisage" nolabel="1"/> <label for="doc_colisage" string="Liste de colisage"/></div>
+                <div><field name="doc_analyse" nolabel="1"/> <label for="doc_analyse" string="Certificat d'analyse qualité"/></div>
+                <div><field name="doc_facture" nolabel="1"/> <label for="doc_facture" string="Facture client (à émettre à la clôture)"/></div>
+                <group>
+                    <group>
+                        <field name="frais_declares_txt" string="Frais supplémentaires déclarés ?" widget="badge" decoration-success="frais_declares_txt == 'Non'" decoration-warning="frais_declares_txt == 'Oui'"/>
+                    </group>
+                    <group>
+                        <label for="name" string="Onglet « Frais supplémentaires »"/>
+                        <button name="action_retour_sc" type="object" class="btn-link p-0 fw-bold">Voir sous-contrat <field name="name" readonly="1" class="d-inline"/></button>
+                    </group>
+                </group>
+                <div class="o_ka_info">En cas de frais supplémentaires (ex. changement de navire), la logistique les inscrit sur le sous-contrat, onglet « Frais supplémentaires », avant de valider l'expédition.</div>
             </sheet>
         </form>
     </field>
@@ -131,9 +373,9 @@
     <field name="model">ka.sous.contrat</field>
     <field name="arch" type="xml"><list string="ka_sc"><field name="name"/><field name="contrat_id"/><field name="partner_id"/><field name="poids_kg" sum="Total"/><field name="armateur"/><field name="booking"/><field name="date_embarquement_prevue"/><field name="state" widget="badge"/></list></field>
 </record>
-<record id="action_ka_sc" model="ir.actions.act_window"><field name="name">Sous-contrats</field><field name="res_model">ka.sous.contrat</field><field name="view_mode">list,form</field></record><record id="action_ka_sc_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_sc_tree"/></record><record id="action_ka_sc_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_sc_form"/></record>
-<record id="action_ka_sc_jalons" model="ir.actions.act_window"><field name="name">Jalons départ port</field><field name="res_model">ka.sous.contrat</field><field name="view_mode">list,form</field></record><record id="action_ka_sc_jalons_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_jalons"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_sc_tree"/></record><record id="action_ka_sc_jalons_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_jalons"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_sc_jalons_form"/></record>
-<record id="action_ka_sc_decl" model="ir.actions.act_window"><field name="name">Déclarations d'exportation</field><field name="res_model">ka.sous.contrat</field><field name="view_mode">list,form</field></record><record id="action_ka_sc_decl_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_decl"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_sc_tree"/></record><record id="action_ka_sc_decl_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_decl"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_sc_decl_form"/></record>
+<record id="action_ka_sc" model="ir.actions.act_window"><field name="name">Sous-contrats</field><field name="res_model">ka.sous.contrat</field><field name="view_mode">list,form</field><field name="context">{'ka_nom_long_sc': True}</field></record><record id="action_ka_sc_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_sc_tree"/></record><record id="action_ka_sc_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_sc_form"/></record>
+<record id="action_ka_sc_jalons" model="ir.actions.act_window"><field name="name">Départ port</field><field name="res_model">ka.sous.contrat</field><field name="view_mode">list,form</field></record><record id="action_ka_sc_jalons_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_jalons"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_sc_tree"/></record><record id="action_ka_sc_jalons_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_jalons"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_sc_jalons_form"/></record>
+<record id="action_ka_sc_decl" model="ir.actions.act_window"><field name="name">Déclarations export</field><field name="res_model">ka.sous.contrat</field><field name="view_mode">list,form</field></record><record id="action_ka_sc_decl_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_decl"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_sc_tree"/></record><record id="action_ka_sc_decl_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_decl"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_sc_decl_form"/></record>
 <record id="action_ka_sc_port" model="ir.actions.act_window"><field name="name">Transferts port</field><field name="res_model">ka.sous.contrat</field><field name="view_mode">list,form</field></record><record id="action_ka_sc_port_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_port"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_sc_tree"/></record><record id="action_ka_sc_port_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_port"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_sc_port_form"/></record>
 <record id="action_ka_sc_depart" model="ir.actions.act_window"><field name="name">Départ navire</field><field name="res_model">ka.sous.contrat</field><field name="view_mode">list,form</field></record><record id="action_ka_sc_depart_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_depart"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_sc_tree"/></record><record id="action_ka_sc_depart_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_sc_depart"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_sc_depart_form"/></record>
 </odoo>

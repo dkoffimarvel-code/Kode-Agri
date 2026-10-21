@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+from markupsafe import escape
+
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -35,13 +37,53 @@ class KaConteneur(models.Model):
     transfert_label = fields.Char(compute='_compute_labels', string='Transfert armateur')
     embarquement_label = fields.Char(compute='_compute_labels', string="Statut d'embarquement")
     lot_conteneur_id = fields.Many2one('stock.lot', string='Article conteneur (série)', readonly=True, copy=False)
-    state = fields.Selection([('affecte', 'Affecté'), ('plombe', 'Plombé'), ('empote', 'Empoté'),
+    state = fields.Selection([('affecte', 'Affecté'), ('charge', 'Chargé'), ('plombe', 'Plombé'), ('empote', 'Empoté'),
                               ('au_port', 'Au port'), ('embarque', 'Embarqué')], default='affecte', string='Statut',
                              tracking=True)
+
+    # écrans 5.3, 5.4 et 5.5 (v4.5)
+    contrat_id = fields.Many2one(related='sous_contrat_id.contrat_id', string='Contrat de vente')
+    booking = fields.Char(related='sous_contrat_id.booking', string='N° booking')
+    date_arrivee_parc = fields.Date(string='Arrivée au parc')
+    colis_label = fields.Char(compute='_compute_mode', string='Libellé des colis')
+    spec_kpi = fields.Char(compute='_compute_spec_html', string='Spécifications (carte)')
+    spec_html = fields.Html(compute='_compute_spec_html', string='Spécifications du conteneur', sanitize=False)
+    palettes_html = fields.Html(compute='_compute_spec_html', string='Palettes affectées', sanitize=False)
 
     def _ka_subtitle(self):
         self.ensure_one()
         return '%s — sous-contrat %s · %s' % (self.name, self.sous_contrat_id.name or '', self.serie or '')
+
+    @api.depends('name', 'serie', 'sous_contrat_id')
+    @api.depends_context('ka_nom_long_ctn')
+    def _compute_display_name(self):
+        """Fil d'Ariane de l'écran 5.4 : « CTN-0188 (SC-0061-03) » ; ailleurs « CTN-0188 · MSKU-7741230 »."""
+        long = self.env.context.get('ka_nom_long_ctn')
+        for c in self:
+            if long and c.sous_contrat_id:
+                c.display_name = '%s (%s)' % (c.name, c.sous_contrat_id.name)
+            else:
+                c.display_name = ' · '.join(x for x in (c.name, c.serie) if x)
+
+    @api.depends('sous_contrat_id.contrat_id.spec_ids.applique', 'colis_ids.lot_id')
+    def _compute_spec_html(self):
+        """Écran 5.4 : spécifications de l'équivalent conteneur, héritées du sous-contrat (Min / Max / Source)."""
+        for c in self:
+            specs = c.sous_contrat_id.contrat_id.spec_ids
+            c.spec_kpi = 'Hérité' if specs else '—'
+            lignes = ''.join(
+                '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>Sous-contrat</td></tr>' % (
+                    escape(dict(s._fields['test'].selection).get(s.test, '')), escape(s.libelle or ''),
+                    escape(s.vmin_txt or '—'), escape(s.vmax_txt or '—')) for s in specs)
+            c.spec_html = ('<table class="o_ka_tbl"><thead><tr><th>Test</th><th>Libellé</th><th>Min</th><th>Max</th>'
+                           '<th>Source</th></tr></thead><tbody>%s</tbody></table>' % lignes) if specs else False
+            conf = dict(self.env['ka.conteneur.colis']._fields['conformite'].selection)
+            pal = ''.join('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (
+                escape(l.palette or ''), escape(l.lot_id.name or ''), escape(l.grade or ''), escape(l.p0_pri or ''),
+                escape(conf.get(l.conformite, ''))) for l in c.colis_ids)
+            c.palettes_html = ('<table class="o_ka_tbl"><thead><tr><th>Palette</th><th>Colis (série)</th><th>Grade</th>'
+                               '<th>P0 / PRI</th><th>Conformité</th></tr></thead><tbody>%s</tbody></table>' % pal
+                               ) if c.colis_ids else False
 
     @api.depends('sous_contrat_id.conditionnement')
     def _compute_mode(self):
@@ -50,6 +92,7 @@ class KaConteneur(models.Model):
             n = sc.colis_par_conteneur() if sc else 16
             c.capacite = n
             c.mode_chargement = '%s (%s colis)' % ('Vrac' if sc.conditionnement == 'vrac' else 'Palette', n)
+            c.colis_label = 'Colis (vrac)' if sc.conditionnement == 'vrac' else 'Colis (palette)'
 
     @api.depends('transfert_effectue', 'embarque', 'state')
     def _compute_labels(self):
@@ -119,12 +162,33 @@ class KaConteneur(models.Model):
                 raise UserError(_('Aucun colis libéré conforme aux spécifications du contrat n\'est disponible.'))
             c.colis_ids = [Command.create({'lot_id': l.id,
                                            'palette': self.env['ir.sequence'].next_by_code('ka.palette')}) for l in lots]
+            if c.state == 'affecte':
+                c.state = 'charge'
 
     def write(self, vals):
         res = super().write(vals)
         if vals.get('plomb'):
-            self.filtered(lambda c: c.state == 'affecte').write({'state': 'plombe'})
+            self.filtered(lambda c: c.state in ('affecte', 'charge')).write({'state': 'plombe'})
         return res
+
+    def action_plomber(self):
+        """Écran 5.4 : plombage du conteneur chargé (N° de plomb obligatoire)."""
+        for c in self:
+            if not c.plomb:
+                raise UserError(_('Le N° de plomb est obligatoire.'))
+            if c.state in ('affecte', 'charge'):
+                c.state = 'plombe'
+
+    def action_consulter(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Empotement', 'res_model': 'ka.conteneur', 'res_id': self.id,
+                'view_mode': 'form', 'context': {'ka_nom_long_ctn': True},
+                'views': [(self.env.ref('kode_agri_vente.view_ka_conteneur_form').id, 'form')]}
+
+    def action_open_colis(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Colis', 'res_model': 'stock.lot', 'view_mode': 'list,form',
+                'domain': [('id', 'in', self.colis_ids.lot_id.ids)]}
 
     def action_empoter(self):
         for c in self:
@@ -160,6 +224,7 @@ class KaConteneurColis(models.Model):
     palette = fields.Char(string='Palette')
     lot_id = fields.Many2one('stock.lot', string='Lot (colis)', required=True, domain=[('ka_est_colis', '=', True)])
     product_id = fields.Many2one(related='lot_id.product_id', string='Article')
+    grade = fields.Char(related='lot_id.product_id.default_code', string='Grade')
     statut = fields.Char(compute='_compute_vals', string='Statut')
     p0_pri = fields.Char(compute='_compute_vals', string='P0 / PRI')
     conformite = fields.Selection([('conforme', 'Conforme'), ('non_conforme', 'Non conforme')],

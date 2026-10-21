@@ -1,4 +1,5 @@
 import math
+import re
 
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError
@@ -19,8 +20,8 @@ class KaContrat(models.Model):
     _order = 'name desc'
 
     name = fields.Char(string='N° contrat', readonly=True, copy=False, default='Nouveau')
-    type = fields.Selection([('spot', 'CSP — Contrat Spot'), ('clt', 'CLT — Contrat Long terme')],
-                            string='Type de commande', required=True, default='clt')
+    type = fields.Selection([('spot', 'Spot'), ('clt', 'Long terme')],
+                            string='Type de contrat', required=True, default='clt')
     partner_id = fields.Many2one('res.partner', string='Client', required=True, domain=[('ka_client', '=', True)])
     product_id = fields.Many2one('product.product', string='Article', required=True,
                                  domain=[('default_code', 'in', ('TSR10', 'TSR20', 'OFFSPECS'))])
@@ -51,10 +52,20 @@ class KaContrat(models.Model):
     modifie_par = fields.Char(string='Modifié par', default='Logistique export', readonly=True)
     spec_source = fields.Char(compute='_compute_spec_mode', string='Source des spécifications')
     sale_order_id = fields.Many2one('sale.order', string='Commande client', readonly=True, copy=False)
-    state = fields.Selection([('en_cours', 'En cours'), ('a_signer', 'À signer'), ('signee', 'Signée'),
-                              ('soldee', 'Soldée'), ('refusee', 'Refusée')], default='en_cours', string='Statut',
+    state = fields.Selection([('en_cours', 'Devis'), ('a_signer', 'Devis envoyé'), ('signee', 'Bon de commande'),
+                              ('soldee', 'Verrouillée'), ('refusee', 'Refusée')], default='en_cours', string='Statut',
                              tracking=True)
     badge_label = fields.Char(compute='_compute_badge')
+    # écrans 5.2 / 5.2b (v4.5) : cartes KPI et conversion des quantités
+    ctn_kpi = fields.Char(compute='_compute_conversion', string='Conteneurs (carte)')
+    balles_kpi = fields.Char(compute='_compute_conversion', string='Balles (carte)')
+    conteneurs_txt = fields.Char(compute='_compute_conversion', string='→ Conteneurs')
+    balles_txt = fields.Char(compute='_compute_conversion', string='→ Balles')
+    restant_kg_txt = fields.Char(compute='_compute_conversion', string='Restant à affecter (kg)')
+    restant_ctn_txt = fields.Char(compute='_compute_conversion', string='Restant à affecter (conteneurs)')
+    grade_code = fields.Char(related='product_id.default_code', string='Grade')
+    spec_titre = fields.Char(compute='_compute_spec_mode', string='Titre des spécifications')
+    spec_edition = fields.Boolean(string='Spécifications en cours de modification', copy=False)
 
     def _ka_subtitle(self):
         self.ensure_one()
@@ -66,11 +77,25 @@ class KaContrat(models.Model):
             c.badge_label = {'en_cours': 'En cours', 'a_signer': 'À signer (DG)', 'signee': 'Signée',
                              'soldee': 'Soldée', 'refusee': 'Refusée'}[c.state]
 
-    @api.depends('type')
+    @api.depends('type', 'product_id')
     def _compute_spec_mode(self):
         for c in self:
-            c.spec_mode = 'Modifiables' if c.type == 'spot' else 'Héritées'
+            c.spec_mode = 'Éditable' if c.type == 'spot' else 'Héritées'
             c.spec_source = 'Contrat (modifiable)' if c.type == 'spot' else 'Fiche client'
+            grade = c.product_id.default_code or ''
+            c.spec_titre = ('Spécifications du contrat Spot — éditables (priment sur la fiche client)' if c.type == 'spot'
+                            else 'Spécifications — 7 tests (standard %s ; fiche client prioritaire)' % grade)
+
+    @api.depends('name', 'partner_id', 'type')
+    @api.depends_context('ka_nom_long_contrat')
+    def _compute_display_name(self):
+        """Fil d'Ariane des maquettes v4.5 : « CV-0061 — TyreCorp » (« (Spot) » pour un contrat Spot)."""
+        long = self.env.context.get('ka_nom_long_contrat')
+        for c in self:
+            if long and c.partner_id:
+                c.display_name = '%s — %s%s' % (c.name, c.partner_id.name, ' (Spot)' if c.type == 'spot' else '')
+            else:
+                c.display_name = c.name or ''
 
     @api.depends('qty_kg', 'prix_t', 'currency_id')
     def _compute_montant(self):
@@ -99,7 +124,14 @@ class KaContrat(models.Model):
             colis_par_ctn = cap / POIDS_COLIS if cap else 0
             c.nb_balles = int(c.nb_conteneurs * colis_par_ctn * 36)
             restant = c.qty_kg - sum(c.sous_contrat_ids.mapped('poids_kg'))
-            c.restant_txt = '%s kg (%s ctn)' % (fmt_int(restant), math.ceil(restant / cap) if cap and restant > 0 else 0)
+            restant_ctn = math.ceil(restant / cap) if cap and restant > 0 else 0
+            c.restant_txt = '%s kg (%s ctn)' % (fmt_int(restant), restant_ctn)
+            c.ctn_kpi = '%s ctn' % c.nb_conteneurs
+            c.balles_kpi = fmt_int(c.nb_balles)
+            c.conteneurs_txt = '%s conteneurs' % c.nb_conteneurs
+            c.balles_txt = '%s balles' % fmt_int(c.nb_balles)
+            c.restant_kg_txt = '%s kg' % fmt_int(restant)
+            c.restant_ctn_txt = '%s conteneurs' % restant_ctn
 
     # ---- spécifications (RG-5.3 / RG-5.5) -----------------------------------------------------------
     def _refresh_specs(self, force=False):
@@ -168,7 +200,7 @@ class KaContrat(models.Model):
         self.ensure_one()
         return {'type': 'ir.actions.act_window', 'res_model': 'ka.sous.contrat', 'view_mode': 'form',
                 'views': [(self.env.ref('kode_agri_vente.view_ka_sc_form').id, 'form')],
-                'context': {'default_contrat_id': self.id}}
+                'context': {'default_contrat_id': self.id, 'ka_nom_long_sc': True}}
 
     def action_imprimer(self):
         self.ensure_one()
@@ -186,6 +218,23 @@ class KaContrat(models.Model):
         self.ensure_one()
         return {'type': 'ir.actions.act_window', 'name': 'Livraisons', 'res_model': 'ka.livraison',
                 'view_mode': 'list,form', 'domain': [('sous_contrat_id.contrat_id', '=', self.id)]}
+
+    def action_open_conteneurs(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Conteneurs', 'res_model': 'ka.conteneur',
+                'view_mode': 'list,form', 'domain': [('sous_contrat_id.contrat_id', '=', self.id)]}
+
+    def action_open_client(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Clients', 'res_model': 'res.partner', 'res_id': self.partner_id.id,
+                'view_mode': 'form', 'views': [(self.env.ref('kode_agri_vente.view_ka_client_form').id, 'form')]}
+
+    def action_modifier_specs(self):
+        """Contrat Spot (écran 5.2b) : la logistique ouvre les spécifications du contrat à la modification."""
+        for c in self:
+            if c.type != 'spot':
+                raise UserError(_('Seules les spécifications d\'un contrat Spot sont modifiables (RG-5.3).'))
+            c.write({'spec_edition': not c.spec_edition, 'modifie_par': self.env.user.name})
 
     def action_open_factures(self):
         self.ensure_one()
@@ -206,6 +255,27 @@ class KaContratSpec(models.Model):
     applique = fields.Char(string='Appliqué (contrat)')
     modifie = fields.Boolean(compute='_compute_modifie', string='Modifié', store=True)
     source = fields.Char(compute='_compute_modifie', string='Source')
+    modifie_txt = fields.Char(compute='_compute_modifie', string='Modifié ')
+    vmin_txt = fields.Char(compute='_compute_bornes', string='Min')
+    vmax_txt = fields.Char(compute='_compute_bornes', string='Max')
+
+    @api.depends('applique')
+    def _compute_bornes(self):
+        """Bornes affichées sur l'équivalent conteneur (écran 5.4) : « ≥ 30 » → Min, « ≤ 0,80 » → Max, « 65 – 85 »."""
+        for s in self:
+            txt = (s.applique or '').strip()
+            vmin = vmax = '—'
+            m = re.match(r'^([≥≤])\s*([\d.,]+)$', txt)
+            r = re.match(r'^\[?([\d.,]+)\s*[–-]\s*([\d.,]+)\]?$', txt)
+            if m and m.group(1) == '≥':
+                vmin = txt
+            elif m:
+                vmax = m.group(2)
+            elif r:
+                vmin, vmax = r.group(1), r.group(2)
+            elif txt and txt.upper() != 'NAP' and not txt.lower().startswith(('selon', 'varie')):
+                vmin = txt
+            s.vmin_txt, s.vmax_txt = vmin, vmax
 
     @api.depends('test')
     def _compute_libelle(self):
@@ -218,3 +288,4 @@ class KaContratSpec(models.Model):
         for s in self:
             s.modifie = (s.applique or '') != (s.initial or '')
             s.source = 'Contrat' if s.modifie else 'Fiche client'
+            s.modifie_txt = 'Oui' if s.modifie else '—'

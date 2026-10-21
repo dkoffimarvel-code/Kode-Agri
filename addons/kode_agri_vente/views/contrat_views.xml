@@ -1,52 +1,230 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 5.2 — Contrat de vente — en-tête et conversion des quantités [Approbation] -->
 <record id="view_ka_contrat_clt_form" model="ir.ui.view">
-    <field name="name">ka.contrat.ka.form</field>
+    <field name="name">ka.contrat.clt.ka.form</field>
     <field name="model">ka.contrat</field>
+    <field name="priority">10</field>
     <field name="arch" type="xml">
-        <form string="Commande ouverte — contrat Long terme" class="o_ka_form">
+        <form string="Contrat de vente" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-secondary"/>
+                <button string="Envoyer" name="action_soumettre" type="object" class="btn-primary"/>
+                <button string="Confirmer" name="action_signer" type="object" class="btn-secondary"/>
+                <button string="Refuser" name="action_refuser" type="object" class="btn-secondary" invisible="state != 'a_signer'"/>
+                <button string="Créer un sous-contrat" name="action_creer_sous_contrat" type="object" class="btn-secondary" invisible="state != 'signee'"/>
+                <button string="Imprimer le contrat" name="action_imprimer" type="object" class="btn-secondary"/>
+                <button string="Factures" name="action_open_factures" type="object" class="btn-secondary" invisible="state not in ('signee', 'soldee')"/>
+                <field name="state" widget="statusbar" statusbar_visible="en_cours,a_signer,signee,soldee"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Commandes ouvertes</span><span class="o_ka_cur">Commandes ouvertes</span><span class="o_ka_fn"></span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Commande ouverte — contrat Long terme</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="badge_label" widget="badge" decoration-warning="state=='a_signer'" decoration-info="state=='en_cours'" decoration-success="state in ('signee','soldee')" decoration-danger="state=='refusee'"/>
-                        </div>
-                        <field name="state" widget="statusbar" class="o_ka_pills" statusbar_visible="en_cours,a_signer,signee,soldee"/><div class="o_ka_kpis"><div class="o_ka_kpi"><field name="nb_conteneurs" nolabel="1"/><span class="o_ka_kl">Conteneurs</span></div><div class="o_ka_kpi"><field name="nb_balles" nolabel="1"/><span class="o_ka_kl">Balles</span></div><div class="o_ka_kpi"><field name="restant_txt" nolabel="1"/><span class="o_ka_kl">Restant à affecter</span></div></div><div class="o_ka_info">La quantité en kg est convertie en conteneurs et en balles (RG-5.4). Les spécifications sont reprises de la fiche client à l'affectation du client final ; la signature est réservée à la direction générale.</div><div class="o_ka_sec">En-tête</div><div class="o_ka_grid"><div class="o_ka_f"><label for="partner_id" string="Client" class="o_ka_req"/><field name="partner_id"/></div><div class="o_ka_f"><label for="type" string="Type de commande" class="o_ka_req"/><field name="type"/></div><div class="o_ka_f"><label for="product_id" string="Article" class="o_ka_req"/><field name="product_id"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité" class="o_ka_req"/><field name="tracabilite"/></div><div class="o_ka_f"><label for="qty_kg" string="Quantité (kg)" class="o_ka_req"/><field name="qty_kg"/></div><div class="o_ka_f"><label for="prix_t" string="Prix de vente" class="o_ka_req"/><field name="prix_t" class="o_ka_u_eurt"/></div><div class="o_ka_f"><label for="montant" string="Montant en devise"/><field name="montant" readonly="1"/></div><div class="o_ka_f"><label for="contre_valeur" string="Contre-valeur"/><field name="contre_valeur" readonly="1"/></div><div class="o_ka_f"><label for="periode" string="Période d'embarquement" class="o_ka_req"/><field name="periode"/></div><div class="o_ka_f"><label for="incoterm" string="Incoterm" class="o_ka_req"/><field name="incoterm"/></div><div class="o_ka_f"><label for="ref_client" string="Réf. contrat client" class="o_ka_req"/><field name="ref_client"/></div><div class="o_ka_f"><label for="paiement" string="Condition de paiement"/><field name="paiement"/></div></div><notebook><page string="Général"><div class="o_ka_grid"><div class="o_ka_f"><label for="emballage" string="Type d'emballage"/><field name="emballage"/></div><div class="o_ka_f"><label for="conditions" string="Conditions contrat"/><field name="conditions"/></div><div class="o_ka_f"><label for="port" string="Port d'embarquement"/><field name="port"/></div><div class="o_ka_f"><label for="warehouse_id" string="Code usine"/><field name="warehouse_id"/></div></div></page><page string="Spécifications (7 tests)"><field name="spec_ids" nolabel="1" readonly="1"><list><field name="test" string="Test"/><field name="libelle" string="Libellé"/><field name="standard" string="Standard TSR10"/><field name="applique" string="Appliqué (contrat)"/><field name="source" string="Source"/></list></field></page><page string="Sous-contrats"><field name="sous_contrat_ids" nolabel="1" readonly="1"><list><field name="name"/><field name="poids_kg"/><field name="armateur"/><field name="booking"/><field name="date_embarquement_prevue"/><field name="state" widget="badge"/></list></field></page></notebook>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Soumettre à signature" name="action_soumettre" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'en_cours'"/><button string="Signer (DG)" name="action_signer" type="object" class="o_ka_btn" invisible="state != 'a_signer'"/><button string="Refuser" name="action_refuser" type="object" class="o_ka_btn" invisible="state != 'a_signer'"/><button string="Créer un sous-contrat" name="action_creer_sous_contrat" type="object" class="o_ka_btn"/><button string="Imprimer le contrat" name="action_imprimer" type="object" class="o_ka_btn"/><div class="o_ka_side_t">Liens</div><button string="Sous-contrats" name="action_open_sous_contrats" type="object" class="o_ka_link"/><button string="Livraisons" name="action_open_livraisons" type="object" class="o_ka_link"/><button string="Factures" name="action_open_factures" type="object" class="o_ka_link"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_sous_contrats" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="type" readonly="1"/></span><span class="o_stat_text">Type contrat</span></div>
+                    </button>
+                    <button name="action_open_livraisons" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="tracabilite" readonly="1"/></span><span class="o_stat_text">Traçabilité</span></div>
+                    </button>
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="ctn_kpi"/></span><span class="o_stat_text">Conteneurs</span></div>
+                    </button>
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="balles_kpi"/></span><span class="o_stat_text">Balles</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                    <div class="o_ka_sub"><field name="partner_id" readonly="1" options="{'no_open': True}"/> · Créé par <field name="modifie_par" readonly="1"/></div>
+                </div>
+                <div class="o_ka_info">Quantité kg convertie en conteneurs et en balles (RG-5.4). Spécifications mises à jour depuis la fiche client à l'affectation du client final. Le passage de « Devis envoyé » à « Bon de commande » est réservé à la DG.</div>
+                <group>
+                    <group>
+                        <field name="partner_id" string="Client" required="1"/>
+                        <field name="type" string="Type de contrat" widget="badge" required="1"/>
+                        <field name="product_id" string="Article" widget="badge" decoration-success="1" required="1" options="{'no_create': True}"/>
+                        <field name="tracabilite" string="Statut traçabilité" widget="badge" decoration-success="tracabilite == 'eudr'" decoration-warning="tracabilite == 'non_eudr'" required="1"/>
+                        <field name="qty_kg" string="Quantité (kg)" class="o_ka_u_kg" required="1"/>
+                        <field name="conteneurs_txt" string="→ Conteneurs"/>
+                        <field name="balles_txt" string="→ Balles"/>
+                        <field name="restant_kg_txt" string="Restant à affecter (kg)"/>
+                        <field name="restant_ctn_txt" string="Restant à affecter (conteneurs)"/>
+                    </group>
+                    <group>
+                        <field name="prix_t" string="Prix de vente" class="o_ka_u_eurt" required="1"/>
+                        <field name="montant" string="Montant en devise"/>
+                        <field name="contre_valeur" string="Montant en FCFA"/>
+                        <field name="periode" string="Livraison souhaitée" placeholder="Mois de livraison" class="o_ka_u_mois" required="1"/>
+                        <field name="incoterm" string="Incoterm" required="1"/>
+                        <field name="ref_client" string="Réf. contrat client" required="1"/>
+                        <field name="paiement" string="Paiement"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="company_currency_id" invisible="1"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Spécifications (7 tests)" name="specs">
+                        <div class="o_ka_h3"><field name="spec_titre"/></div>
+                        <field name="spec_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="test" string="Test"/>
+                                <field name="libelle" string="Libellé"/>
+                                <field name="standard" string="Standard"/>
+                                <field name="applique" string="Appliqué (contrat)"/>
+                                <field name="source" string="Source"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Général" name="general">
+                        <group>
+                            <group>
+                                <field name="emballage" string="Type d'emballage"/>
+                                <field name="conditions" string="Conditions contrat"/>
+                                <field name="currency_id" string="Devise"/>
+                            </group>
+                            <group>
+                                <field name="port" string="Port d'embarquement"/>
+                                <field name="warehouse_id" string="Usine"/>
+                                <field name="sale_order_id" string="Commande client"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Sous-contrats" name="sous_contrats">
+                        <field name="sous_contrat_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="name" string="Sous-contrat"/>
+                                <field name="poids_kg" string="Poids (kg)" sum="Total"/>
+                                <field name="armateur" string="Armateur"/>
+                                <field name="booking" string="N° booking"/>
+                                <field name="date_embarquement_prevue" string="Embarquement prévu"/>
+                                <field name="state" string="Statut" widget="badge"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
             </sheet>
+            <chatter/>
         </form>
     </field>
 </record>
+<!-- Écran 5.2b — Spécifications d'un contrat Spot — modifiables par la logistique [Saisie] -->
 <record id="view_ka_contrat_spot_form" model="ir.ui.view">
-    <field name="name">ka.contrat.ka.form</field>
+    <field name="name">ka.contrat.spot.ka.form</field>
     <field name="model">ka.contrat</field>
     <field name="arch" type="xml">
-        <form string="Commande de vente — contrat Spot" class="o_ka_form">
+        <form string="Contrat de vente Spot" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-secondary"/>
+                <button string="Modifier spécifications" name="action_modifier_specs" type="object" class="btn-primary"/>
+                <button string="Envoyer" name="action_soumettre" type="object" class="btn-secondary"/>
+                <button string="Confirmer" name="action_signer" type="object" class="btn-secondary"/>
+                <button string="Refuser" name="action_refuser" type="object" class="btn-secondary" invisible="state != 'a_signer'"/>
+                <button string="Créer un sous-contrat" name="action_creer_sous_contrat" type="object" class="btn-secondary" invisible="state != 'signee'"/>
+                <button string="Imprimer le contrat" name="action_imprimer" type="object" class="btn-secondary"/>
+                <field name="state" widget="statusbar" statusbar_visible="en_cours,a_signer,signee,soldee"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Commandes</span><span class="o_ka_cur">Commandes</span><span class="o_ka_fn">Fonction : GESSOH</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Commande de vente — contrat Spot</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="badge_label" widget="badge" decoration-warning="state=='a_signer'" decoration-info="state=='en_cours'" decoration-success="state in ('signee','soldee')" decoration-danger="state=='refusee'"/>
-                        </div>
-                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="nb_conteneurs" nolabel="1"/><span class="o_ka_kl">Conteneurs</span></div><div class="o_ka_kpi"><field name="nb_balles" nolabel="1"/><span class="o_ka_kl">Balles</span></div><div class="o_ka_kpi"><field name="spec_mode" nolabel="1"/><span class="o_ka_kl">Spécifications</span></div></div><div class="o_ka_info">Contrat Spot : les spécifications sont modifiables par la logistique ; les valeurs du contrat priment sur la fiche client (RG-5.3).</div><div class="o_ka_sec">En-tête</div><div class="o_ka_grid"><div class="o_ka_f"><label for="partner_id" string="Client" class="o_ka_req"/><field name="partner_id"/></div><div class="o_ka_f"><label for="type" string="Type de commande" class="o_ka_req"/><field name="type"/></div><div class="o_ka_f"><label for="product_id" string="Article" class="o_ka_req"/><field name="product_id"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité" class="o_ka_req"/><field name="tracabilite"/></div><div class="o_ka_f"><label for="qty_kg" string="Quantité (kg)" class="o_ka_req"/><field name="qty_kg"/></div><div class="o_ka_f"><label for="prix_t" string="Prix de vente" class="o_ka_req"/><field name="prix_t" class="o_ka_u_eurt"/></div><div class="o_ka_f"><label for="montant" string="Montant en devise"/><field name="montant" readonly="1"/></div><div class="o_ka_f"><label for="contre_valeur" string="Contre-valeur"/><field name="contre_valeur" readonly="1"/></div><div class="o_ka_f"><label for="periode" string="Période d'embarquement" class="o_ka_req"/><field name="periode"/></div><div class="o_ka_f"><label for="incoterm" string="Incoterm" class="o_ka_req"/><field name="incoterm"/></div><div class="o_ka_f"><label for="spec_source" string="Source des spécifications"/><field name="spec_source" readonly="1"/></div><div class="o_ka_f"><label for="modifie_par" string="Modifié par"/><field name="modifie_par" readonly="1"/></div></div><notebook><page string="Général"><div class="o_ka_grid"><div class="o_ka_f"><label for="emballage" string="Type d'emballage"/><field name="emballage"/></div><div class="o_ka_f"><label for="conditions" string="Conditions contrat"/><field name="conditions"/></div><div class="o_ka_f"><label for="port" string="Port d'embarquement"/><field name="port"/></div><div class="o_ka_f"><label for="warehouse_id" string="Code usine"/><field name="warehouse_id"/></div></div></page><page string="Spécifications (7 tests)"><field name="spec_ids" nolabel="1"><list editable="bottom" create="0" delete="0"><field name="test" string="Test" readonly="1"/><field name="libelle" string="Libellé"/><field name="standard" string="Standard TSR20" readonly="1"/><field name="applique" string="Contrat (modifiable)"/><field name="modifie" string="Modifié" readonly="1"/></list></field></page><page string="Sous-contrats"><field name="sous_contrat_ids" nolabel="1" readonly="1"><list><field name="name"/><field name="poids_kg"/><field name="armateur"/><field name="booking"/><field name="date_embarquement_prevue"/><field name="state" widget="badge"/></list></field></page></notebook>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Soumettre à signature" name="action_soumettre" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'en_cours'"/><button string="Signer (DG)" name="action_signer" type="object" class="o_ka_btn" invisible="state != 'a_signer'"/><button string="Imprimer le contrat" name="action_imprimer" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_sous_contrats" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="type" readonly="1"/></span><span class="o_stat_text">Type contrat</span></div>
+                    </button>
+                    <button name="action_open_livraisons" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="tracabilite" readonly="1"/></span><span class="o_stat_text">Traçabilité</span></div>
+                    </button>
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="ctn_kpi"/></span><span class="o_stat_text">Conteneurs</span></div>
+                    </button>
+                    <button name="action_open_conteneurs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="balles_kpi"/></span><span class="o_stat_text">Balles</span></div>
+                    </button>
+                    <button name="action_modifier_specs" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="spec_mode"/></span><span class="o_stat_text">Spécifications</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                    <div class="o_ka_sub"><field name="partner_id" readonly="1" options="{'no_open': True}"/> · Vente spot — créé par <field name="modifie_par" readonly="1"/></div>
+                </div>
+                <div class="o_ka_info">Contrat Spot : les spécifications sont modifiables par le département logistique (champs éditables). Les valeurs du contrat priment sur la fiche client. Le passage de « Devis envoyé » à « Bon de commande » est réservé à la DG.</div>
+                <field name="spec_edition" invisible="1"/>
+                <group>
+                    <group>
+                        <field name="partner_id" string="Client" required="1"/>
+                        <field name="type" string="Type de contrat" widget="badge" required="1"/>
+                        <field name="product_id" string="Grade" widget="badge" decoration-success="1" required="1" options="{'no_create': True}"/>
+                        <field name="tracabilite" string="Statut traçabilité" widget="badge" decoration-success="tracabilite == 'eudr'" decoration-warning="tracabilite == 'non_eudr'" required="1"/>
+                        <field name="qty_kg" string="Quantité (kg)" class="o_ka_u_kg" required="1"/>
+                        <field name="conteneurs_txt" string="→ Conteneurs"/>
+                        <field name="balles_txt" string="→ Balles"/>
+                        <field name="restant_kg_txt" string="Restant à affecter (kg)"/>
+                        <field name="restant_ctn_txt" string="Restant à affecter (conteneurs)"/>
+                    </group>
+                    <group>
+                        <field name="prix_t" string="Prix de vente" class="o_ka_u_eurt" required="1"/>
+                        <field name="montant" string="Montant en devise"/>
+                        <field name="contre_valeur" string="Montant en FCFA"/>
+                        <field name="periode" string="Livraison souhaitée" placeholder="Mois de livraison" class="o_ka_u_mois" required="1"/>
+                        <field name="incoterm" string="Incoterm" required="1"/>
+                        <field name="spec_source" string="Source spécifications" widget="badge" decoration-warning="1"/>
+                        <field name="modifie_par" string="Modifié par"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="company_currency_id" invisible="1"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Spécifications (7 tests)" name="specs">
+                        <div class="o_ka_h3"><field name="spec_titre"/></div>
+                        <field name="spec_ids" nolabel="1">
+                            <list editable="bottom" create="0" delete="0">
+                                <field name="test" string="Test" readonly="1"/>
+                                <field name="libelle" string="Libellé"/>
+                                <field name="standard" string="Standard" readonly="1"/>
+                                <field name="applique" string="Contrat (éditable)" class="fw-bold" readonly="not parent.spec_edition and parent.state != 'en_cours'"/>
+                                <field name="modifie_txt" string="Modifié"/>
+                            </list>
+                        </field>
+                        <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Le département logistique édite les spécifications du contrat Spot directement sur les lignes ; les valeurs saisies s'appliquent au contrôle qualité et à l'expédition, en priorité sur la fiche client.</div>
+                    </page>
+                    <page string="Général" name="general">
+                        <group>
+                            <group>
+                                <field name="emballage" string="Type d'emballage"/>
+                                <field name="conditions" string="Conditions contrat"/>
+                                <field name="ref_client" string="Réf. contrat client"/>
+                                <field name="paiement" string="Paiement"/>
+                            </group>
+                            <group>
+                                <field name="port" string="Port d'embarquement"/>
+                                <field name="warehouse_id" string="Usine"/>
+                                <field name="currency_id" string="Devise"/>
+                                <field name="sale_order_id" string="Commande client"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Sous-contrats" name="sous_contrats">
+                        <field name="sous_contrat_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="name" string="Sous-contrat"/>
+                                <field name="poids_kg" string="Poids (kg)" sum="Total"/>
+                                <field name="armateur" string="Armateur"/>
+                                <field name="booking" string="N° booking"/>
+                                <field name="date_embarquement_prevue" string="Embarquement prévu"/>
+                                <field name="state" string="Statut" widget="badge"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
             </sheet>
+            <chatter/>
         </form>
     </field>
 </record>
 <record id="view_ka_contrat_tree" model="ir.ui.view">
     <field name="name">ka.contrat.ka.tree</field>
     <field name="model">ka.contrat</field>
-    <field name="arch" type="xml"><list string="ka_contrat"><field name="name"/><field name="partner_id"/><field name="type"/><field name="product_id"/><field name="qty_kg" sum="Total"/><field name="periode"/><field name="badge_label" widget="badge"/></list></field>
+    <field name="arch" type="xml"><list string="ka_contrat"><field name="name"/><field name="partner_id"/><field name="type"/><field name="product_id"/><field name="qty_kg" sum="Total"/><field name="periode"/><field name="state" widget="badge" decoration-info="state == 'en_cours'" decoration-warning="state == 'a_signer'" decoration-success="state in ('signee', 'soldee')" decoration-danger="state == 'refusee'"/></list></field>
 </record>
-<record id="action_ka_contrat_clt" model="ir.actions.act_window"><field name="name">Commandes ouvertes</field><field name="res_model">ka.contrat</field><field name="view_mode">list,form</field><field name="domain">[('type','=','clt')]</field><field name="context">{'default_type': 'clt'}</field></record><record id="action_ka_contrat_clt_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_contrat_clt"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_contrat_tree"/></record><record id="action_ka_contrat_clt_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_contrat_clt"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_contrat_clt_form"/></record>
-<record id="action_ka_contrat_spot" model="ir.actions.act_window"><field name="name">Commandes de vente (Spot)</field><field name="res_model">ka.contrat</field><field name="view_mode">list,form</field><field name="domain">[('type','=','spot')]</field><field name="context">{'default_type': 'spot'}</field></record><record id="action_ka_contrat_spot_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_contrat_spot"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_contrat_tree"/></record><record id="action_ka_contrat_spot_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_contrat_spot"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_contrat_spot_form"/></record>
+<record id="action_ka_contrat_clt" model="ir.actions.act_window"><field name="name">Contrats de vente</field><field name="res_model">ka.contrat</field><field name="view_mode">list,form</field><field name="domain">[('type','=','clt')]</field><field name="context">{'default_type': 'clt', 'ka_nom_long_contrat': True}</field></record><record id="action_ka_contrat_clt_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_contrat_clt"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_contrat_tree"/></record><record id="action_ka_contrat_clt_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_contrat_clt"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_contrat_clt_form"/></record>
+<record id="action_ka_contrat_spot" model="ir.actions.act_window"><field name="name">Contrats de vente</field><field name="res_model">ka.contrat</field><field name="view_mode">list,form</field><field name="domain">[('type','=','spot')]</field><field name="context">{'default_type': 'spot', 'ka_nom_long_contrat': True}</field></record><record id="action_ka_contrat_spot_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_contrat_spot"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_contrat_tree"/></record><record id="action_ka_contrat_spot_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_contrat_spot"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_contrat_spot_form"/></record>
+<!-- États : portefeuille des contrats de vente (Long terme et Spot) -->
+<record id="action_ka_contrat_etat" model="ir.actions.act_window"><field name="name">Contrats de vente</field><field name="res_model">ka.contrat</field><field name="view_mode">list,pivot,graph</field><field name="context">{'ka_nom_long_contrat': True}</field></record><record id="action_ka_contrat_etat_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_contrat_etat"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_contrat_tree"/></record>
 </odoo>

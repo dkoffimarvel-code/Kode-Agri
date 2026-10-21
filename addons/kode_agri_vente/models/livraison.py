@@ -21,8 +21,24 @@ class KaLivraison(models.Model):
     destination_id = fields.Many2one('stock.location', string='Site de destination',
                                      default=lambda s: s.env.ref('kode_agri_vente.loc_terre_plein', raise_if_not_found=False))
     date_arrivee_parc = fields.Date(string="Date d'arrivée au parc terre-plein")
-    state = fields.Selection([('brouillon', 'À valider'), ('empote', 'Empoté')], default='brouillon', string='Statut',
-                             tracking=True)
+    state = fields.Selection([('pret', 'Prêt'), ('brouillon', 'À valider'), ('empote', 'Sorti usine'),
+                              ('parc', 'Au parc terre-plein')], default='brouillon', string='Statut', tracking=True)
+    statut_conteneur = fields.Selection(related='conteneur_id.state', string='Statut conteneur')
+    statut_conteneur_txt = fields.Char(compute='_compute_statut_conteneur_txt', string='Statut conteneur (pastille)')
+
+    @api.depends('conteneur_id.state')
+    def _compute_statut_conteneur_txt(self):
+        for l in self:
+            lib = dict(self.env['ka.conteneur']._fields['state'].selection).get(l.conteneur_id.state, '')
+            l.statut_conteneur_txt = ('Statut conteneur : %s' % lib) if lib else ''
+
+    @api.depends('name', 'sous_contrat_id')
+    @api.depends_context('ka_nom_long_bl')
+    def _compute_display_name(self):
+        """Fil d'Ariane de l'écran 5.4b : « BL-0188 (SC-0061-03) »."""
+        long = self.env.context.get('ka_nom_long_bl')
+        for l in self:
+            l.display_name = ('%s (%s)' % (l.name, l.sous_contrat_id.name)) if long and l.sous_contrat_id else (l.name or '')
 
     def _ka_subtitle(self):
         self.ensure_one()
@@ -45,7 +61,7 @@ class KaLivraison(models.Model):
     def action_valider(self):
         """Sort les colis du stock usine vers le parc terre-plein ; le conteneur et son n° de série passent « Empoté »."""
         for l in self:
-            if l.state != 'brouillon':
+            if l.state not in ('pret', 'brouillon'):
                 continue
             if l.conteneur_id.state not in ('empote', 'plombe'):
                 raise UserError(_("Le conteneur doit être empoté avant validation du bon d'expédition."))
@@ -58,7 +74,16 @@ class KaLivraison(models.Model):
         if vals.get('date_arrivee_parc'):
             for l in self:
                 l.conteneur_id.date_entree_parc = l.date_arrivee_parc
+            self.filtered(lambda l: l.state == 'empote').write({'state': 'parc'})
         return res
+
+    def action_enregistrer_enlevement(self):
+        """Écran 5.4b : enregistre l'enlèvement du conteneur (camion, transporteur, chauffeur) avant validation du BL."""
+        for l in self:
+            if not (l.transporteur_id and l.immatriculation):
+                raise UserError(_("Renseignez le fournisseur transporteur et l'immatriculation du camion."))
+            if l.state == 'pret':
+                l.state = 'brouillon'
 
     def action_bordereau(self):
         return {'type': 'ir.actions.client', 'tag': 'display_notification',
