@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+<!-- Application « Immobilisations » (maquettes 3.1 à 3.4) : Immobilisations · Amortissements · Cessions · États · Configuration -->
 <menuitem id="menu_ka_immo_root" name="Immobilisations" sequence="46"/>
 <menuitem id="menu_ka_immo_m" name="Immobilisations" parent="menu_ka_immo_root" sequence="10"/>
 <menuitem id="menu_ka_immo_l" name="Immobilisations" parent="menu_ka_immo_m" action="action_ka_immo" sequence="10"/>
-<menuitem id="menu_ka_immo_man" name="Création manuelle" parent="menu_ka_immo_m" action="action_ka_immo_manuelle" sequence="20"/>
-<menuitem id="menu_ka_immo_plan" name="Plans d'amortissement" parent="menu_ka_immo_m" action="action_ka_immo_plan" sequence="30"/>
-<menuitem id="menu_ka_immo_dep" name="Dépenses" parent="menu_ka_immo_root" sequence="20"/>
-<menuitem id="menu_ka_immo_dep_l" name="Dépenses immobilisables" parent="menu_ka_immo_dep" action="action_ka_immo_depense" sequence="10"/>
-<menuitem id="menu_ka_immo_cons" name="Consultations" parent="menu_ka_immo_root" sequence="30"/>
-<menuitem id="menu_ka_immo_parc" name="Parc des immobilisations" parent="menu_ka_immo_cons" action="action_ka_parc" sequence="10"/>
-<menuitem id="menu_ka_immo_trait" name="Traitements" parent="menu_ka_immo_root" sequence="40"/>
-<menuitem id="menu_ka_immo_dot" name="Comptabilisation des dotations" parent="menu_ka_immo_trait" action="action_ka_dotation" sequence="10"/>
-<menuitem id="menu_ka_immo_sort" name="Sorties" parent="menu_ka_immo_root" sequence="50"/>
+<menuitem id="menu_ka_immo_man" name="Nouvelle immobilisation" parent="menu_ka_immo_m" action="action_ka_immo_manuelle" sequence="20"/>
+<menuitem id="menu_ka_immo_dep" name="Créées depuis facture" parent="menu_ka_immo_m" sequence="30"/>
+<menuitem id="menu_ka_immo_dep_l" name="Immobilisations issues des factures" parent="menu_ka_immo_dep" action="action_ka_immo_depense" sequence="10"/>
+<menuitem id="menu_ka_immo_trait" name="Amortissements" parent="menu_ka_immo_root" sequence="20"/>
+<menuitem id="menu_ka_immo_plan" name="Tableaux d'amortissement" parent="menu_ka_immo_trait" action="action_ka_immo_plan" sequence="10"/>
+<menuitem id="menu_ka_immo_dot" name="Dotations aux amortissements" parent="menu_ka_immo_trait" action="action_ka_dotation" sequence="20"/>
+<menuitem id="menu_ka_immo_sort" name="Cessions" parent="menu_ka_immo_root" sequence="30"/>
 <menuitem id="menu_ka_immo_ces" name="Cessions et mises au rebut" parent="menu_ka_immo_sort" action="action_ka_sortie" sequence="10"/>
-<menuitem id="menu_ka_immo_param" name="Immobilisations" parent="kode_agri_achats.menu_ka_param_stock" sequence="90"/>
-<menuitem id="menu_ka_immo_fam" name="Familles" parent="menu_ka_immo_param" action="action_ka_famille" sequence="10"/>
+<menuitem id="menu_ka_immo_cons" name="États" parent="menu_ka_immo_root" sequence="40"/>
+<menuitem id="menu_ka_immo_parc" name="Parc des immobilisations" parent="menu_ka_immo_cons" action="action_ka_parc" sequence="10"/>
+<menuitem id="menu_ka_immo_param" name="Configuration" parent="menu_ka_immo_root" sequence="90"/>
+<menuitem id="menu_ka_immo_fam" name="Catégories d'immobilisation" parent="menu_ka_immo_param" action="action_ka_famille" sequence="10"/>
 
 </odoo>

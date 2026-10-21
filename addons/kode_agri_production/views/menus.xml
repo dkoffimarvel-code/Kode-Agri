@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<menuitem id="menu_ka_prod_root" name="Production" sequence="40"/>
-<menuitem id="menu_ka_prod_tech" name="Données techniques" parent="menu_ka_prod_root" sequence="10"/>
-<menuitem id="menu_ka_bom" name="Nomenclatures" parent="menu_ka_prod_tech" action="action_ka_bom" sequence="10"/>
-<menuitem id="menu_ka_prod_plan" name="Planification" parent="menu_ka_prod_root" sequence="20"/>
-<menuitem id="menu_ka_of_melange" name="OF de mélange" parent="menu_ka_prod_plan" action="action_ka_of_melange" sequence="10"/>
-<menuitem id="menu_ka_of_production" name="OF de production" parent="menu_ka_prod_plan" action="action_ka_of_production" sequence="20"/>
-<menuitem id="menu_ka_of_essai" name="OF d'essai" parent="menu_ka_prod_plan" action="action_ka_of_essai" sequence="30"/>
-<menuitem id="menu_ka_prod_suivi" name="Suivi" parent="menu_ka_prod_root" sequence="30"/>
+<!-- Application « Fabrication » : OF Mélange · OF Production · OF Essai · Laboratoire · Qualité (écrans 4.1 à 4.6b)
+     et Produits · Nomenclatures · Gammes · Postes de charge (écran 4.1bis, regroupés sous « Configuration ») -->
+<menuitem id="menu_ka_prod_root" name="Fabrication" sequence="40"/>
+<menuitem id="menu_ka_of_melange" name="OF Mélange" parent="menu_ka_prod_root" action="action_ka_of_melange" sequence="10"/>
+<menuitem id="menu_ka_of_production" name="OF Production" parent="menu_ka_prod_root" action="action_ka_of_production" sequence="20"/>
+<menuitem id="menu_ka_of_essai" name="OF Essai" parent="menu_ka_prod_root" action="action_ka_of_essai" sequence="30"/>
+<menuitem id="menu_ka_spec" name="Laboratoire" parent="menu_ka_prod_root" action="action_ka_spec" sequence="40"/>
+<menuitem id="menu_ka_qual_rec" name="Qualité" parent="menu_ka_prod_root" sequence="50"/>
+<menuitem id="menu_ka_recond_tex" name="Reconditionnement texture" parent="menu_ka_qual_rec" action="action_ka_recond_texture" sequence="10"/>
+<menuitem id="menu_ka_recond_specs" name="Reconditionnement spécifications" parent="menu_ka_qual_rec" action="action_ka_recond_specs" sequence="20"/>
+<menuitem id="menu_ka_prod_suivi" name="Suivi" parent="menu_ka_prod_root" sequence="60"/>
 <menuitem id="menu_ka_panier" name="Déclaration des paniers" parent="menu_ka_prod_suivi" action="action_ka_panier" sequence="10"/>
-<menuitem id="menu_ka_colis" name="Suivi de production" parent="menu_ka_prod_suivi" action="action_ka_colis" sequence="20"/>
+<menuitem id="menu_ka_colis" name="Colis" parent="menu_ka_prod_suivi" action="action_ka_colis" sequence="20"/>
+<menuitem id="menu_ka_prod_tech" name="Configuration" parent="menu_ka_prod_root" sequence="90"/>
+<menuitem id="menu_ka_prod_produits" name="Produits" parent="menu_ka_prod_tech" action="action_ka_produits" sequence="10"/>
+<menuitem id="menu_ka_bom" name="Nomenclatures" parent="menu_ka_prod_tech" action="action_ka_bom" sequence="20"/>
+<menuitem id="menu_ka_prod_plan" name="Gammes" parent="menu_ka_prod_tech" action="action_ka_gammes" sequence="30"/>
+<menuitem id="menu_ka_prod_postes" name="Postes de charge" parent="menu_ka_prod_tech" action="action_ka_postes" sequence="40"/>
+
+<!-- Application « Qualité » : Points de contrôle · Réception · Granulation · Séchage · Libération (écrans 4.7a à 4.12) -->
 <menuitem id="menu_ka_qual_root" name="Qualité" sequence="45"/>
-<menuitem id="menu_ka_qual_analyses" name="Analyses" parent="menu_ka_qual_root" sequence="10"/>
-<menuitem id="menu_ka_spec" name="Résultats d'analyse" parent="menu_ka_qual_analyses" action="action_ka_spec" sequence="10"/>
+<menuitem id="menu_ka_qual_ctrl" name="Points de contrôle" parent="menu_ka_qual_root" sequence="10"/>
+<menuitem id="menu_ka_qual_contaminants" name="Types de contaminants" parent="menu_ka_qual_ctrl" action="action_ka_contaminant_type" sequence="10"/>
+<menuitem id="menu_ka_qual_grades" name="Grades et seuils" parent="menu_ka_qual_ctrl" action="action_ka_grade" sequence="20"/>
+<menuitem id="menu_ka_qual_analyses" name="Réception" parent="menu_ka_qual_root" sequence="20"/>
+<menuitem id="menu_ka_qc_rec" name="Contrôle des contaminants" parent="menu_ka_qual_analyses" action="action_ka_qc_reception" sequence="10"/>
 <menuitem id="menu_ka_drc" name="Essais DRC" parent="menu_ka_qual_analyses" action="action_ka_drc_essai" sequence="20"/>
-<menuitem id="menu_ka_qual_ctrl" name="Contrôles" parent="menu_ka_qual_root" sequence="20"/>
-<menuitem id="menu_ka_qc_rec" name="Contrôle à la réception" parent="menu_ka_qual_ctrl" action="action_ka_qc_reception" sequence="10"/>
-<menuitem id="menu_ka_qc_gra" name="Contrôles en production — granulation" parent="menu_ka_qual_ctrl" action="action_ka_qc_granul" sequence="20"/>
-<menuitem id="menu_ka_qc_pan" name="Contrôles en production — panier" parent="menu_ka_qual_ctrl" action="action_ka_qc_panier" sequence="30"/>
-<menuitem id="menu_ka_qc_lib" name="Libération conteneur" parent="menu_ka_qual_ctrl" action="action_ka_qc_liberation" sequence="40"/>
-<menuitem id="menu_ka_qual_rec" name="Reconditionnement" parent="menu_ka_qual_root" sequence="30"/>
-<menuitem id="menu_ka_recond_specs" name="Ordres de reclassement" parent="menu_ka_qual_rec" action="action_ka_recond_specs" sequence="10"/>
-<menuitem id="menu_ka_recond_tex" name="Changements de statut" parent="menu_ka_qual_rec" action="action_ka_recond_texture" sequence="20"/>
+<menuitem id="menu_ka_qc_gra" name="Granulation" parent="menu_ka_qual_root" action="action_ka_qc_granul" sequence="30"/>
+<menuitem id="menu_ka_qc_pan" name="Séchage" parent="menu_ka_qual_root" action="action_ka_qc_panier" sequence="40"/>
+<menuitem id="menu_ka_qc_lib" name="Libération" parent="menu_ka_qual_root" action="action_ka_qc_liberation" sequence="50"/>
 
 </odoo>

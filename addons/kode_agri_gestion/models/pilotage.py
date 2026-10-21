@@ -40,10 +40,25 @@ class KaKpi(models.Model):
     grades_html = fields.Html(compute='_compute_kpi', sanitize=False)
     couts_html = fields.Html(compute='_compute_kpi', sanitize=False)
     titre = fields.Char(compute='_compute_kpi')
+    cartes_html = fields.Html(compute='_compute_kpi', sanitize=False, string='Indicateurs')
 
     def _ka_subtitle(self):
         self.ensure_one()
         return self.titre
+
+    @api.depends('mois')
+    def _compute_display_name(self):
+        for k in self:
+            m = k.mois or fields.Date.today()
+            k.display_name = 'Pilotage — %s %s' % (MOIS_LONG[m.month - 1], m.year)
+
+    @staticmethod
+    def _carte(libelle, valeur, sous, couleur):
+        """Carte KPI de l'écran 9.5 : liseré de couleur, libellé, valeur, commentaire coloré."""
+        teintes = {'ok': '#28a745', 'ko': '#dc3545', 'info': '#0d6efd', 'teal': '#17a2b8'}
+        c = teintes[couleur]
+        return ('<div class="o_ka_kpi" style="border-left:6px solid %s"><span class="o_ka_kl">%s</span>'
+                '<span class="o_ka_kv" style="color:inherit">%s</span><span style="color:%s;font-size:.85rem">%s</span></div>' % (c, libelle, valeur, c, sous))
 
     def _marge_par_grade(self, deb, fin):
         out = []
@@ -87,15 +102,39 @@ class KaKpi(models.Model):
             k.tonnage = '%s t' % fmt_int(t_mois)
             k.rendement = '%s %%' % fmt_dec((t_mois / fdt * 100) if fdt else 0)
             k.ecart_budget = '%s %%' % fmt_signe(ecart, 1)
-            k.tresorerie = '%s M FCFA' % fmt_dec(solde / 1e6, 0)
+            k.tresorerie = '%s MFCFA' % fmt_dec(solde / 1e6, 0)
             jours = (solde / sortie_jour) if sortie_jour else 0
             k.commentaire = 'Objectif coût FOB : %s F/kg · rendement cible %s %% · couverture de trésorerie %s jours.' % (
                 fmt_int(param.cible_fob), fmt_dec(param.cible_rendement, 0), fmt_int(jours))
-            k.titre = 'Campagne %s · %s' % (mois.year, MOIS_LONG[mois.month - 1])
+            k.titre = 'Campagne %s · %s · temps réel' % (mois.year, MOIS_LONG[mois.month - 1])
+            # commentaires des cartes : objectif, N-1, plan, cible, sens de l'écart, couverture
+            n1 = relativedelta(years=1)
+            ca_n1 = _chiffre_affaires(self.env, a_deb - n1, m_fin - n1)
+            complet_n1 = sum(cout(self.env, c, a_deb - n1, m_fin - n1) for c in ('ACH_FDT', 'USINAGE', 'FOB', 'AFV', 'ADMIN'))
+            marge = ((ca - complet) / ca * 100) if ca else 0.0
+            marge_n1 = ((ca_n1 - complet_n1) / ca_n1 * 100) if ca_n1 else 0.0
+            plan = 0.0
+            if budget:
+                usinage = section(self.env, 'USINAGE')
+                plan = sum(budget.ligne_ids.filtered(lambda l: l.section_id == usinage).mapped('quantite')) / 12.0
+            cout_kg = (fob / (t_camp * 1000)) if t_camp else 0
+            rdt = (t_mois / fdt * 100) if fdt else 0
+            k.cartes_html = '<div class="o_ka_kpigrid">%s</div>' % ''.join([
+                self._carte('Coût de revient FOB', k.cout_fob, 'Objectif : %s' % fmt_int(param.cible_fob), 'ko' if cout_kg > param.cible_fob else 'ok'),
+                self._carte('Marge nette export', k.marge_nette, '%s pt vs N-1' % fmt_signe(marge - marge_n1, 1), 'ok' if marge >= marge_n1 else 'ko'),
+                self._carte('Tonnage usiné (mois)', k.tonnage, ('%s %% du plan' % fmt_int(t_mois / plan * 100)) if plan else 'Plan non budgété', 'info'),
+                self._carte('Rendement usinage', k.rendement, 'Cible : %s %%' % fmt_dec(param.cible_rendement, 0), 'ok' if rdt >= param.cible_rendement else 'ko'),
+                self._carte('Écart budget global', k.ecart_budget, 'Défavorable' if ecart > 0 else 'Favorable', 'ko' if ecart > 0 else 'ok'),
+                self._carte('Trésorerie nette', k.tresorerie, 'Couverture %s j' % fmt_int(jours), 'teal'),
+            ])
             marges = k._marge_par_grade(a_deb, m_fin)
             maxi = max([abs(m) for _g, m in marges] + [1])
-            k.grades_html = ''.join('<div class="o_ka_bar_row"><span class="o_ka_bar_l">%s</span><span class="o_ka_bar" style="width:%d%%"></span><span class="o_ka_bar_v">%s F/kg</span></div>' % (
-                g, max(abs(m) / maxi * 70, 1), fmt_int(m)) for g, m in marges)
+            barres = ''.join(
+                '<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:6rem">'
+                '<b>%s</b><div style="width:4.5rem;height:%dpx;background:%s;margin-top:.3rem"></div><b style="margin-top:.3rem">%s</b></div>' % (
+                    fmt_int(m), max(int(abs(m) / maxi * 180), 2), '#28a745' if m >= maxi / 2 else '#dc3545', g) for g, m in marges)
+            k.grades_html = ('<div style="display:flex;align-items:flex-end;gap:2.5rem;height:250px;border:1px solid #dee2e6;border-radius:4px;'
+                             'padding:1rem 2rem">%s</div>' % barres)
             rows = []
             for i in range(3, -1, -1):
                 d = (mois - relativedelta(months=i))
@@ -103,8 +142,8 @@ class KaKpi(models.Model):
                 t = _tonnage(self.env, deb, fin) * 1000
                 reel = (cout(self.env, 'USINAGE', deb, fin) / t) if t else 0.0
                 ec = ((reel / param.standard_usinage - 1) * 100) if param.standard_usinage else 0
-                rows.append('<tr><td>%s</td><td class="o_ka_num">%s</td><td class="o_ka_num">%s</td><td class="o_ka_num">%s %%</td></tr>' % (
-                    MOIS_LONG[d.month - 1].capitalize(), fmt_int(param.standard_usinage), fmt_int(reel), fmt_signe(ec, 1)))
+                rows.append('<tr><td>%s</td><td class="o_ka_num">%s</td><td class="o_ka_num">%s</td><td class="o_ka_num %s">%s %%</td></tr>' % (
+                    MOIS_LONG[d.month - 1].capitalize(), fmt_int(param.standard_usinage), fmt_int(reel), 'o_ka_ko_txt' if ec > 0 else 'o_ka_ok_txt', fmt_signe(ec, 1)))
             k.couts_html = '<table class="o_ka_tbl"><thead><tr><th>Mois</th><th class="o_ka_num">Standard</th><th class="o_ka_num">Réel</th><th class="o_ka_num">Écart</th></tr></thead><tbody>%s</tbody></table>' % ''.join(rows)
 
     def action_actualiser(self):
@@ -129,7 +168,13 @@ class KaPnl(models.Model):
     table_html = fields.Html(compute='_compute_table', sanitize=False)
 
     def _ka_subtitle(self):
-        return 'P&L de gestion par activité · mois et cumul campagne · M FCFA'
+        return 'P&L de gestion par activité · mois et cumul campagne · montants en MFCFA'
+
+    @api.depends('mois')
+    def _compute_display_name(self):
+        for p in self:
+            m = p.mois or fields.Date.today()
+            p.display_name = 'P&L — %s %s' % (MOIS_LONG[m.month - 1], m.year)
 
     def _valeurs(self, deb_m, fin_m, deb_c, fin_c):
         """{rubrique: (mois, cumul)} en millions, coûts négatifs."""
@@ -159,8 +204,9 @@ class KaPnl(models.Model):
                 var = ((c - n) / abs(n) * 100) if n else 0
                 cls = ' class="o_ka_total"' if gras else ''
                 b0, b1 = ('<b>', '</b>') if gras else ('', '')
-                return '<tr%s><td>%s%s%s</td><td class="o_ka_num">%s%s%s</td><td class="o_ka_num">%s%s%s</td><td class="o_ka_num">%s%s %%%s</td><td class="o_ka_num">%s%s%s</td><td class="o_ka_num">%s%s %%%s</td></tr>' % (
-                    cls, b0, lib, b1, b0, fmt_par(m), b1, b0, fmt_par(c), b1, b0, fmt_dec(pct), b1, b0, fmt_par(n), b1, b0, fmt_signe(var, 1), b1)
+                sens = 'o_ka_ko_txt' if round(var, 1) > 0 else ('o_ka_ok_txt' if round(var, 1) < 0 else '')
+                return '<tr%s><td>%s%s%s</td><td class="o_ka_num">%s%s%s</td><td class="o_ka_num">%s%s%s</td><td class="o_ka_num">%s%s %%%s</td><td class="o_ka_num">%s%s%s</td><td class="o_ka_num %s">%s%s %%%s</td></tr>' % (
+                    cls, b0, lib, b1, b0, fmt_par(m), b1, b0, fmt_par(c), b1, b0, fmt_dec(pct), b1, b0, fmt_par(n), b1, sens, b0, fmt_signe(var, 1), b1)
             for lib, code, _g in lignes_:
                 rows.append(ligne(lib, cur[code][0], cur[code][1], n1[code][1]))
             marge = [tot(cur, i, ['ca', 'ACH_FDT', 'USINAGE', 'FOB']) for i in (0, 1)]
@@ -171,7 +217,7 @@ class KaPnl(models.Model):
             res = [tot(cur, i, ['ca'] + [c for c, *_x in SECTIONS]) for i in (0, 1)]
             res_n1 = tot(n1, 1, ['ca'] + [c for c, *_x in SECTIONS])
             rows.append(ligne('Résultat de gestion', res[0], res[1], res_n1, True))
-            p.table_html = '<table class="o_ka_tbl"><thead><tr><th>Rubrique</th><th class="o_ka_num">Mois</th><th class="o_ka_num">Cumul</th><th class="o_ka_num">% CA</th><th class="o_ka_num">Cumul N-1</th><th class="o_ka_num">Variation</th></tr></thead><tbody>%s</tbody></table>' % ''.join(rows)
+            p.table_html = '<table class="o_ka_tbl"><thead><tr><th>Rubrique</th><th class="o_ka_num">Mois (MFCFA)</th><th class="o_ka_num">Cumul (MFCFA)</th><th class="o_ka_num">% CA</th><th class="o_ka_num">N-1 cumul</th><th class="o_ka_num">Var.</th></tr></thead><tbody>%s</tbody></table>' % ''.join(rows)
 
     def action_imprimer(self):
         return self.env['ka.structure']._notif(_('P&L'), _("Compte de résultat de gestion envoyé à l'impression."))
@@ -194,17 +240,26 @@ class KaTresoGlissant(models.Model):
     table_html = fields.Html(compute='_compute_table', sanitize=False)
     alerte = fields.Char(compute='_compute_table')
     seuil_txt = fields.Char(compute='_compute_table')
+    sous_seuil = fields.Boolean(compute='_compute_table')
 
     def _ka_subtitle(self):
-        return 'Réalisé et prévisionnel glissant sur six semaines · M FCFA'
+        return 'Réalisé et prévisionnel glissant sur six semaines · montants en MFCFA'
+
+    @api.depends('date_ref')
+    def _compute_display_name(self):
+        for t in self:
+            t.display_name = 'Trésorerie glissante au %s' % (t.date_ref or fields.Date.today()).strftime('%d/%m/%Y')
+
+    def action_imprimer(self):
+        return self.env['ka.structure']._notif(_('Trésorerie'), _("Tableau de trésorerie envoyé à l'impression."))
 
     FLUX = [
         ('enc_export', 'Encaissements export (lettres de crédit)', ['ventes_export']),
         ('enc_autres', 'Autres encaissements', ['ventes_locales', 'autres_produits']),
         ('fdt', 'Achats FDT (avances, collecte)', ['achats_fdt']),
-        ('charges', "Charges d'usinage et logistique", ['achats_fg', 'transport', 'investissement']),
-        ('salaires', 'Salaires et frais de structure', ['personnel', 'impots']),
-        ('dette', 'Service de la dette', ['emprunts', 'spots']),
+        ('charges', "Charges d'usinage & logistique", ['achats_fg', 'transport', 'investissement']),
+        ('salaires', 'Salaires & frais de structure', ['personnel', 'impots']),
+        ('dette', 'Service de la dette / frais financiers', ['emprunts', 'spots']),
     ]
 
     def _flux_paiement(self, p):
@@ -236,12 +291,13 @@ class KaTresoGlissant(models.Model):
             seuil = param.seuil_tresorerie
             heads = ''.join('<th class="o_ka_num">%s</th>' % h for h in ['S-1 réel'] + [p[0] for p in periodes])
             body = ''.join('<tr><td>%s</td>%s</tr>' % (lib, ''.join('<td class="o_ka_num">%s</td>' % fmt_par(cols[j][i] / 1e6) for j in range(6))) for i, (_k, lib, _r) in enumerate(self.FLUX))
-            body += '<tr class="o_ka_total"><td><b>Flux net de la période</b></td>%s</tr>' % ''.join('<td class="o_ka_num"><b>%s</b></td>' % fmt_par(n / 1e6) for n in nets)
+            body += '<tr class="o_ka_total"><td>Flux net de la période</td>%s</tr>' % ''.join('<td class="o_ka_num">%s</td>' % fmt_par(n / 1e6) for n in nets)
             body += '<tr class="o_ka_total"><td><b>Trésorerie fin de période</b></td>%s</tr>' % ''.join(
                 '<td class="o_ka_num"><b>%s</b></td>' % (('<span class="o_ka_tag o_ka_danger">%s</span>' % fmt_int(f / 1e6)) if f < seuil else fmt_int(f / 1e6)) for f in fin)
             t.table_html = '<table class="o_ka_tbl"><thead><tr><th>Flux</th>%s</tr></thead><tbody>%s</tbody></table>' % (heads, body)
             sous = [lab for lab, f in zip(['S-1 réel'] + [p[0] for p in periodes], fin) if f < seuil]
             t.seuil_txt = fmt_int(seuil / 1e6)
+            t.sous_seuil = bool(sous)
             t.alerte = ("Alerte (règle de workflow) si la trésorerie prévisionnelle passe sous le seuil de sécurité de %s M FCFA : semaine %s." % (fmt_int(seuil / 1e6), sous[0].replace('S courante', 'courante'))) if sous else (
                 "Alerte (règle de workflow) si la trésorerie prévisionnelle passe sous le seuil de sécurité de %s M FCFA : aucun dépassement prévu." % fmt_int(seuil / 1e6))
 
@@ -274,10 +330,32 @@ class KaEcart(models.Model):
     table_html = fields.Html(compute='_compute_table', sanitize=False)
     decomposition = fields.Char(compute='_compute_table')
     favorable = fields.Selection([('favorable', 'Favorable'), ('defavorable', "Défavorable — plan d'action")], compute='_compute_table')
+    decomposition_usinage = fields.Char(compute='_compute_table', string="Décomposition de l'écart usinage")
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return 'Cumul campagne %s · axe ACTIVITE · montants en M FCFA' % self.annee
+        return 'Cumul campagne %s · axe activité · montants en MFCFA' % self.annee
+
+    @api.depends('annee')
+    def _compute_display_name(self):
+        for e in self:
+            e.display_name = 'Cumul campagne %s' % e.annee
+
+    def _decomposer_usinage(self, budget, realise):
+        """Écart usinage = écart sur quantité (tonnage réel − budgété, au coût unitaire budgété) + écart sur prix (le reste)."""
+        self.ensure_one()
+        usinage = section(self.env, 'USINAGE')
+        lignes_b = budget.ligne_ids.filtered(lambda l: l.section_id == usinage) if budget else self.env['ka.budget.ligne']
+        q_b, b = sum(lignes_b.mapped('quantite')), sum(lignes_b.mapped('total'))
+        deb, fin = fields.Date.today().replace(year=self.annee, month=1, day=1), fields.Date.today().replace(year=self.annee, month=12, day=31)
+        q_r = _tonnage(self.env, deb, fin)
+        if not (q_b and q_r):
+            return "Décomposition de l'écart usinage : non calculable (tonnage budgété ou réalisé absent)."
+        pu_b = b / q_b
+        e_q = (q_r - q_b) * pu_b
+        e_p = realise - q_r * pu_b
+        return "Décomposition de l'écart usinage : écart sur quantité (%s MFCFA, rendement) · écart sur prix (%s MFCFA, tarif énergie)" % (
+            fmt_signe(e_q / 1e6), fmt_signe(e_p / 1e6))
 
     @api.depends('annee')
     def _compute_table(self):
@@ -286,21 +364,25 @@ class KaEcart(models.Model):
             budget = self.env['ka.budget'].search([('annee', '=', e.annee), ('state', '=', 'valide')], order='revision desc', limit=1)
             comp = budget._comparer() if budget else [(c, n, 0.0, cout(self.env, c, fields.Date.today().replace(year=e.annee, month=1, day=1), fields.Date.today().replace(year=e.annee, month=12, day=31))) for c, n, _x in SECTIONS]
             notes = {n.section_code: n.texte for n in self.env['ka.ecart.note'].search([('annee', '=', e.annee)])}
+            e.decomposition_usinage = ''
             rows, tb, tr = [], 0.0, 0.0
             for code, nom, b, r in comp:
                 tb, tr = tb + b, tr + r
                 pct = ((r - b) / b * 100) if b else 0.0
-                alerte = ' o_ka_alerte' if abs(pct) > param.seuil_ecart else ''
-                rows.append('<tr><td>%s</td><td class="o_ka_num">%s</td><td class="o_ka_num">%s</td><td class="o_ka_num">%s</td><td class="o_ka_num%s">%s %%</td><td>%s</td></tr>' % (
-                    nom, fmt_int(b / 1e6), fmt_int(r / 1e6), fmt_signe((r - b) / 1e6), alerte, fmt_signe(pct, 1), notes.get(code, '')))
+                sens = ' o_ka_ko_txt' if r > b else (' o_ka_ok_txt' if r < b else '')
+                rows.append('<tr><td>%s</td><td class="o_ka_num">%s</td><td class="o_ka_num">%s</td><td class="o_ka_num%s">%s</td><td class="o_ka_num%s">%s %%</td><td>%s</td></tr>' % (
+                    nom, fmt_int(b / 1e6), fmt_int(r / 1e6), sens, fmt_signe((r - b) / 1e6), sens, fmt_signe(pct, 1), notes.get(code, '')))
+                if code == 'USINAGE':
+                    e.decomposition_usinage = e._decomposer_usinage(budget, r)
             pct_t = ((tr - tb) / tb * 100) if tb else 0.0
             e.favorable = 'defavorable' if tr > tb else 'favorable'
-            foot = '<tr class="o_ka_total"><td><b>Total</b></td><td class="o_ka_num"><b>%s</b></td><td class="o_ka_num"><b>%s</b></td><td class="o_ka_num"><b>%s</b></td><td class="o_ka_num"><b>%s %%</b></td><td>%s</td></tr>' % (
-                fmt_int(tb / 1e6), fmt_int(tr / 1e6), fmt_signe((tr - tb) / 1e6), fmt_signe(pct_t, 1),
-                '<span class="o_ka_tag %s">%s</span>' % ('o_ka_danger' if tr > tb else '', dict(self._fields['favorable'].selection)[e.favorable]))
-            entete = '<tr><th>Section (activité)</th><th class="o_ka_num">Budget</th><th class="o_ka_num">Réalisé</th><th class="o_ka_num">Écart</th><th class="o_ka_num">Écart %</th><th>Analyse</th></tr>'
-            e.table_html = '<table class="o_ka_tbl"><thead>' + entete + '</thead><tbody>' + ''.join(rows) + foot + '</tbody></table>'
-            e.decomposition = "Tout écart supérieur à %s %% déclenche une note d'analyse (règle de workflow)." % fmt_dec(param.seuil_ecart, 0)
+            sens = ' o_ka_ko_txt' if tr > tb else ' o_ka_ok_txt'
+            foot = '<tr><td>TOTAL</td><td class="o_ka_num">%s</td><td class="o_ka_num">%s</td><td class="o_ka_num%s">%s</td><td class="o_ka_num%s">%s %%</td><td>%s</td></tr>' % (
+                fmt_int(tb / 1e6), fmt_int(tr / 1e6), sens, fmt_signe((tr - tb) / 1e6), sens, fmt_signe(pct_t, 1),
+                dict(self._fields['favorable'].selection)[e.favorable])
+            entete = '<tr><th>Activité</th><th class="o_ka_num">Budget (MFCFA)</th><th class="o_ka_num">Réalisé (MFCFA)</th><th class="o_ka_num">Écart</th><th class="o_ka_num">Écart %</th><th>Analyse</th></tr>'
+            e.table_html = '<table class="o_ka_tbl"><thead>' + entete + '</thead><tbody>' + ''.join(rows) + '</tbody><tfoot>' + foot + '</tfoot></table>'
+            e.decomposition = "Chaque écart significatif (> %s %%) déclenche une note d'analyse et un plan d'action rattachés à l'activité." % fmt_dec(param.seuil_ecart, 0)
 
     def action_actualiser(self):
         self._compute_table()

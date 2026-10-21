@@ -1,25 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 4.1bis — Nomenclature article TSR, gamme et postes de charge [Paramétrage] -->
 <record id="view_ka_bom_form" model="ir.ui.view">
     <field name="name">mrp.bom.ka.form</field>
     <field name="model">mrp.bom</field>
     <field name="arch" type="xml">
-        <form string="Nomenclature et gamme — article TSR" class="o_ka_form">
+        <form string="Nomenclature de fabrication" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Copier la nomenclature" name="action_copier" type="object" class="btn-secondary"/>
+                <button string="Calculer le coût standard" name="action_cout_standard" type="object" class="btn-secondary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Production</span><span class="o_ka_c">Données techniques</span><span class="o_ka_cur">Nomenclatures</span><span class="o_ka_fn">Fonction : GESBOM / GESROU</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Nomenclature et gamme — article TSR</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="ka_etat" widget="badge" decoration-success="ka_etat in ('validee')"/>
-                        </div>
-                        <div class="o_ka_info">Avec la gestion du titre, le composant fond de tasse s'exprime en quantité active (caoutchouc sec) : 1 kg de TSR consomme 1 kg actif, soit environ 1,67 kg humide pour un titre (DRC) de 60 %. Le numéro d'opération déclenche la consommation en post-déduction.</div><div class="o_ka_sec">Nomenclature</div><div class="o_ka_grid"><div class="o_ka_f"><label for="product_tmpl_id" string="Article composé" class="o_ka_req"/><field name="product_tmpl_id"/></div><div class="o_ka_f"><label for="code" string="Code nomenclature" class="o_ka_req"/><field name="code"/></div><div class="o_ka_f"><label for="product_qty" string="Quantité de référence"/><field name="product_qty"/></div><div class="o_ka_f"><label for="ka_gamme" string="Gamme"/><field name="ka_gamme"/></div></div><field name="bom_line_ids" nolabel="1"><list><field name="product_id" string="Composant"/><field name="product_qty" string="Quantité"/><field name="product_uom_id" string="Unité"/><field name="operation_id" string="Opération"/></list></field><div class="o_ka_h3">Gamme GAM-TSR-01 — enchaînement des opérations</div><field name="operation_ids" nolabel="1"><list><field name="sequence" string="Opération"/><field name="ka_code_poste" string="Poste de charge"/><field name="name" string="Intitulé"/><field name="ka_centre" string="Centre de charge"/><field name="ka_temps_h" string="Temps opératoire"/><field name="ka_cadence" string="Cadence"/></list></field><p class="o_ka_note">Le temps opératoire, combiné aux taux du poste ou du centre de charge (main-d'œuvre, machine, frais), permet à Kode Agri de calculer le coût standard de l'OF et de planifier la production selon la capacité.</p>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Copier la nomenclature" name="action_copier" type="object" class="o_ka_btn"/><button string="Calculer le coût standard" name="action_cout_standard" type="object" class="o_ka_btn o_ka_primary"/><button string="Gamme GAM-TSR-01" name="action_cout_standard" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <div class="o_ka_hint">Nomenclature de fabrication</div>
+                    <h1><field name="product_tmpl_id" placeholder="Article composé" options="{'no_open': True}"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <div class="o_ka_info">La nomenclature fixe la <b>composition standard</b> de l'article TSR et sa <b>gamme opératoire</b> associée. Le n° d'opération de la gamme est relié à la nomenclature pour <b>déclencher la consommation en poste déduction</b>, et alimente le calcul du coût standard.</div>
+                <group string="Nomenclature">
+                    <group>
+                        <field name="product_tmpl_id" string="Article" required="1"/>
+                        <field name="product_qty" string="Quantité produite" class="o_ka_u_kg"/>
+                    </group>
+                    <group>
+                        <field name="type" string="Type de nomenclature"/>
+                        <field name="ka_gamme" string="Gamme associée" widget="badge" decoration-info="1"/>
+                    </group>
+                </group>
+                <field name="bom_line_ids" nolabel="1">
+                    <list editable="bottom">
+                        <field name="product_id" string="Composant"/>
+                        <field name="product_qty" string="Quantité"/>
+                        <field name="product_uom_id" string="Unité"/>
+                        <field name="operation_id" string="Opération" optional="hide"/>
+                    </list>
+                </field>
+                <div class="o_ka_h3">Gamme opératoire — <field name="ka_gamme" readonly="1" class="d-inline"/> <span class="o_ka_hint">enchaînement des opérations sur les postes de charge</span></div>
+                <field name="operation_ids" nolabel="1">
+                    <list>
+                        <field name="sequence" column_invisible="1"/>
+                        <field name="ka_num_op" string="N° opér."/>
+                        <field name="ka_type_poste" string="Type"/>
+                        <field name="ka_code_poste" string="N°"/>
+                        <field name="name" string="Libellé opération"/>
+                        <field name="ka_centre" string="Centre de charge"/>
+                        <field name="ka_temps_h" string="Temps d'exécution" class="o_ka_u_h"/>
+                        <field name="ka_cadence" string="Cadence heure"/>
+                        <field name="workcenter_id" column_invisible="1"/>
+                    </list>
+                </field>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Le <b>temps d'exécution</b> de chaque opération, combiné au <b>coût du poste ou centre de charge</b> (coût unitaire direct, % coût indirect, frais généraux), permet à Odoo de calculer le <b>coût standard opératoire</b> de l'OF et de <b>planifier la production</b> selon la capacité disponible.</div>
             </sheet>
         </form>
     </field>
 </record>
 <record id="action_ka_bom" model="ir.actions.act_window"><field name="name">Nomenclatures</field><field name="res_model">mrp.bom</field><field name="view_mode">list,form</field></record><record id="action_ka_bom_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_bom"/><field name="sequence">1</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_bom_form"/></record>
+
+<!-- Entrées « Produits · Gammes · Postes de charge » de l'application Fabrication -->
+<record id="action_ka_produits" model="ir.actions.act_window"><field name="name">Produits</field><field name="res_model">product.template</field><field name="view_mode">list,form</field></record>
+<record id="view_ka_gamme_tree" model="ir.ui.view">
+    <field name="name">mrp.routing.workcenter.ka.tree</field>
+    <field name="model">mrp.routing.workcenter</field>
+    <field name="priority">99</field>
+    <field name="arch" type="xml"><list string="Gammes"><field name="bom_id" string="Nomenclature"/><field name="ka_num_op"/><field name="ka_type_poste"/><field name="ka_code_poste" string="N°"/><field name="name" string="Libellé opération"/><field name="ka_centre"/><field name="ka_temps_h" string="Temps d'exécution"/><field name="ka_cadence" string="Cadence heure"/></list></field>
+</record>
+<record id="action_ka_gammes" model="ir.actions.act_window"><field name="name">Gammes</field><field name="res_model">mrp.routing.workcenter</field><field name="view_mode">list,form</field><field name="view_id" ref="view_ka_gamme_tree"/></record>
+<record id="view_ka_poste_tree" model="ir.ui.view">
+    <field name="name">mrp.workcenter.ka.tree</field>
+    <field name="model">mrp.workcenter</field>
+    <field name="priority">99</field>
+    <field name="arch" type="xml"><list string="Postes de charge"><field name="code" string="N°"/><field name="name" string="Poste de charge"/><field name="ka_type_poste"/><field name="ka_centre"/><field name="costs_hour" string="Coût horaire"/></list></field>
+</record>
+<record id="action_ka_postes" model="ir.actions.act_window"><field name="name">Postes de charge</field><field name="res_model">mrp.workcenter</field><field name="view_mode">list,form</field><field name="view_id" ref="view_ka_poste_tree"/></record>
 </odoo>

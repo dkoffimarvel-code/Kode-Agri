@@ -31,10 +31,38 @@ class KaColis(models.Model):
     state = fields.Selection([('brouillon', 'Brouillon'), ('valide', 'Validé'), ('annule', 'Annulé')],
                              default='brouillon', string='Statut')
     badge_label = fields.Char(compute='_compute_badge_label')
+    of_type = fields.Selection(related='of_id.type', string="Type d'OF")
+    of_state = fields.Selection(related='of_id.state', string="Statut de l'OF")
+    conso_matiere = fields.Char(related='of_id.conso_matiere', string='Consommation matière mélange')
+    melange_source_id = fields.Many2one(related='of_id.melange_source_id', string='Mélange source')
+    balles_requises = fields.Integer(compute='_compute_libelles', string='Balles requises')
+    balles_label = fields.Char(compute='_compute_libelles', string='Balles (carte)')
+    paniers_label = fields.Char(compute='_compute_libelles', string='Paniers (carte)')
+    lot_label = fields.Char(compute='_compute_libelles', string='N° de lot')
+    statut_label = fields.Char(compute='_compute_libelles', string='Statut colis')
+    titre_label = fields.Char(compute='_compute_libelles', string='Libellé du titre')
+
+    @api.depends('name')
+    def _compute_display_name(self):
+        for c in self:
+            c.display_name = 'Colis %s' % (c.name or '')
+
+    @api.depends('panier_line_ids.balles', 'panier_line_ids.panier_id', 'lot_id', 'statut_id', 'of_id.type', 'name')
+    def _compute_libelles(self):
+        for c in self:
+            nb = len(c.panier_line_ids.panier_id)
+            c.balles_requises = BALLES_COLIS
+            c.balles_label = '%d × %d' % (c.balles_total or BALLES_COLIS, POIDS_BALLE)
+            c.paniers_label = '%d panier%s' % (nb, 's' if nb > 1 else '')
+            c.lot_label = c.lot_id.name or '%s (auto)' % (c.name or '')
+            c.statut_label = ('%s — %s' % (c.statut_id.article_code or '', c.statut_id.name)) if c.statut_id else ''
+            c.titre_label = "N° de série du colis d'essai" if c.of_id.type == 'essai' else 'N° de série du colis'
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — colis %s' % (self.of_id.name or '', self.name)
+        poids = '{:,.0f}'.format(self.qty).replace(',', ' ')
+        nature = "Colis d'essai" if self.of_id.type == 'essai' else 'Colis sérialisé'
+        return '%s — %s kg = %d balles de %d kg' % (nature, poids, BALLES_COLIS, POIDS_BALLE)
 
     @api.depends('panier_line_ids.balles')
     def _compute_balles(self):
@@ -65,7 +93,10 @@ class KaColis(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('name', 'Nouveau') == 'Nouveau':
-                vals['name'] = self.env['ir.sequence'].next_by_code('ka.colis')
+                of = self.env['ka.of'].browse(vals.get('of_id'))
+                code = 'ka.colis.essai' if of.exists() and of.type == 'essai' else 'ka.colis'
+                vals['name'] = self.env['ir.sequence'].next_by_code(code) or \
+                    self.env['ir.sequence'].next_by_code('ka.colis')
         return super().create(vals_list)
 
     def action_valider(self):
@@ -92,6 +123,21 @@ class KaColis(models.Model):
             c.write({'lot_id': lot.id, 'state': 'valide'})
             c.of_id.state = 'produit' if c.of_id.state == 'lance' else c.of_id.state
 
+    def action_declasser(self):
+        """RG-4.10 : déclassement direct à la production — le colis passe en quarantaine (statut du défaut)."""
+        for c in self:
+            if not c.motif:
+                c.motif = 'point_blanc'
+            c._onchange_motif()
+            if c.lot_id:
+                c.lot_id.write({'ka_etat': 'Q', 'ka_statut_id': c.statut_id.id or c.lot_id.ka_statut_id.id,
+                                'ka_motif': dict(self._fields['motif'].selection).get(c.motif, '')})
+
+    def action_voir_paniers(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Paniers consommés', 'res_model': 'ka.panier',
+                'view_mode': 'list,form', 'domain': [('id', 'in', self.panier_line_ids.panier_id.ids)]}
+
     def action_annuler(self):
         for c in self:
             if c.state == 'valide':
@@ -114,6 +160,7 @@ class KaColisPanier(models.Model):
     panier_id = fields.Many2one('ka.panier', string='N° panier', required=True,
                                 domain="[('of_id', '=', parent.of_id), ('state', '=', 'valide')]")
     chrono = fields.Char(related='panier_id.chrono', string='N° chrono')
+    panier_name = fields.Char(related='panier_id.name', string='N° panier')
     sechoir_id = fields.Many2one(related='panier_id.sechoir_id', string='Séchoir')
     balles_avant = fields.Integer(compute='_compute_balles', string='Balles avant')
     balles = fields.Integer(string='Balles utilisées')

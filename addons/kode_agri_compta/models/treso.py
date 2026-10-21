@@ -9,12 +9,12 @@ RUBRIQUES = [
     ('achats_fdt', 'Achats fond de tasse', 'charges', -1),
     ('achats_fg', 'Achats et frais généraux', 'charges', -1),
     ('personnel', 'Charges de personnel', 'charges', -1),
-    ('transport', 'Transport et services extérieurs', 'charges', -1),
+    ('transport', 'Transport, services extérieurs et maintenance', 'charges', -1),
     ('ventes_locales', 'Ventes locales', 'produits', 1),
     ('ventes_export', 'Ventes export', 'produits', 1),
     ('autres_produits', 'Autres produits', 'produits', 1),
     ('investissement', 'Investissement', None, -1),
-    ('emprunts', "Remboursements d'emprunts", None, -1),
+    ('emprunts', 'Remboursements emprunts', None, -1),
     ('spots', 'Remboursements spots', None, -1),
     ('impots', 'Impôts et taxes', None, -1),
 ]
@@ -30,8 +30,10 @@ def fmt(x):
 
 
 def fmt_kpi(x, signe=False):
-    v = x / 1e6
-    return '%s%s M FCFA' % (('+ ' if v > 0 else '− ' if v < 0 else '') if signe else ('− ' if v < 0 else ''), ('%.1f' % abs(v)).replace('.', ','))
+    """Montant en FCFA arrondi à la centaine de milliers : 42 500 000 FCFA, +34 900 000 FCFA (cartes de l'écran 8.4)."""
+    v = round(x, -5)
+    txt = '{:,.0f}'.format(abs(v)).replace(',', ' ')
+    return '%s%s FCFA' % (('+' if v > 0 else '−' if v < 0 else '') if signe else ('−' if v < 0 else ''), txt)
 
 
 class KaTresoLigne(models.Model):
@@ -62,6 +64,23 @@ class KaTreso(models.Model):
     variation_txt = fields.Char(compute='_compute_table', string='Variation nette')
     table_html = fields.Html(compute='_compute_table', sanitize=False)
     titre = fields.Char(compute='_compute_table')
+    titre_vue = fields.Char(compute='_compute_titre_vue')
+    depart_date_txt = fields.Char(compute='_compute_table')
+    final_date_txt = fields.Char(compute='_compute_table')
+    variation_sub_txt = fields.Char(compute='_compute_table')
+    final_negatif = fields.Boolean(compute='_compute_table')
+    variation_negative = fields.Boolean(compute='_compute_table')
+    cartes_html = fields.Html(compute='_compute_table', sanitize=False, string='Cartes')
+
+    @api.depends('mode')
+    def _compute_titre_vue(self):
+        for t in self:
+            t.titre_vue = 'Planning de trésorerie — Vue %s' % ('mensuelle' if t.mode == 'mensuelle' else 'hebdomadaire')
+
+    @api.depends('mode')
+    def _compute_display_name(self):
+        for t in self:
+            t.display_name = 'Planning de trésorerie %s' % ('mensuel' if t.mode == 'mensuelle' else 'hebdomadaire')
 
     def _ka_subtitle(self):
         self.ensure_one()
@@ -76,11 +95,11 @@ class KaTreso(models.Model):
             if self.mode == 'mensuelle':
                 deb = d0.replace(day=1) + relativedelta(months=k)
                 fin = deb + relativedelta(months=1) - timedelta(days=1)
-                lib = MOIS[deb.month - 1]
+                lib = '%s %s' % (MOIS[deb.month - 1], deb.year)
             else:
                 lundi = d0 - timedelta(days=d0.weekday()) + timedelta(weeks=k)
                 deb, fin = lundi, lundi + timedelta(days=6)
-                lib = 'S. %s' % deb.strftime('%d/%m')
+                lib = 'Sem. %s' % deb.strftime('%d/%m')
             out.append((lib, deb, fin))
         return out
 
@@ -160,32 +179,52 @@ class KaTreso(models.Model):
                 cumul += v
                 soldes.append(cumul)
 
-            def ligne(libelle, valeurs, gras=False, total=True, classe=''):
-                tag = 'b' if gras else 'span'
-                cells = ''.join('<td class="o_ka_num">%s</td>' % fmt(v) for v in valeurs)
-                tot = '<td class="o_ka_num">%s</td>' % (fmt(sum(valeurs)) if total else '')
-                return '<tr class="%s"><td><%s>%s</%s></td>%s%s</tr>' % (classe, tag, libelle, tag, cells, tot)
+            def cellule(v, gras=False):
+                txt = fmt(v)
+                if txt in ('0,0', '−0,0'):
+                    return '<td class="o_ka_num text-muted">0,0</td>'
+                coul = ' o_ka_ko_txt' if v < 0 and not gras else ''
+                return '<td class="o_ka_num%s">%s</td>' % (coul, ('<b>%s</b>' % txt) if gras else txt)
+
+            def ligne(libelle, valeurs, niveau=0, total=True, classe=''):
+                """niveau 0 : rubrique (gras) ; niveau 1 : nature dépliée sous Type charges / Types de produits."""
+                gras = niveau == 0
+                lib = ('<b>%s</b>' % libelle) if gras else '<span class="text-muted">↳ %s</span>' % libelle
+                style = ' style="padding-left:1.8rem"' if niveau else ''
+                cells = ''.join(cellule(v) for v in valeurs)
+                tot = cellule(sum(valeurs), gras=True) if total else '<td class="o_ka_num"><b>—</b></td>'
+                return '<tr class="%s"><td%s>%s</td>%s%s</tr>' % (classe, style, lib, cells, tot)
             heads = ''.join('<th class="o_ka_num">%s</th>' % lib for lib, _d, _f in periodes)
-            rows = [ligne('Type charges', s_ch, True)]
-            rows += [ligne(l, res[c]) for c, l, g, _s in RUBRIQUES if g == 'charges']
-            rows += [ligne('Types de produits', s_pr, True)]
-            rows += [ligne(l, res[c]) for c, l, g, _s in RUBRIQUES if g == 'produits']
+            rows = [ligne('Type charges ▾', s_ch)]
+            rows += [ligne(l, res[c], 1) for c, l, g, _s in RUBRIQUES if g == 'charges']
+            rows += [ligne('Types de produits ▾', s_pr)]
+            rows += [ligne(l, res[c], 1) for c, l, g, _s in RUBRIQUES if g == 'produits']
             rows += [ligne(l, res[c]) for c, l, g, _s in RUBRIQUES if g is None]
-            rows += [ligne('Variation nette', variation, True), ligne('Solde prévisionnel', soldes, True, total=False)]
-            t.table_html = ('<table class="o_ka_tbl o_ka_treso"><thead><tr><th>Rubrique</th>%s<th class="o_ka_num">Total</th></tr></thead><tbody>%s</tbody></table>'
-                            % (heads, ''.join(rows)))
+            rows += [ligne('Variation nette', variation)]
+            pied = ligne('Solde prévisionnel', soldes, total=False, classe='o_ka_total')
+            t.table_html = ('<table class="o_ka_tbl o_ka_treso"><thead><tr><th>Rubrique</th>%s<th class="o_ka_num">Total</th></tr></thead>'
+                            '<tbody>%s</tbody><tfoot>%s</tfoot></table>' % (heads, ''.join(rows), pied))
             t.solde_depart = depart
+            final = soldes[-1] if soldes else depart
             t.depart_txt = fmt_kpi(depart)
-            t.final_txt = fmt_kpi(soldes[-1] if soldes else depart)
+            t.final_txt = fmt_kpi(final)
             t.variation_txt = fmt_kpi(sum(variation), signe=True)
+            t.final_negatif = final < depart
+            t.variation_negative = sum(variation) < 0
             fin = periodes[-1][2]
-            if t.mode == 'mensuelle':
-                t.titre = 'Comptes caisse et banque consolidés · %s à %s %s · situation au %s' % (
-                    MOIS[periodes[0][1].month - 1].lower().rstrip('.'), MOIS[periodes[-1][1].month - 1].lower().rstrip('.'), fin.year,
-                    t.date_ref.strftime('%d/%m/%Y'))
-            else:
-                t.titre = 'Comptes caisse et banque consolidés · semaines %s à %s · situation au %s' % (
-                    periodes[0][1].isocalendar()[1], periodes[-1][1].isocalendar()[1], t.date_ref.strftime('%d/%m/%Y'))
+            t.depart_date_txt = 'Au %s' % t.date_ref.strftime('%d/%m/%Y')
+            t.final_date_txt = 'Au %s' % fin.strftime('%d/%m/%Y')
+            t.variation_sub_txt = 'Cumul des %d %s' % (n, 'mois' if t.mode == 'mensuelle' else 'semaines')
+            t.titre = 'Comptes caisse et banque consolidés · par rubrique · situation au %s' % t.date_ref.strftime('%d/%m/%Y')
+
+            def carte(libelle, valeur, sous, couleur='inherit'):
+                return ('<div class="o_ka_kpi"><span class="o_ka_kl">%s</span><span class="o_ka_kv" style="color:%s">%s</span>'
+                        '<span class="o_ka_hint">%s</span></div>' % (libelle, couleur, valeur, sous))
+            sens = '#c0392b' if t.variation_negative else '#1e7b34'
+            t.cartes_html = '<div class="o_ka_kpigrid">%s%s%s</div>' % (
+                carte('SOLDE DE DÉPART', t.depart_txt, t.depart_date_txt),
+                carte('SOLDE PRÉVISIONNEL FIN DE PÉRIODE', t.final_txt, t.final_date_txt, sens),
+                carte('VARIATION NETTE SUR LA PÉRIODE', t.variation_txt, t.variation_sub_txt, sens))
 
     def action_actualiser(self):
         self.ensure_one()

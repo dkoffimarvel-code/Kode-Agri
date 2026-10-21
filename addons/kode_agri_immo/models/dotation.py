@@ -3,6 +3,9 @@ from odoo.exceptions import UserError
 
 from .immo import fin_de_mois
 
+MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre',
+        'décembre']
+
 
 def compte(env, code):
     acc = env['account.account'].search([('code', '=', code)], limit=1)
@@ -31,13 +34,21 @@ class KaImmoDotation(models.Model):
     plan_ids = fields.Many2many('ka.immo.plan', string='Échéances traitées', copy=False)
     move_ids = fields.Many2many('account.move', string='Pièces générées', copy=False)
     trace = fields.Text(readonly=True)
-    state = fields.Selection([('brouillon', 'À simuler'), ('simulee', 'Simulée'), ('comptabilisee', 'Comptabilisée')],
+    state = fields.Selection([('brouillon', 'Brouillon'), ('simulee', 'Simulée'), ('comptabilisee', 'Comptabilisé')],
                              default='brouillon', string='Statut', tracking=True)
+    type_ecriture = fields.Selection([('dotation', 'Dotation')], string="Type d'écriture", default='dotation')
 
     def _ka_subtitle(self):
         self.ensure_one()
         d = self.periode.strftime('%d/%m/%Y') if self.periode else ''
-        return "%s — dotation de l'échéance du %s" % (self.name, d)
+        return "Dotation aux amortissements · échéance du %s" % d
+
+    @api.depends('name', 'periode')
+    def _compute_display_name(self):
+        for d in self:
+            mois = MOIS[d.periode.month - 1] if d.periode else ''
+            de = "d'" if mois[:1] in 'aeiou' and mois else 'de '
+            d.display_name = 'Pièce %s — Dotation %s%s' % (d.name, de, mois) if mois else (d.name or '')
 
     @api.depends('line_ids.debit')
     def _compute_total(self):
@@ -65,7 +76,7 @@ class KaImmoDotation(models.Model):
             for p in d._echeances():
                 f = p.immo_id.famille_id
                 lignes.append(Command.create({'compte': f.cpt_dotation, 'intitule': 'Dotation amortissements',
-                                              'immo_id': p.immo_id.id, 'section': p.immo_id.analytic_id.code or '',
+                                              'immo_id': p.immo_id.id, 'section': p.immo_id.analytic_id.name or '',
                                               'debit': p.dotation}))
                 lignes.append(Command.create({'compte': f.cpt_amort, 'intitule': 'Amort. %s' % (f.name or '').lower(),
                                               'immo_id': p.immo_id.id, 'credit': p.dotation}))

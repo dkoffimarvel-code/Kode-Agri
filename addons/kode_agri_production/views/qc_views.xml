@@ -1,110 +1,311 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 4.8 — Contrôle à la réception de fond de tasse [Saisie] -->
 <record id="view_ka_qc_reception_form" model="ir.ui.view">
     <field name="name">ka.qc.reception.ka.form</field>
     <field name="model">ka.qc.reception</field>
     <field name="arch" type="xml">
-        <form string="Contrôle réception — contaminants" class="o_ka_form">
+        <form string="Contrôle réception — poids des contaminants" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Valider le contrôle" name="action_valider" type="object" class="btn-secondary" invisible="state == 'valide'"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Qualité</span><span class="o_ka_c">Contrôles</span><span class="o_ka_cur">Contrôle à la réception</span><span class="o_ka_fn">Fonction : YQCREC · fiche technique FDT-REC</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Contrôle réception — contaminants</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-info="state in ('brouillon')" decoration-success="state in ('valide')"/>
-                        </div>
-                        <div class="o_ka_info">Contrôle créé automatiquement sur chaque ticket de pesée ; non bloquant : la réception et l'entrée en stock du lot ne sont pas interrompues. Types de contaminants paramétrables.</div><div class="o_ka_sec">Pesée</div><div class="o_ka_grid"><div class="o_ka_f"><label for="partner_id" string="Fournisseur"/><field name="partner_id" readonly="1"/></div><div class="o_ka_f"><label for="date_reception" string="Date de réception"/><field name="date_reception" readonly="1"/></div><div class="o_ka_f"><label for="ticket_name" string="N° ticket"/><field name="ticket_name" readonly="1"/></div><div class="o_ka_f"><label for="transport" string="Transport"/><field name="transport" readonly="1"/></div><div class="o_ka_f"><label for="poids1" string="Poids 1"/><field name="poids1" readonly="1" class="o_ka_u_kg"/></div><div class="o_ka_f"><label for="poids2" string="Poids 2"/><field name="poids2" readonly="1" class="o_ka_u_kg"/></div><div class="o_ka_f"><label for="poids_net" string="Poids net humide"/><field name="poids_net" readonly="1" class="o_ka_u_kg"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité"/><field name="tracabilite" readonly="1" widget="badge" decoration-success="tracabilite=='eudr'" decoration-danger="tracabilite=='non_eudr'"/></div></div><div class="o_ka_h3">Poids des contaminants</div><field name="line_ids" nolabel="1"><list editable="bottom"><field name="type_id" string="Type de contaminant"/><field name="poids" string="Poids" sum="Total contaminants"/></list></field><div class="o_ka_grid"><div class="o_ka_f"><label for="taux" string="Taux de contaminants"/><field name="taux" readonly="1" class="o_ka_u_pct"/></div><div class="o_ka_f"><label for="controleur_id" string="Contrôleur"/><field name="controleur_id"/></div><div class="o_ka_f"><label for="date_heure" string="Date et heure"/><field name="date_heure"/></div></div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider le contrôle" name="action_valider" type="object" class="o_ka_btn o_ka_primary"/></aside>
+                <field name="state" invisible="1"/>
+                <div class="text-end"><span class="o_ka_tag o_ka_grey">Généré automatiquement · non bloquant</span></div>
+                <div class="oe_title">
+                    <div class="o_ka_hint">Contrôle réception — poids des contaminants</div>
+                    <h1><field name="ticket_name" readonly="1"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <div class="o_ka_info">Ce contrôle est <b>généré automatiquement sur chaque ticket de pesée</b>. Il permet de saisir le poids des contaminants présents dans la livraison (fibre polypropylène, sable, caillou, bois, feuille…). La <b>liste des types de contaminants est paramétrable</b>. Ce contrôle <b>n'est pas bloquant</b>.</div>
+                <group string="Pesée">
+                    <group>
+                        <field name="partner_id" string="Fournisseur / Planteur" readonly="1"/>
+                        <field name="ticket_id" string="N° ticket de pesée" required="1" readonly="id"/>
+                        <field name="poids1" string="Poids 1" readonly="1" class="o_ka_u_kg"/>
+                        <field name="poids_net" string="Poids net" readonly="1" class="o_ka_u_kg"/>
+                        <field name="tracabilite" string="Statut traçabilité" widget="badge" readonly="1" decoration-success="tracabilite == 'eudr'" decoration-danger="tracabilite == 'non_eudr'"/>
+                    </group>
+                    <group>
+                        <field name="date_reception" string="Date de réception" readonly="1"/>
+                        <field name="transport" string="Transport" readonly="1"/>
+                        <field name="poids2" string="Poids 2" readonly="1" class="o_ka_u_kg"/>
+                        <field name="date_heure" string="Date / heure de contrôle"/>
+                    </group>
+                </group>
+                <div class="o_ka_h3">Poids des contaminants <span class="o_ka_hint">types paramétrables — Qualité › Points de contrôle › Types de contaminants</span></div>
+                <field name="line_ids" nolabel="1">
+                    <list editable="bottom">
+                        <field name="type_id" string="Type de contaminant"/>
+                        <field name="poids" string="Poids" sum="Total contaminants" class="o_ka_u_kg"/>
+                    </list>
+                </field>
+                <group>
+                    <group>
+                        <field name="taux" string="Taux de contaminants (/ poids net)" readonly="1" class="o_ka_u_pct"/>
+                    </group>
+                    <group>
+                        <field name="controleur_id" string="Contrôleur"/>
+                    </group>
+                </group>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Les poids saisis alimentent le suivi qualité fournisseur et le calcul du taux de contaminants par planteur. Cette saisie n'interrompt pas la réception ni l'entrée en stock du fond de tasse. La fiche de contrôle hérite le statut de traçabilité du fournisseur associé à la réception.</div>
             </sheet>
         </form>
     </field>
 </record>
+
+<!-- Écran 4.9 — Essai DRC à la réception [Saisie] -->
 <record id="view_ka_drc_essai_form" model="ir.ui.view">
     <field name="name">ka.drc.essai.ka.form</field>
     <field name="model">ka.drc.essai</field>
     <field name="arch" type="xml">
         <form string="Essai DRC — lot de fond de tasse" class="o_ka_form">
+            <header>
+                <button string="Enregistrer l'essai" name="action_enregistrer" type="object" class="btn-primary"/>
+                <button string="Mettre à jour le titre du lot" name="action_maj_titre" type="object" class="btn-secondary" invisible="state == 'brouillon'"/>
+                <button string="Historique des essais" name="action_historique" type="object" class="btn-secondary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Qualité</span><span class="o_ka_c">Analyses</span><span class="o_ka_cur">Essais DRC</span><span class="o_ka_fn">Fonction : YDRC · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Essai DRC — lot de fond de tasse</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-success="state in ('conforme')" decoration-warning="state in ('ecart')"/>
-                        </div>
-                        <div class="o_ka_info">Le DRC est mesuré sur le lot, non sur une réception isolée ; plusieurs essais par lot sont possibles. Le résultat peut mettre à jour le titre (DRC) du lot en gestion du titre.</div><div class="o_ka_sec">Lot</div><div class="o_ka_grid"><div class="o_ka_f"><label for="lot_id" string="Lot" class="o_ka_req"/><field name="lot_id"/></div><div class="o_ka_f"><label for="poids_lot" string="Poids du lot à date"/><field name="poids_lot" readonly="1" class="o_ka_u_kg"/></div><div class="o_ka_f"><label for="statut_lot" string="Statut du lot"/><field name="statut_lot" readonly="1"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité"/><field name="tracabilite" readonly="1" widget="badge" decoration-success="tracabilite=='eudr'" decoration-danger="tracabilite=='non_eudr'"/></div></div><div class="o_ka_sec">Échantillon</div><div class="o_ka_grid"><div class="o_ka_f"><label for="date" string="Date de l'essai"/><field name="date"/></div><div class="o_ka_f"><label for="methode" string="Méthode"/><field name="methode"/></div><div class="o_ka_f"><label for="laborantin_id" string="Laborantin"/><field name="laborantin_id"/></div><div class="o_ka_f"><label for="echantillon_g" string="Échantillon prélevé"/><field name="echantillon_g" class="o_ka_u_g"/></div><div class="o_ka_f"><label for="poids_sec_g" string="Poids sec après séchage"/><field name="poids_sec_g" class="o_ka_u_g"/></div></div><div class="o_ka_sec">Résultat</div><div class="o_ka_grid"><div class="o_ka_f"><label for="drc" string="DRC mesuré"/><field name="drc" readonly="1" class="o_ka_u_pct"/></div><div class="o_ka_f"><label for="drc_ref" string="DRC de référence"/><field name="drc_ref" readonly="1" class="o_ka_u_pct"/></div><div class="o_ka_f"><label for="ecart" string="Écart"/><field name="ecart" readonly="1" class="o_ka_u_pt"/></div><div class="o_ka_f"><label for="drc_lot" string="Titre du lot après mise à jour"/><field name="drc_lot" readonly="1" class="o_ka_u_pct"/></div></div>
+                <div class="text-end"><span class="o_ka_tag o_ka_grey">Non bloquant</span></div>
+                <div class="oe_title">
+                    <div class="o_ka_hint">Essai DRC — lot de fond de tasse</div>
+                    <div class="o_ka_title_tag">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <field name="rang_label" widget="badge" decoration-muted="1"/>
                     </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer l'essai" name="action_enregistrer" type="object" class="o_ka_btn o_ka_primary"/><button string="Mettre à jour le titre du lot" name="action_maj_titre" type="object" class="o_ka_btn"/><button string="Historique des essais" name="action_historique" type="object" class="o_ka_btn"/></aside>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <div class="o_ka_info">Le DRC est mesuré sur le <b>lot de fond de tasse</b>, et non sur une réception isolée : <b>plusieurs essais peuvent être réalisés sur un même lot</b>. Ce contrôle <b>n'est pas bloquant</b> ; il fournit une estimation utilisée pour dimensionner la transformation.</div>
+                <group string="Lot de fond de tasse">
+                    <group>
+                        <field name="lot_id" string="N° de lot de fond de tasse" required="1"/>
+                        <field name="statut_lot" string="Statut du lot" widget="badge" decoration-info="1"/>
+                    </group>
+                    <group>
+                        <field name="poids_lot" string="Poids du lot (à date)" class="o_ka_u_kg"/>
+                        <field name="rang" string="N° essai sur ce lot"/>
+                    </group>
+                </group>
+                <group string="Échantillon">
+                    <group>
+                        <field name="date" string="Date de l'essai"/>
+                        <field name="laborantin_id" string="Laborantin"/>
+                        <field name="poids_sec_g" string="Poids sec après séchage" class="o_ka_u_g"/>
+                    </group>
+                    <group>
+                        <field name="methode" string="Méthode"/>
+                        <field name="echantillon_g" string="Échantillon prélevé" class="o_ka_u_g"/>
+                    </group>
+                </group>
+                <group string="Résultat">
+                    <group>
+                        <field name="drc" string="DRC mesuré" class="o_ka_u_pct"/>
+                        <field name="ecart" string="Écart" class="o_ka_u_pt o_ka_ko_txt" invisible="ecart &gt;= 0"/>
+                        <field name="ecart" string="Écart" class="o_ka_u_pt" invisible="ecart &lt; 0"/>
+                        <field name="tracabilite" string="Statut traçabilité" widget="badge" readonly="1" decoration-success="tracabilite == 'eudr'" decoration-danger="tracabilite == 'non_eudr'"/>
+                    </group>
+                    <group>
+                        <field name="drc_ref" string="DRC de référence (paramétrable)" class="o_ka_u_pct"/>
+                        <field name="state" string="Statut" widget="badge" decoration-success="state == 'conforme'" decoration-warning="state == 'ecart'" decoration-muted="state == 'brouillon'"/>
+                    </group>
+                </group>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Le DRC mesuré alimente l'estimation de la quantité de TSR à produire (RG-4.8) pour les OF de production rattachés à ce lot de fond de tasse. Cette saisie n'est pas bloquante. La fiche d'essai DRC hérite le statut de traçabilité du lot de fond de tasse auquel elle est rattachée.</div>
             </sheet>
         </form>
     </field>
 </record>
+
+<!-- Écran 4.10 — Test de granulés [Saisie] -->
 <record id="view_ka_qc_granul_form" model="ir.ui.view">
     <field name="name">ka.qc.granul.ka.form</field>
     <field name="model">ka.qc.granul</field>
     <field name="arch" type="xml">
-        <form string="Contrôle granulation — test de granulés" class="o_ka_form">
+        <form string="Test de granulés — granulation" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Valider le contrôle" name="action_valider" type="object" class="btn-secondary"/>
+                <field name="state" widget="statusbar" statusbar_visible="a_controler,conforme"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Qualité</span><span class="o_ka_c">Contrôles</span><span class="o_ka_cur">Contrôles en production</span><span class="o_ka_fn">Fonction : YQCPRD · fiche technique GRANUL</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Contrôle granulation — test de granulés</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="resultat" widget="badge" decoration-success="resultat in ('conforme')" decoration-danger="resultat in ('non_conforme')"/>
-                        </div>
-                        <div class="o_ka_info">Le test de granulés vérifie la granulométrie avant le séchage ; un résultat non conforme ne bloque pas le passage au séchoir.</div><div class="o_ka_sec">Granulation</div><div class="o_ka_grid"><div class="o_ka_f"><label for="centre" string="Centre de charge"/><field name="centre" readonly="1"/></div><div class="o_ka_f"><label for="poste_id" string="Poste de charge"/><field name="poste_id"/></div><div class="o_ka_f"><label for="of_id" string="OF"/><field name="of_id"/></div><div class="o_ka_f"><label for="date_heure" string="Date et heure"/><field name="date_heure"/></div></div><div class="o_ka_sec">Résultat</div><div class="o_ka_grid"><div class="o_ka_f"><label for="granulo_cible" string="Granulométrie cible"/><field name="granulo_cible" readonly="1"/></div><div class="o_ka_f"><label for="granulo_mesuree" string="Granulométrie mesurée"/><field name="granulo_mesuree"/></div><div class="o_ka_f"><label for="homogeneite" string="Homogénéité"/><field name="homogeneite"/></div><div class="o_ka_f"><label for="corps_etrangers" string="Corps étrangers"/><field name="corps_etrangers"/></div><div class="o_ka_f"><label for="resultat" string="Résultat"/><field name="resultat" readonly="1" widget="badge" decoration-success="resultat=='conforme'" decoration-danger="resultat=='non_conforme'"/></div><div class="o_ka_f"><label for="controleur_id" string="Contrôleur"/><field name="controleur_id"/></div><div class="o_ka_f"><label for="tracabilite" string="Statut de traçabilité"/><field name="tracabilite" readonly="1" widget="badge" decoration-success="tracabilite=='eudr'" decoration-danger="tracabilite=='non_eudr'"/></div></div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider le contrôle" name="action_valider" type="object" class="o_ka_btn o_ka_primary"/></aside>
+                <div class="oe_title">
+                    <div class="o_ka_hint">Test de granulés — granulation</div>
+                    <h1><field name="ka_ref"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <div class="o_ka_info">Le test de granulés vérifie la <b>conformité de la granulométrie</b> avant l'étape de séchage.</div>
+                <group string="Granulation">
+                    <group>
+                        <field name="centre" string="Centre de charge" readonly="1"/>
+                        <field name="of_id" string="N° OF de production" required="1"/>
+                    </group>
+                    <group>
+                        <field name="poste_id" string="Poste de charge"/>
+                        <field name="date_heure" string="Date / heure"/>
+                    </group>
+                </group>
+                <group string="Résultat">
+                    <group>
+                        <field name="granulo_cible" string="Granulométrie cible" readonly="1"/>
+                        <field name="homogeneite" string="Homogénéité"/>
+                        <field name="resultat" string="Résultat" widget="badge" decoration-success="resultat == 'conforme'" decoration-danger="resultat == 'non_conforme'"/>
+                        <field name="tracabilite" string="Statut traçabilité" widget="badge" readonly="1" decoration-success="tracabilite == 'eudr'" decoration-danger="tracabilite == 'non_eudr'"/>
+                    </group>
+                    <group>
+                        <field name="granulo_mesuree" string="Granulométrie mesurée"/>
+                        <field name="corps_etrangers" string="Corps étrangers détectés"/>
+                        <field name="controleur_id" string="Contrôleur"/>
+                    </group>
+                </group>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Résultat transmis au poste de séchage. Un lot non conforme bloque le passage au séchoir jusqu'à correction du réglage du shredder. La fiche de contrôle hérite le statut de traçabilité de l'OF de production auquel elle est rattachée.</div>
             </sheet>
         </form>
     </field>
 </record>
+
+<!-- Écran 4.12 — Contrôle panier, P0/PRI [Saisie] -->
 <record id="view_ka_qc_panier_form" model="ir.ui.view">
     <field name="name">ka.qc.panier.ka.form</field>
     <field name="model">ka.qc.panier</field>
     <field name="arch" type="xml">
         <form string="Contrôle panier — P0 / PRI" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Valider le contrôle" name="action_valider" type="object" class="btn-secondary" invisible="state == 'valide'"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Qualité</span><span class="o_ka_c">Contrôles</span><span class="o_ka_cur">Contrôles en production</span><span class="o_ka_fn">Fonction : YQCPRD · fiche technique PANIER</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Contrôle panier — P0 / PRI</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-info="state in ('brouillon')" decoration-success="state in ('valide')"/>
-                        </div>
-                        <div class="o_ka_info">Seules les valeurs P0 et PRI sont saisies. La validation est sans impact sur les stocks (RG-4.5) ; la production est notifiée par une règle de workflow.</div><div class="o_ka_sec">Panier</div><div class="o_ka_grid"><div class="o_ka_f"><label for="panier_id" string="Panier"/><field name="panier_id" readonly="1"/></div><div class="o_ka_f"><label for="sechoir_id" string="Séchoir"/><field name="sechoir_id" readonly="1"/></div><div class="o_ka_f"><label for="heure" string="Heure de prélèvement"/><field name="heure" widget="float_time"/></div><div class="o_ka_f"><label for="laborantin_id" string="Laborantin"/><field name="laborantin_id"/></div></div><div class="o_ka_sec">Mesures laboratoire</div><div class="o_ka_grid"><div class="o_ka_f"><label for="p0" string="P0 mesuré" class="o_ka_req"/><field name="p0"/></div><div class="o_ka_f"><label for="pri" string="PRI mesuré" class="o_ka_req"/><field name="pri"/></div><div class="o_ka_f"><label for="grade_vise" string="Grade visé (OF)"/><field name="grade_vise" readonly="1"/></div><div class="o_ka_f"><label for="resultat" string="Résultat"/><field name="resultat" readonly="1" widget="badge" decoration-success="resultat=='conforme'" decoration-danger="resultat=='non_conforme'" decoration-warning="resultat=='a_saisir'"/></div></div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider le contrôle" name="action_valider" type="object" class="o_ka_btn o_ka_primary"/></aside>
+                <field name="state" invisible="1"/>
+                <div class="text-end"><span class="o_ka_tag o_ka_grey">Sans impact sur les stocks</span></div>
+                <div class="oe_title">
+                    <div class="o_ka_hint">Contrôle panier — P0 / PRI</div>
+                    <h1><field name="chrono"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <div class="o_ka_info">Le contrôle panier ne comporte qu'une seule saisie : les valeurs <b>P0 et PRI</b>, mesurées par le <b>laboratoire</b> sur l'échantillon du panier (§ 4.2.5). Conformément à la RG-4.5, la validation de ce contrôle est <b>sans impact sur les stocks</b>.</div>
+                <group string="Panier">
+                    <group>
+                        <field name="sechoir_id" string="N° séchoir"/>
+                        <field name="of_id" string="OF de production"/>
+                        <field name="panier_id" string="Panier" required="1" readonly="id"/>
+                    </group>
+                    <group>
+                        <field name="heure" string="Heure de prélèvement" widget="float_time"/>
+                        <field name="laborantin_id" string="Laborantin"/>
+                    </group>
+                </group>
+                <div class="o_ka_h3">Mesures laboratoire <span class="o_ka_hint">seules saisies du contrôle</span></div>
+                <group>
+                    <group>
+                        <field name="p0" string="P0 mesuré" required="1"/>
+                        <field name="grade_vise" string="Grade visé (OF)" widget="badge" decoration-info="1"/>
+                        <field name="tracabilite" string="Statut traçabilité" widget="badge" readonly="1" decoration-success="tracabilite == 'eudr'" decoration-danger="tracabilite == 'non_eudr'"/>
+                    </group>
+                    <group>
+                        <field name="pri" string="PRI mesuré" required="1"/>
+                        <field name="resultat" string="Résultat" widget="badge" decoration-success="resultat == 'conforme'" decoration-danger="resultat == 'non_conforme'" decoration-warning="resultat == 'a_saisir'"/>
+                    </group>
+                </group>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Les résultats sont transmis à la production par notification (pile) pour ajustement éventuel de la conduite des séchoirs. Cette saisie est sans impact sur les stocks (RG-4.5). La fiche de contrôle panier hérite le statut de traçabilité de la déclaration panier.</div>
             </sheet>
         </form>
     </field>
 </record>
+
+<!-- Écran 4.7a — Contrôle à libération, colis de l'équivalent conteneur [Approbation] -->
 <record id="view_ka_qc_liberation_form" model="ir.ui.view">
     <field name="name">ka.qc.liberation.ka.form</field>
     <field name="model">ka.qc.liberation</field>
     <field name="arch" type="xml">
         <form string="Contrôle à libération — équivalent conteneur" class="o_ka_form">
+            <header>
+                <button string="Valider tous les colis (contrôle global)" name="action_valider_conteneur" type="object" class="btn-secondary" invisible="state != 'en_cours'"/>
+                <button string="Imprimer le bon de libération conteneur" name="action_bon" type="object" class="btn-secondary"/>
+                <button string="Valider les colis sélectionnés" name="action_valider_selection" type="object" class="btn-secondary" invisible="state != 'en_cours'"/>
+                <field name="state" widget="statusbar" statusbar_visible="en_cours,libere,expediable"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Qualité</span><span class="o_ka_c">Contrôles</span><span class="o_ka_cur">Libération conteneur</span><span class="o_ka_fn">Fonction : YQCLIB · spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Contrôle à libération — équivalent conteneur</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="badge_label" widget="badge" decoration-danger="nb_bloques &gt; 0" decoration-success="nb_bloques == 0"/>
-                        </div>
-                        <div class="o_ka_info">La libération fait passer les colis du statut Q au statut A. Validation colis par colis, ou globale si tous sont conformes ; un colis bloqué est remplacé par l'agent d'expédition puis recontrôlé.</div><field name="line_ids" nolabel="1"><list editable="bottom"><field name="a_valider" string=" "/><field name="lot_id" string="Lot (colis)"/><field name="statut" string="Statut"/><field name="p0" string="P0"/><field name="pri" string="PRI"/><field name="ml" string="ML"/><field name="imp" string="Impuretés"/><field name="azote" string="Azote"/><field name="cendres" string="Cendres"/><field name="vm" string="Mat. vol."/><field name="resultat" string="Résultat" widget="badge" decoration-success="resultat=='libere'" decoration-danger="resultat=='bloque'" decoration-warning="resultat=='a_controler'"/></list></field><p class="o_ka_note">Les colis conformes et libérés restent consultables ; la validation globale du conteneur n'est possible que lorsque tous les colis sont au statut A.</p>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider les colis sélectionnés" name="action_valider_selection" type="object" class="o_ka_btn"/><button string="Valider le conteneur" name="action_valider_conteneur" type="object" class="o_ka_btn o_ka_primary"/><button string="Imprimer le bon de libération" name="action_bon" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <div class="o_ka_hint">Contrôle à libération — équivalent conteneur</div>
+                    <h1><field name="name" readonly="1"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <group>
+                    <group>
+                        <field name="tracabilite" string="Statut traçabilité" widget="badge" decoration-success="tracabilite == 'eudr'" decoration-danger="tracabilite == 'non_eudr'"/>
+                    </group>
+                    <group>
+                        <field name="controleur_id" string="Contrôleur"/>
+                    </group>
+                </group>
+                <div class="o_ka_info">Le contrôle porte sur les <b><field name="nb_label" class="d-inline"/> colis de l'équivalent conteneur</b>. Il peut être réalisé <b>colis par colis</b>, ou de façon <b>globale sur l'ensemble des colis si tous sont conformes</b>. Un colis bloqué peut être <b>remplacé par l'agent d'expédition</b> sur l'équivalent conteneur, puis renvoyé au contrôle qualité pour vérification.</div>
+                <div class="o_ka_h3">Colis de l'équivalent conteneur (<field name="nb_label" class="d-inline"/>) <span class="o_ka_hint">validation colis par colis, ou globale si tous conformes</span></div>
+                <field name="line_ids" nolabel="1" context="{'list_view_ref': 'kode_agri_production.view_ka_qc_liberation_line_tree'}"/>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span><field name="ka_valid_txt"/></div>
             </sheet>
+            <chatter/>
         </form>
     </field>
 </record>
+<record id="view_ka_qc_liberation_line_tree" model="ir.ui.view">
+    <field name="name">ka.qc.liberation.line.ka.tree</field>
+    <field name="model">ka.qc.liberation.line</field>
+    <field name="arch" type="xml">
+        <list editable="bottom" decoration-danger="resultat == 'bloque'">
+            <field name="a_valider" string="Sélection" optional="hide"/>
+            <field name="lot_id" string="N° série colis"/>
+            <field name="statut" string="Statut colis" widget="badge" decoration-danger="resultat == 'bloque'" decoration-muted="resultat != 'bloque'"/>
+            <field name="poids" string="Poids" class="o_ka_u_kg"/>
+            <field name="p0" string="P0"/>
+            <field name="pri" string="PRI"/>
+            <field name="ml" string="ML"/>
+            <field name="imp" string="Impuretés" class="o_ka_u_pct"/>
+            <field name="azote" string="Azote" class="o_ka_u_pct"/>
+            <field name="cendres" string="Cendres" class="o_ka_u_pct"/>
+            <field name="vm" string="Mat. vol." class="o_ka_u_pct"/>
+            <field name="resultat" string="Conforme"/>
+            <button string="Valider →" name="action_valider_ligne" type="object" class="btn-link" invisible="resultat != 'a_controler'"/>
+            <button string="Remplacer" name="action_remplacer" type="object" class="btn-link text-danger" invisible="resultat != 'bloque'"/>
+        </list>
+    </field>
+</record>
+<record id="view_ka_qc_liberation_line_form" model="ir.ui.view">
+    <field name="name">ka.qc.liberation.line.ka.form</field>
+    <field name="model">ka.qc.liberation.line</field>
+    <field name="arch" type="xml">
+        <form string="Remplacer le colis" class="o_ka_form">
+            <sheet>
+                <div class="o_ka_info">Saisissez le colis de remplacement fourni par l'agent d'expédition : il repasse au statut « À contrôler ».</div>
+                <group>
+                    <group>
+                        <field name="lot_id" string="N° série colis"/>
+                        <field name="statut" string="Statut colis"/>
+                    </group>
+                    <group>
+                        <field name="resultat" string="Conforme" readonly="1" force_save="1"/>
+                        <field name="poids" string="Poids" class="o_ka_u_kg"/>
+                    </group>
+                </group>
+            </sheet>
+            <footer>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Annuler" special="cancel" class="btn-secondary"/>
+            </footer>
+        </form>
+    </field>
+</record>
+
+<!-- Paramétrage des points de contrôle -->
+<record id="view_ka_contaminant_type_tree" model="ir.ui.view">
+    <field name="name">ka.contaminant.type.ka.tree</field>
+    <field name="model">ka.contaminant.type</field>
+    <field name="arch" type="xml"><list string="Types de contaminants" editable="bottom"><field name="sequence" widget="handle"/><field name="name" string="Type de contaminant"/></list></field>
+</record>
+<record id="view_ka_grade_tree" model="ir.ui.view">
+    <field name="name">ka.grade.ka.tree</field>
+    <field name="model">ka.grade</field>
+    <field name="arch" type="xml"><list string="Grades et seuils"><field name="sequence" widget="handle"/><field name="code"/><field name="name"/><field name="product_id"/><field name="hors_specs"/></list></field>
+</record>
+
 <record id="view_ka_qc_reception_tree" model="ir.ui.view">
     <field name="name">ka.qc.reception.ka.tree</field>
     <field name="model">ka.qc.reception</field>
@@ -118,7 +319,7 @@
 <record id="view_ka_qc_granul_tree" model="ir.ui.view">
     <field name="name">ka.qc.granul.ka.tree</field>
     <field name="model">ka.qc.granul</field>
-    <field name="arch" type="xml"><list string="ka_qc_granul"><field name="name"/><field name="of_id"/><field name="poste_id"/><field name="date_heure"/><field name="resultat" widget="badge"/></list></field>
+    <field name="arch" type="xml"><list string="ka_qc_granul"><field name="name"/><field name="of_id"/><field name="poste_id"/><field name="date_heure"/><field name="resultat" widget="badge"/><field name="state" widget="badge"/></list></field>
 </record>
 <record id="view_ka_qc_panier_tree" model="ir.ui.view">
     <field name="name">ka.qc.panier.ka.tree</field>
@@ -130,9 +331,11 @@
     <field name="model">ka.qc.liberation</field>
     <field name="arch" type="xml"><list string="ka_qc_liberation"><field name="name"/><field name="nb_colis"/><field name="poids"/><field name="nb_bloques"/><field name="state" widget="badge"/></list></field>
 </record>
-<record id="action_ka_qc_reception" model="ir.actions.act_window"><field name="name">Contrôle à la réception</field><field name="res_model">ka.qc.reception</field><field name="view_mode">list,form</field></record>
-<record id="action_ka_drc_essai" model="ir.actions.act_window"><field name="name">Essais DRC</field><field name="res_model">ka.drc.essai</field><field name="view_mode">list,form</field></record>
-<record id="action_ka_qc_granul" model="ir.actions.act_window"><field name="name">Contrôles granulation</field><field name="res_model">ka.qc.granul</field><field name="view_mode">list,form</field></record>
-<record id="action_ka_qc_panier" model="ir.actions.act_window"><field name="name">Contrôles panier</field><field name="res_model">ka.qc.panier</field><field name="view_mode">list,form</field></record>
-<record id="action_ka_qc_liberation" model="ir.actions.act_window"><field name="name">Libération conteneur</field><field name="res_model">ka.qc.liberation</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_qc_reception" model="ir.actions.act_window"><field name="name">Réception</field><field name="res_model">ka.qc.reception</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_drc_essai" model="ir.actions.act_window"><field name="name">Réception</field><field name="res_model">ka.drc.essai</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_qc_granul" model="ir.actions.act_window"><field name="name">Granulation</field><field name="res_model">ka.qc.granul</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_qc_panier" model="ir.actions.act_window"><field name="name">Séchage</field><field name="res_model">ka.qc.panier</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_qc_liberation" model="ir.actions.act_window"><field name="name">Libération</field><field name="res_model">ka.qc.liberation</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_contaminant_type" model="ir.actions.act_window"><field name="name">Types de contaminants</field><field name="res_model">ka.contaminant.type</field><field name="view_mode">list</field></record>
+<record id="action_ka_grade" model="ir.actions.act_window"><field name="name">Grades et seuils</field><field name="res_model">ka.grade</field><field name="view_mode">list,form</field></record>
 </odoo>

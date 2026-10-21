@@ -1,25 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 3.1d — Liste / parc des immobilisations (consultation avec indicateurs) -->
 <record id="view_ka_parc_form" model="ir.ui.view">
     <field name="name">ka.immo.parc.ka.form</field>
     <field name="model">ka.immo.parc</field>
     <field name="arch" type="xml">
-        <form string="Immobilisations — consultation du parc" class="o_ka_form">
+        <form string="Immobilisations" class="o_ka_form">
+            <header>
+                <button string="Nouveau" name="action_creer_immo" type="object" class="btn-primary"/>
+                <button string="Filtrer" name="action_filtrer" type="object" class="btn-secondary"/>
+                <button string="Exporter" name="action_exporter" type="object" class="btn-secondary"/>
+                <button string="Imprimer l'état du parc" name="action_imprimer" type="object" class="btn-secondary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_c">Consultations</span><span class="o_ka_cur">Immobilisations</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Immobilisations — consultation du parc</h1><div class="o_ka_sub"></div></div>
-                            
-                        </div>
-                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="nb_service" nolabel="1"/><span class="o_ka_kl">En service</span></div><div class="o_ka_kpi"><field name="brute_txt" nolabel="1"/><span class="o_ka_kl">Valeur brute</span></div><div class="o_ka_kpi"><field name="vnc_txt" nolabel="1"/><span class="o_ka_kl">Valeur nette comptable</span></div><div class="o_ka_kpi"><field name="nb_sorties" nolabel="1"/><span class="o_ka_kl">Sorties de l'année</span></div></div><div class="o_ka_grid"><div class="o_ka_f"><label for="statut" string="Statut"/><field name="statut"/></div><div class="o_ka_f"><label for="famille_id" string="Famille"/><field name="famille_id"/></div><div class="o_ka_f"><label for="site_id" string="Site"/><field name="site_id"/></div><div class="o_ka_f"><label for="regroupement" string="Regroupement"/><field name="regroupement"/></div></div><field name="immo_ids" nolabel="1" readonly="1"><list><field name="name" string="Immobilisation"/><field name="intitule" string="Intitulé"/><field name="famille_id" string="Famille"/><field name="valeur" string="Valeur d'acquisition"/><field name="vnc" string="VNC"/><field name="date_service" string="Mise en service"/><field name="ka_statut_label" string="Statut" widget="badge" decoration-success="ka_statut_label=='En service'" decoration-muted="ka_statut_label=='Sortie'"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Filtrer" name="action_filtrer" type="object" class="o_ka_btn"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/><button string="Imprimer l'état du parc" name="action_imprimer" type="object" class="o_ka_btn o_ka_primary"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_voir_service" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="nb_service"/></span><span class="o_stat_text">Immobilisations en service</span></div>
+                    </button>
+                    <button name="action_voir_service" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="brute_txt"/></span><span class="o_stat_text">Valeur brute du parc</span></div>
+                    </button>
+                    <button name="action_voir_service" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="vnc_txt"/></span><span class="o_stat_text">Valeur nette comptable</span></div>
+                    </button>
+                    <button name="action_voir_cedees" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="nb_sorties"/></span><span class="o_stat_text">Cédées cette année</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1>Immobilisations</h1>
+                </div>
+                <group>
+                    <group>
+                        <field name="statut" string="Statut"/>
+                        <field name="famille_id" string="Catégorie"/>
+                    </group>
+                    <group>
+                        <field name="site_id" string="Site"/>
+                        <field name="regroupement" string="Regrouper par"/>
+                    </group>
+                </group>
+                <field name="immo_ids" nolabel="1" readonly="1">
+                    <list>
+                        <field name="name" string="Référence"/>
+                        <field name="intitule" string="Désignation"/>
+                        <field name="famille_id" string="Catégorie"/>
+                        <field name="currency_id" column_invisible="1"/>
+                        <field name="valeur" string="Valeur d'acquisition"/>
+                        <field name="vnc" string="VNC"/>
+                        <field name="date_service" string="Mise en service"/>
+                        <field name="state" string="Statut" widget="badge" decoration-info="state == 'en_service'" decoration-warning="state == 'a_confirmer'" decoration-muted="state == 'sortie'"/>
+                    </list>
+                </field>
+                <div class="text-end o_ka_hint"><field name="nb_txt" readonly="1"/></div>
             </sheet>
         </form>
     </field>
 </record>
-<record id="action_ka_parc" model="ir.actions.act_window"><field name="name">Consultation du parc</field><field name="res_model">ka.immo.parc</field><field name="view_mode">form</field></record>
+<record id="action_ka_parc" model="ir.actions.act_window"><field name="name">Immobilisations</field><field name="res_model">ka.immo.parc</field><field name="view_mode">form</field><field name="target">current</field></record>
 </odoo>

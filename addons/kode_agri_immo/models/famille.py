@@ -21,6 +21,9 @@ class KaImmoFamille(models.Model):
     creation_facture = fields.Boolean(string='Création depuis facture', default=True)
     immo_ids = fields.One2many('ka.immo', 'famille_id', string='Immobilisations rattachées')
     nb_immos = fields.Integer(compute='_compute_nb', string='Immobilisations rattachées')
+    cpt_immo_txt = fields.Char(compute='_compute_comptes_txt', string='Immobilisation')
+    cpt_amort_txt = fields.Char(compute='_compute_comptes_txt', string='Amortissement cumulé')
+    cpt_dotation_txt = fields.Char(compute='_compute_comptes_txt', string='Dotation')
 
     def _ka_subtitle(self):
         self.ensure_one()
@@ -31,9 +34,18 @@ class KaImmoFamille(models.Model):
         for f in self:
             f.nb_immos = len(f.immo_ids)
 
-    def _compute_display_name(self):
+    @api.depends('cpt_immo', 'cpt_amort', 'cpt_dotation')
+    def _compute_comptes_txt(self):
+        from .immo import libelle_compte
         for f in self:
-            f.display_name = '%s — %s' % (f.code, f.name)
+            f.cpt_immo_txt = libelle_compte(self.env, f.cpt_immo)
+            f.cpt_amort_txt = libelle_compte(self.env, f.cpt_amort)
+            f.cpt_dotation_txt = libelle_compte(self.env, f.cpt_dotation)
+
+    @api.depends('name')
+    def _compute_display_name(self):
+        for f in self:   # maquettes 3.1 et 3.1c : la catégorie est désignée par son intitulé
+            f.display_name = f.name or f.code or ''
 
     def action_immos(self):
         self.ensure_one()

@@ -23,7 +23,14 @@ class KaLettrage(models.Model):
     def _ka_subtitle(self):
         self.ensure_one()
         code = self.partner_id.ka_code or self.partner_id.ref or ''
-        return '%s %s — collectif %s' % (code, self.partner_id.name or '', self.account_id.name or '')
+        return '%s · %s' % (('%s %s' % (code, self.partner_id.name or '')).strip(), self.account_id.name or '')
+
+    @api.depends('partner_id.name', 'partner_id.ka_code', 'partner_id.ka_categorie')
+    def _compute_display_name(self):
+        for l in self:
+            p = l.partner_id
+            nature = 'Planteur' if p.ka_categorie == 'planteur_coop' else 'Tiers'
+            l.display_name = '%s %s' % (nature, p.ka_code or p.ref or p.name or '') if p else 'Lettrage'
 
     @api.depends('line_ids.debit', 'line_ids.credit', 'line_ids.lettre')
     def _compute_solde(self):
@@ -51,6 +58,15 @@ class KaLettrage(models.Model):
                 raise UserError(_("Aucun débit et crédit ouverts à rapprocher pour ce tiers."))
             ouvertes.reconcile()
             l.action_proposer()
+
+    def action_valider(self):
+        """Valide le lettrage : recharge les écritures et contrôle que débits et crédits ouverts ont bien été rapprochés."""
+        for l in self:
+            l.action_proposer()
+            ouvertes = self.env['account.move.line'].search(l._domaine() + [('reconciled', '=', False)])
+            if ouvertes.filtered(lambda x: x.balance > 0) and ouvertes.filtered(lambda x: x.balance < 0):
+                raise UserError(_("Des débits et crédits restent à lettrer : lancez « Lettrer automatiquement »."))
+        return self.env['ka.structure']._notif(_('Lettrage'), _('Lettrage validé ; la balance âgée est à jour.'))
 
     def action_balance_agee(self):
         self.ensure_one()

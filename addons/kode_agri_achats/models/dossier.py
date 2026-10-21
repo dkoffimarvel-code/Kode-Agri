@@ -39,6 +39,8 @@ class KaDossierImport(models.Model):
     cout_complet = fields.Monetary(compute='_compute_totaux', string='Coût complet', currency_field='company_currency_id')
     factures_txt = fields.Char(compute='_compute_totaux', string='Factures de frais')
     nb_docs = fields.Integer(compute='_compute_docs')
+    nb_frais = fields.Integer(compute='_compute_totaux', string='Frais')
+    attachment_ids = fields.Many2many('ir.attachment', compute='_compute_docs', string='Pièces jointes')
     state = fields.Selection([('en_cours', 'En cours'), ('valide', 'Validé'), ('cloture', 'Clôturé')],
                              default='en_cours', string='Statut', tracking=True)
 
@@ -63,6 +65,7 @@ class KaDossierImport(models.Model):
             d.nb_articles = len(d.line_ids)
             refs = {f.facture_ref for f in d.frais_ids if f.facture_ref}
             d.nb_factures = len(refs)
+            d.nb_frais = len(d.frais_ids)
             d.factures_txt = '%s factures transitaire' % d.nb_factures
             d.total_fob = sum(d.line_ids.mapped('fob'))
             d.total_frais = sum(d.frais_ids.mapped('montant'))
@@ -72,7 +75,10 @@ class KaDossierImport(models.Model):
 
     def _compute_docs(self):
         for d in self:
-            d.nb_docs = self.env['ir.attachment'].search_count([('res_model', '=', 'ka.dossier.import'), ('res_id', '=', d.id)]) if d.id else 0
+            pieces = self.env['ir.attachment'].search([('res_model', '=', 'ka.dossier.import'), ('res_id', '=', d._origin.id)]) \
+                if d._origin.id else self.env['ir.attachment']
+            d.nb_docs = len(pieces)
+            d.attachment_ids = pieces
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -85,23 +91,40 @@ class KaDossierImport(models.Model):
     def _base(self, line):
         return {'valeur': line.fob, 'poids': line.poids, 'quantite': line.qty}[self.cle]
 
+    def _repartition(self):
+        """[(ligne, coefficient %, frais ventilés)] selon la clé ; la dernière ligne absorbe l'arrondi (100 %)."""
+        self.ensure_one()
+        total_base = sum(self._base(l) for l in self.line_ids)
+        if not total_base:
+            return []
+        reste, out = self.total_frais, []
+        lignes = self.line_ids
+        for i, l in enumerate(lignes):
+            if i == len(lignes) - 1:
+                montant = reste
+            else:
+                montant = round(self.total_frais * self._base(l) / total_base)
+                reste -= montant
+            out.append((l, self._base(l) / total_base * 100.0, montant))
+        return out
+
     def action_ventiler(self):
         """Frais ventilés = total des frais × (base de l'article / base totale) ; la somme est toujours égale au total."""
         for d in self:
             if d.state != 'en_cours':
                 raise UserError(_('Le dossier est déjà validé.'))
-            total_base = sum(d._base(l) for l in d.line_ids)
-            if not total_base:
+            repartition = d._repartition()
+            if not repartition:
                 raise UserError(_("La clé de répartition « %s » ne donne aucune base de calcul.") % dict(CLES)[d.cle])
-            reste = d.total_frais
-            lignes = d.line_ids
-            for i, l in enumerate(lignes):
-                if i == len(lignes) - 1:
-                    montant = reste                               # la dernière ligne absorbe l'arrondi (100 %)
-                else:
-                    montant = round(d.total_frais * d._base(l) / total_base)
-                    reste -= montant
-                l.write({'coef': d._base(l) / total_base * 100.0, 'frais': montant})
+            for l, coef, montant in repartition:
+                l.write({'coef': coef, 'frais': montant})
+
+    @api.onchange('cle')
+    def _onchange_cle(self):
+        """Recalcul automatique de la ventilation au changement de clé (si elle a déjà été appliquée)."""
+        if self.state == 'en_cours' and any(self.line_ids.mapped('frais')):
+            for l, coef, montant in self._repartition():
+                l.coef, l.frais = coef, montant
 
     def action_recalculer(self):
         return self.action_ventiler()
@@ -112,8 +135,9 @@ class KaDossierImport(models.Model):
 
     def action_ouvrir_ventilation(self):
         self.ensure_one()
-        return {'type': 'ir.actions.act_window', 'res_model': 'ka.dossier.import', 'res_id': self.id,
-                'view_mode': 'form', 'views': [(self.env.ref('kode_agri_achats.view_ka_ventilation_form').id, 'form')]}
+        return {'type': 'ir.actions.act_window', 'name': 'Ventilation des frais', 'res_model': 'ka.dossier.import',
+                'res_id': self.id, 'view_mode': 'form',
+                'views': [(self.env.ref('kode_agri_achats.view_ka_ventilation_form').id, 'form')]}
 
     def action_retour_dossier(self):
         self.ensure_one()
@@ -153,9 +177,14 @@ class KaDossierImport(models.Model):
         return {'type': 'ir.actions.act_window', 'res_model': 'ka.commande', 'res_id': self.commande_id.id,
                 'view_mode': 'form'}
 
+    def action_open_articles(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Articles importés', 'res_model': 'ka.dossier.ligne',
+                'view_mode': 'list', 'domain': [('dossier_id', '=', self.id)]}
+
     def action_open_factures(self):
         self.ensure_one()
-        return {'type': 'ir.actions.act_window', 'name': 'Factures', 'res_model': 'ka.dossier.frais',
+        return {'type': 'ir.actions.act_window', 'name': "Frais d'approche", 'res_model': 'ka.dossier.frais',
                 'view_mode': 'list', 'domain': [('dossier_id', '=', self.id)]}
 
 
@@ -211,6 +240,12 @@ class KaDossierListe(models.TransientModel):
     nb_valides = fields.Integer(compute='_compute_kpi', string='Validés')
     nb_clotures = fields.Integer(compute='_compute_kpi', string='Clôturés ce mois')
     a_ventiler = fields.Float(compute='_compute_kpi', string='Frais à ventiler', digits=(14, 0))
+    nb_a_ventiler = fields.Integer(compute='_compute_kpi', string='Frais à ventiler')
+    nb_txt = fields.Char(compute='_compute_dossiers')
+
+    def _compute_display_name(self):
+        for l in self:
+            l.display_name = "Dossiers d'import"
 
     @api.depends('statut', 'transitaire_id', 'periode')
     def _compute_dossiers(self):
@@ -223,7 +258,11 @@ class KaDossierListe(models.TransientModel):
             if l.periode:
                 debut = l.periode.replace(day=1)
                 dom += [('date_ouverture', '>=', debut), ('date_ouverture', '<', debut + relativedelta(months=1))]
-            l.dossier_ids = self.env['ka.dossier.import'].search(dom, order='name desc')
+            order = 'transitaire_id, name desc' if l.regroupement == 'transitaire' else 'state, name desc'
+            l.dossier_ids = self.env['ka.dossier.import'].search(dom, order=order)
+            l.nb_txt = '%s dossier%s affiché%s sur %s' % (len(l.dossier_ids), 's' if len(l.dossier_ids) > 1 else '',
+                                                          's' if len(l.dossier_ids) > 1 else '',
+                                                          self.env['ka.dossier.import'].search_count([]))
 
     def _compute_kpi(self):
         D = self.env['ka.dossier.import']
@@ -232,7 +271,27 @@ class KaDossierListe(models.TransientModel):
             l.nb_en_cours = D.search_count([('state', '=', 'en_cours')])
             l.nb_valides = D.search_count([('state', '=', 'valide')])
             l.nb_clotures = D.search_count([('state', '=', 'cloture'), ('date_ouverture', '>=', today.replace(day=1))])
-            l.a_ventiler = sum(D.search([('state', '=', 'en_cours')]).mapped('a_ventiler'))
+            en_cours = D.search([('state', '=', 'en_cours')])
+            l.a_ventiler = sum(en_cours.mapped('a_ventiler'))
+            l.nb_a_ventiler = len(en_cours.filtered(lambda d: abs(d.a_ventiler) > 0.5))
+
+    def _voir(self, nom, domaine):
+        return {'type': 'ir.actions.act_window', 'name': nom, 'res_model': 'ka.dossier.import',
+                'view_mode': 'list,form', 'domain': domaine}
+
+    def action_voir_en_cours(self):
+        return self._voir('Dossiers en cours', [('state', '=', 'en_cours')])
+
+    def action_voir_valides(self):
+        return self._voir('Dossiers validés', [('state', '=', 'valide')])
+
+    def action_voir_clotures(self):
+        debut = fields.Date.today().replace(day=1)
+        return self._voir('Dossiers clôturés ce mois', [('state', '=', 'cloture'), ('date_ouverture', '>=', debut)])
+
+    def action_voir_a_ventiler(self):
+        ids = self.env['ka.dossier.import'].search([('state', '=', 'en_cours')]).filtered(lambda d: abs(d.a_ventiler) > 0.5).ids
+        return self._voir('Frais à ventiler', [('id', 'in', ids)])
 
     def action_creer(self):
         return {'type': 'ir.actions.act_window', 'res_model': 'ka.dossier.import', 'view_mode': 'form',

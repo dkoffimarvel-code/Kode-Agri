@@ -1,22 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 3.1c — Catégorie d'immobilisation (paramétrage des règles) -->
 <record id="view_ka_famille_form" model="ir.ui.view">
     <field name="name">ka.immo.famille.ka.form</field>
     <field name="model">ka.immo.famille</field>
     <field name="arch" type="xml">
-        <form string="Famille d'immobilisations" class="o_ka_form">
+        <form string="Catégorie d'immobilisation" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Créer" name="action_creer" type="object" class="btn-secondary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Paramétrage</span><span class="o_ka_c">Immobilisations</span><span class="o_ka_cur">Familles</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Famille d'immobilisations</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            
-                        </div>
-                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="nb_immos" nolabel="1"/><span class="o_ka_kl">Immobilisations rattachées</span></div></div><div class="o_ka_sec">Règles d'amortissement par défaut</div><div class="o_ka_grid"><div class="o_ka_f"><label for="methode" string="Mode d'amortissement" class="o_ka_req"/><field name="methode"/></div><div class="o_ka_f"><label for="duree" string="Durée" class="o_ka_req"/><field name="duree" class="o_ka_u_ans"/></div><div class="o_ka_f"><label for="cpt_immo" string="Compte d'immobilisation" class="o_ka_req"/><field name="cpt_immo"/></div><div class="o_ka_f"><label for="cpt_amort" string="Compte d'amortissement" class="o_ka_req"/><field name="cpt_amort"/></div><div class="o_ka_f"><label for="cpt_dotation" string="Compte de dotation" class="o_ka_req"/><field name="cpt_dotation"/></div><div class="o_ka_f"><label for="axe" string="Axe analytique"/><field name="axe"/></div><div class="o_ka_f o_ka_check"><field name="creation_facture"/><label for="creation_facture" string="Création depuis facture"/></div><div class="o_ka_f"><label for="code" string="Famille" class="o_ka_req"/><field name="code"/></div><div class="o_ka_f"><label for="name" string="Intitulé" class="o_ka_req"/><field name="name"/></div></div><div class="o_ka_h3">Immobilisations rattachées</div><field name="immo_ids" nolabel="1" readonly="1"><list><field name="name" string="Immobilisation"/><field name="intitule" string="Intitulé"/><field name="valeur" string="Valeur d'acquisition"/><field name="ka_statut_label" string="Statut" widget="badge" decoration-success="ka_statut_label=='En service'"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Créer" name="action_creer" type="object" class="o_ka_btn o_ka_primary"/><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Immobilisations rattachées" name="action_immos" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_immos" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="nb_immos"/></span><span class="o_stat_text">Immobilisations</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1><field name="name" placeholder="Intitulé de la catégorie"/></h1>
+                    <div class="o_ka_sub">Catégorie <field name="code" placeholder="Code" class="d-inline"/> · règles d'amortissement par défaut</div>
+                </div>
+                <group>
+                    <group>
+                        <field name="methode" string="Méthode d'amortissement"/>
+                        <field name="duree" string="Durée d'utilité" class="o_ka_u_ans"/>
+                        <field name="axe" string="Compte analytique"/>
+                        <field name="creation_facture" string="Création auto. depuis facture" widget="boolean_toggle"/>
+                    </group>
+                    <group>
+                        <field name="cpt_immo" string="Compte immobilisation"/>
+                        <field name="cpt_amort" string="Compte amort. cumulé"/>
+                        <field name="cpt_dotation" string="Compte de dotation"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Immobilisations rattachées" name="immos">
+                        <field name="immo_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="name" string="Référence"/>
+                                <field name="intitule" string="Désignation"/>
+                                <field name="currency_id" column_invisible="1"/>
+                                <field name="valeur" string="Valeur d'acquisition"/>
+                                <field name="state" string="Statut"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Comptes" name="comptes">
+                        <table class="o_ka_tbl">
+                            <thead><tr><th>Type</th><th>Compte</th></tr></thead>
+                            <tbody>
+                                <tr><td>Immobilisation</td><td><field name="cpt_immo_txt" nolabel="1" readonly="1"/></td></tr>
+                                <tr><td>Amortissement cumulé</td><td><field name="cpt_amort_txt" nolabel="1" readonly="1"/></td></tr>
+                                <tr><td>Dotation</td><td><field name="cpt_dotation_txt" nolabel="1" readonly="1"/></td></tr>
+                            </tbody>
+                        </table>
+                    </page>
+                </notebook>
             </sheet>
         </form>
     </field>
@@ -24,7 +63,7 @@
 <record id="view_ka_famille_tree" model="ir.ui.view">
     <field name="name">ka.immo.famille.ka.tree</field>
     <field name="model">ka.immo.famille</field>
-    <field name="arch" type="xml"><list string="ka_famille"><field name="code"/><field name="name"/><field name="methode"/><field name="duree"/><field name="cpt_immo"/><field name="nb_immos"/></list></field>
+    <field name="arch" type="xml"><list string="Catégories d'immobilisation"><field name="code"/><field name="name"/><field name="methode"/><field name="duree"/><field name="cpt_immo"/><field name="nb_immos"/></list></field>
 </record>
-<record id="action_ka_famille" model="ir.actions.act_window"><field name="name">Familles d'immobilisations</field><field name="res_model">ka.immo.famille</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_famille" model="ir.actions.act_window"><field name="name">Catégories d'immobilisation</field><field name="res_model">ka.immo.famille</field><field name="view_mode">list,form</field></record>
 </odoo>

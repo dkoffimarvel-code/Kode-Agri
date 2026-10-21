@@ -1,64 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écrans 9.3 bis (budget en préparation) et 9.3 bis-2 (budget validé — verrouillé) -->
 <record id="view_ka_budget_form" model="ir.ui.view">
     <field name="name">ka.budget.ka.form</field>
     <field name="model">ka.budget</field>
     <field name="arch" type="xml">
-        <form string="Saisie des budgets" class="o_ka_form">
+        <form string="Budget mensualisé" class="o_ka_form">
+            <header>
+                <button string="Générer la maquette (réalisés analytiques)" name="action_generer_maquette" type="object" class="btn-primary" invisible="state == 'valide'"/>
+                <button string="Importer les budgets" name="action_importer" type="object" class="btn-secondary" invisible="state == 'valide'"/>
+                <button string="Valider" name="action_valider" type="object" class="btn-secondary" invisible="state == 'valide'"/>
+                <button string="Nouvelle version (révision)" name="action_revision" type="object" class="btn-primary" invisible="state != 'valide'"/>
+                <button string="Comparer réalisé" name="action_ouvrir_suivi" type="object" class="btn-secondary" invisible="state != 'valide'"/>
+                <button string="Modifier" name="action_modifier" type="object" class="btn-secondary disabled" invisible="state != 'valide'"/>
+                <button string="Importer les budgets" name="action_importer" type="object" class="btn-secondary disabled" invisible="state != 'valide'"/>
+                <button string="Supprimer" name="action_supprimer" type="object" class="btn-secondary disabled" invisible="state != 'valide'"/>
+                <button string="Soumettre à validation" name="action_soumettre" type="object" class="btn-secondary" invisible="state != 'preparation'"/>
+                <button string="Consulter le détail" name="action_ouvrir_detail" type="object" class="btn-secondary"/>
+                <button string="Imprimer" name="action_imprimer" type="object" class="btn-secondary"/>
+                <field name="state" widget="statusbar" statusbar_visible="preparation,a_valider,valide"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Budgets</span><span class="o_ka_cur">Saisie des budgets</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1><field name="titre_vue" nolabel="1" readonly="1"/></h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-warning="state in ('preparation','a_valider')" decoration-success="state in ('valide')"/>
-                        </div>
-                        <div class="o_ka_info o_ka_warn_banner" invisible="state != 'valide'">⚠ Ce budget est validé : il n'est plus modifiable. Toute évolution passe par une nouvelle version (révision) soumise au circuit de validation.</div><div class="o_ka_info" invisible="state == 'valide'">« Générer la maquette » reprend les réalisations analytiques (comptes, sections, quantités, prix, montants, périodes) ; le responsable ajuste ensuite les valeurs avant consolidation.</div><div class="o_ka_grid"><div class="o_ka_f"><label for="annee" string="Année" class="o_ka_req"/><field name="annee"/></div><div class="o_ka_f"><label for="version" string="Version" class="o_ka_req"/><field name="version"/></div><div class="o_ka_f"><label for="axe_croise" string="Axe croisé"/><field name="axe_croise"/></div></div><field name="ligne_ids" nolabel="1"><list editable="bottom"><field name="account_id" string="Compte général"/><field name="section_id" string="Section (activité)"/><field name="quantite" string="Qté (t)"/><field name="pu" string="PU (F/kg)"/><field name="m10" string="Oct."/><field name="m11" string="Nov."/><field name="m12" string="Déc."/><field name="m01" optional="hide"/><field name="m02" optional="hide"/><field name="m03" optional="hide"/><field name="m04" optional="hide"/><field name="m05" optional="hide"/><field name="m06" optional="hide"/><field name="m07" optional="hide"/><field name="m08" optional="hide"/><field name="m09" optional="hide"/><field name="total" string="Total (M FCFA)" sum="Total des lignes affichées"/></list></field><p class="o_ka_note">Versions : budget initial, révisions et simulations. Le suivi budget / réalisé s'appuie sur la version validée en vigueur.</p>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Générer la maquette (réalisé)" name="action_generer_maquette" type="object" class="o_ka_btn o_ka_primary" invisible="state == 'valide'"/><button string="Importer les budgets (modèle d'import)" name="action_importer" type="object" class="o_ka_btn" invisible="state == 'valide'"/><button string="Enregistrer" special="save" class="o_ka_btn" invisible="state == 'valide'"/><button string="Soumettre à validation" name="action_soumettre" type="object" class="o_ka_btn" invisible="state != 'preparation'"/><button string="Valider (verrouiller)" name="action_valider" type="object" class="o_ka_btn" invisible="state != 'a_valider'"/><button string="Créer une révision" name="action_revision" type="object" class="o_ka_btn" invisible="state != 'valide'"/><button string="Comparer au réalisé" name="action_ouvrir_suivi" type="object" class="o_ka_btn"/><button string="Consulter le détail" name="action_ouvrir_detail" type="object" class="o_ka_btn"/><button string="Imprimer" name="action_imprimer" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <h1><field name="titre_vue" readonly="1"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <div class="o_ka_warn_banner" invisible="state != 'valide'"><b>Ce budget est validé : il ne peut plus être modifié. Toute évolution passe par une nouvelle version (révision) soumise au circuit de validation.</b></div>
+                <group>
+                    <group>
+                        <field name="version" string="Version" readonly="state == 'valide'"/>
+                        <field name="annee" string="Année" readonly="state == 'valide'"/>
+                    </group>
+                    <group>
+                        <field name="axe_croise" string="Axe croisé" readonly="state == 'valide'"/>
+                        <field name="name" string="Budget" readonly="state == 'valide'"/>
+                    </group>
+                </group>
+                <field name="ligne_ids" nolabel="1" readonly="state == 'valide'">
+                    <list editable="bottom">
+                        <field name="account_id" string="Compte général"/>
+                        <field name="section_id" string="Axe analytique"/>
+                        <field name="quantite" string="Qté (t)"/>
+                        <field name="pu" string="PU (F/kg)"/>
+                        <field name="m01" optional="hide"/>
+                        <field name="m02" optional="hide"/>
+                        <field name="m03" optional="hide"/>
+                        <field name="m04" optional="hide"/>
+                        <field name="m05" optional="hide"/>
+                        <field name="m06" optional="hide"/>
+                        <field name="m07" optional="hide"/>
+                        <field name="m08" optional="hide"/>
+                        <field name="m09" optional="hide"/>
+                        <field name="m10" string="Oct." sum="Oct."/>
+                        <field name="m11" string="Nov." sum="Nov."/>
+                        <field name="m12" string="Déc." sum="Déc."/>
+                        <field name="total" string="Total (FCFA)" sum="TOTAL BUDGET"/>
+                    </list>
+                </field>
+                <p class="o_ka_note" invisible="state == 'valide'">« Générer la maquette » : import des écritures de réalisations de la comptabilité analytique dans le volet budget — axes analytiques, comptes généraux, quantités, prix unitaires, montants, périodes (mois, année, date de comptabilisation).<br/>Le responsable ajuste ensuite les valeurs (saisie directe sur l'ERP possible) avant transmission à la finance pour consolidation.</p>
+                <p class="o_ka_note" invisible="state != 'valide'"><field name="historique_txt" readonly="1"/>.<br/>Le suivi budget / réalisé et les analyses d'écarts s'appuient sur la version validée en vigueur (couche consolidée).<br/>Avant validation : « Générer la maquette (réalisés analytiques) », « Importer les budgets » et la saisie directe restent disponibles.</p>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 9.3 ter : budget consolidé avec drill-down -->
 <record id="view_ka_budget_detail_form" model="ir.ui.view">
-    <field name="name">ka.budget.ka.form</field>
+    <field name="name">ka.budget.ka.form.detail</field>
     <field name="model">ka.budget</field>
     <field name="arch" type="xml">
-        <form string="Budget consolidé — détail d'un montant" class="o_ka_form">
+        <form string="Budget consolidé" class="o_ka_form">
+            <header>
+                <button string="Relancer la consolidation" name="action_consolider" type="object" class="btn-primary" invisible="state == 'valide'"/>
+                <button string="Comparer réalisé" name="action_ouvrir_suivi" type="object" class="btn-secondary"/>
+                <button string="Changer de version" name="action_revision" type="object" class="btn-secondary" invisible="state != 'valide'"/>
+                <button string="Exporter" name="action_exporter" type="object" class="btn-secondary"/>
+                <field name="state" widget="statusbar" statusbar_visible="preparation,a_valider,valide"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Budgets</span><span class="o_ka_cur">Consultation des budgets</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Budget consolidé — détail d'un montant</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            
-                        </div>
-                        <div class="o_ka_info">Un clic sur un montant consolidé ouvre ses lignes de détail (couche de détail spécifique). Le suivi budgétaire porte sur la couche consolidée.</div><field name="ligne_ids" nolabel="1"><list><field name="section_id" string="Section (activité)"/><field name="account_id" string="Compte"/><field name="m10" string="Oct."/><field name="m11" string="Nov."/><field name="m12" string="Déc."/><field name="total" string="Total (M FCFA)"/></list></field><div class="o_ka_grid"><div class="o_ka_f"><label for="ligne_sel_id" string="Montant consolidé à détailler"/><field name="ligne_sel_id"/></div><div class="o_ka_f"><label for="mois_sel" string="Mois"/><field name="mois_sel"/></div></div><div class="o_ka_h3"></div><field name="detail_titre" nolabel="1" readonly="1"/><field name="detail_sel_ids" nolabel="1" readonly="1"><list><field name="type" string="Type"/><field name="reference" string="Ligne"/><field name="intitule" string="Article / intitulé"/><field name="quantite" string="Quantité (t)" sum="Total"/><field name="pu" string="PU (F/kg)"/><field name="montant" string="Montant" sum="Total"/><field name="date" string="Date"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Comparer au réalisé" name="action_ouvrir_suivi" type="object" class="o_ka_btn o_ka_primary"/><button string="Changer de version" name="action_revision" type="object" class="o_ka_btn"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <h1><field name="titre_consolide" readonly="1"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <group>
+                    <group>
+                        <field name="version" string="Version" readonly="1"/>
+                    </group>
+                    <group/>
+                </group>
+                <p class="o_ka_note">Couche consolidée — agrégée par axe analytique × compte général, mensualisée (clic sur un montant = détails)</p>
+                <field name="ligne_ids" nolabel="1" readonly="1">
+                    <list>
+                        <field name="section_id" string="Axe analytique"/>
+                        <field name="account_id" string="Compte général"/>
+                        <field name="m10" string="Oct."/>
+                        <field name="m11" string="Nov."/>
+                        <field name="m12" string="Déc."/>
+                        <field name="total" string="Total (FCFA)"/>
+                        <button name="action_detailler" type="object" string="Détails" icon="fa-search-plus"/>
+                    </list>
+                </field>
+                <group>
+                    <group>
+                        <field name="ligne_sel_id" string="Montant consolidé à détailler"/>
+                    </group>
+                    <group>
+                        <field name="mois_sel" string="Mois"/>
+                    </group>
+                </group>
+                <div class="o_ka_h3" invisible="not ligne_sel_id"><field name="detail_titre" readonly="1"/></div>
+                <field name="detail_sel_ids" nolabel="1" readonly="1" invisible="not ligne_sel_id">
+                    <list>
+                        <field name="type" string="Type"/>
+                        <field name="reference" string="N° écriture"/>
+                        <field name="intitule" string="Article / libellé"/>
+                        <field name="quantite" string="Qté (t)" sum="Total"/>
+                        <field name="pu" string="PU (F/kg)"/>
+                        <field name="montant" string="Montant" sum="Total"/>
+                        <field name="date" string="Date compta"/>
+                    </list>
+                </field>
+                <p class="o_ka_note">La routine de consolidation agrège les écritures articles et écritures sur axes analytiques × comptes généraux, mensualisées.<br/>Le suivi budgétaire (budget / réalisé, écarts, reporting) s'effectue sur cette couche consolidée ; le détail sert de justification.</p>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 9.3 : budget — saisie et validation (prévu / réalisé par activité) -->
 <record id="view_ka_budget_suivi_form" model="ir.ui.view">
-    <field name="name">ka.budget.ka.form</field>
+    <field name="name">ka.budget.ka.form.suivi</field>
     <field name="model">ka.budget</field>
     <field name="arch" type="xml">
-        <form string="Budget — suivi par activité" class="o_ka_form">
+        <form string="Budget" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-secondary"/>
+                <button string="Confirmer le budget" name="action_soumettre" type="object" class="btn-primary" invisible="state != 'preparation'"/>
+                <button string="Comparer réalisé" name="action_ouvrir_suivi" type="object" class="btn-secondary"/>
+                <button string="Valider (verrouiller)" name="action_valider" type="object" class="btn-secondary" invisible="state != 'a_valider'"/>
+                <button string="Imprimer" name="action_imprimer" type="object" class="btn-secondary"/>
+                <field name="etape_suivi" widget="statusbar" statusbar_visible="brouillon,confirme,suivi"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Budgets</span><span class="o_ka_cur">Saisie des budgets</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Budget — suivi par activité</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-warning="state in ('preparation','a_valider')" decoration-success="state in ('valide')"/>
-                        </div>
-                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="ecart_global_txt" nolabel="1"/><span class="o_ka_kl">Écart global</span></div></div><field name="suivi_html" nolabel="1" readonly="1"/><p class="o_ka_note">Suivi continu prévu / réalisé par activité, croisé grade, site et campagne ; les écarts alimentent le reporting.</p>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Comparer au réalisé" name="action_ouvrir_suivi" type="object" class="o_ka_btn o_ka_primary"/><button string="Imprimer" name="action_imprimer" type="object" class="o_ka_btn"/></aside>
+                <field name="state" invisible="1"/>
+                <div class="oe_title">
+                    <h1>Budget <field name="name" class="oe_inline" readonly="state == 'valide'"/></h1>
+                    <div class="o_ka_sub"><field name="sous_titre_suivi" readonly="1"/></div>
                 </div>
+                <div class="o_ka_h3">Lignes budgétaires par activité (prévu vs réalisé)</div>
+                <field name="suivi_html" nolabel="1" readonly="1"/>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Confirmation : suivi continu prévu/réalisé par activité, croisé grade / site / campagne ; les écarts alimentent le reporting.</div>
             </sheet>
         </form>
     </field>
@@ -69,7 +157,7 @@
     <field name="arch" type="xml"><list string="ka_budget"><field name="name"/><field name="annee"/><field name="version"/><field name="total" sum="Total"/><field name="state" widget="badge"/></list></field>
 </record>
 <record id="view_ka_budget_import_form" model="ir.ui.view"><field name="name">ka.budget.import.form</field><field name="model">ka.budget.import</field><field name="arch" type="xml"><form string="Importer les budgets"><group><field name="fichier" filename="nom"/><field name="nom" invisible="1"/><field name="resultat" readonly="1"/></group><footer><button string="Importer" name="action_importer" type="object" class="btn-primary"/><button string="Fermer" special="cancel"/></footer></form></field></record>
-<record id="action_ka_budget" model="ir.actions.act_window"><field name="name">Saisie des budgets</field><field name="res_model">ka.budget</field><field name="view_mode">list,form</field></record><record id="action_ka_budget_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_budget_tree"/></record><record id="action_ka_budget_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_budget_form"/></record>
-<record id="action_ka_budget_detail" model="ir.actions.act_window"><field name="name">Consultation des budgets</field><field name="res_model">ka.budget</field><field name="view_mode">list,form</field></record><record id="action_ka_budget_detail_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget_detail"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_budget_tree"/></record><record id="action_ka_budget_detail_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget_detail"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_budget_detail_form"/></record>
-<record id="action_ka_budget_suivi" model="ir.actions.act_window"><field name="name">Budget — suivi par activité</field><field name="res_model">ka.budget</field><field name="view_mode">list,form</field></record><record id="action_ka_budget_suivi_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget_suivi"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_budget_tree"/></record><record id="action_ka_budget_suivi_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget_suivi"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_budget_suivi_form"/></record>
+<record id="action_ka_budget" model="ir.actions.act_window"><field name="name">Budget mensualisé</field><field name="res_model">ka.budget</field><field name="view_mode">list,form</field></record><record id="action_ka_budget_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_budget_tree"/></record><record id="action_ka_budget_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_budget_form"/></record>
+<record id="action_ka_budget_detail" model="ir.actions.act_window"><field name="name">Budget consolidé</field><field name="res_model">ka.budget</field><field name="view_mode">list,form</field></record><record id="action_ka_budget_detail_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget_detail"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_budget_tree"/></record><record id="action_ka_budget_detail_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget_detail"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_budget_detail_form"/></record>
+<record id="action_ka_budget_suivi" model="ir.actions.act_window"><field name="name">Budget</field><field name="res_model">ka.budget</field><field name="view_mode">list,form</field></record><record id="action_ka_budget_suivi_v0" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget_suivi"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_budget_tree"/></record><record id="action_ka_budget_suivi_v1" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_budget_suivi"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_budget_suivi_form"/></record>
 </odoo>

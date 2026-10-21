@@ -1,8 +1,10 @@
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError
 
-METHODES = [('standard', 'Prix standard'), ('average', 'Prix moyen pondéré'), ('fifo', 'FIFO')]
-GESTIONS = [('stock', 'Géré en stock'), ('conso', 'Consommable'), ('service', 'Service')]
+METHODES = [('standard', 'Prix standard'), ('average', 'Coût moyen pondéré (CMP)'), ('fifo', 'FIFO')]
+GESTIONS = [('stock', 'Stockable'), ('conso', 'Consommable'), ('service', 'Service')]
+GESTIONS_COURT = {'stock': 'Stock', 'conso': 'Consommable', 'service': 'Service'}
+GESTIONS_PHRASE = {'stock': 'Article stockable', 'conso': 'Article consommable', 'service': 'Service'}
 MODES = [('none', 'Sans suivi'), ('lot', 'Lot obligatoire'), ('serial', 'Numéro de série')]
 
 
@@ -16,6 +18,7 @@ class KaSite(models.Model):
     name = fields.Char(string='Intitulé', required=True)
     type = fields.Char(string='Type')
     legislation = fields.Char(string='Législation')
+    statut = fields.Selection([('actif', 'Actif'), ('inactif', 'Inactif')], string='Statut', default='actif')
 
     def _compute_display_name(self):
         for s in self:
@@ -103,6 +106,9 @@ class ProductCategory(models.Model):
     ka_code_comptable_id = fields.Many2one('ka.code.comptable', string='Code comptable')
     ka_analytic_id = fields.Many2one('account.analytic.account', string='Section analytique')
     ka_compteur_lot = fields.Char(string='Compteur lot')
+    ka_valorisation = fields.Selection([('permanent', 'Automatisée (permanent)'), ('periodique', 'Manuelle (périodique)')],
+                                       string="Valorisation d'inventaire", default='permanent')
+    ka_product_ids = fields.One2many('product.template', 'categ_id', string='Articles rattachés')
     ka_cpt_stock = fields.Char(related='ka_code_comptable_id.cpt_stock', string='Stock')
     ka_cpt_charge = fields.Char(related='ka_code_comptable_id.cpt_charge', string='Achat (charge)')
     ka_cpt_variation = fields.Char(related='ka_code_comptable_id.cpt_variation', string='Variation de stock')
@@ -144,8 +150,14 @@ class ProductTemplate(models.Model):
     ka_analytic_id = fields.Many2one(related='categ_id.ka_analytic_id', string='Section analytique')
     ka_niveau_taxe = fields.Selection([('normal', 'Normal'), ('reduit', 'Réduit'), ('exonere', 'Exonéré')],
                                       string='Niveau de taxe', default='normal')
-    ka_statut = fields.Selection([('actif', 'Actif'), ('archive', 'Archivé')], compute='_compute_ka_statut')
+    ka_statut = fields.Selection([('brouillon', 'Brouillon'), ('actif', 'Actif'), ('archive', 'Archivé')],
+                                 compute='_compute_ka_statut', string='Statut')
     ka_subtitle = fields.Char(compute='_compute_ka_subtitle')
+    ka_type_court = fields.Char(compute='_compute_ka_subtitle', string='Type')
+    ka_cpt_stock = fields.Char(related='categ_id.ka_cpt_stock', string='Compte de stock')
+    ka_cpt_charge = fields.Char(related='categ_id.ka_cpt_charge', string='Compte de charge')
+    ka_cpt_variation = fields.Char(related='categ_id.ka_cpt_variation', string='Variation de stock')
+    ka_centre_cout_txt = fields.Char(compute='_compute_ka_subtitle', string='Centre de coûts')
 
     @api.depends('type', 'is_storable')
     def _compute_ka_gestion(self):
@@ -161,12 +173,16 @@ class ProductTemplate(models.Model):
 
     def _compute_ka_statut(self):
         for p in self:
-            p.ka_statut = 'actif' if p.active else 'archive'
+            p.ka_statut = ('actif' if p._origin.id else 'brouillon') if p.active else 'archive'
 
-    @api.depends('default_code', 'name')
+    @api.depends('default_code', 'name', 'type', 'is_storable', 'categ_id.name', 'categ_id.ka_analytic_id')
     def _compute_ka_subtitle(self):
         for p in self:
-            p.ka_subtitle = '%s — %s' % (p.default_code or '', p.name or '')
+            gestion = p.ka_gestion or 'conso'
+            p.ka_subtitle = ' · '.join(x for x in (GESTIONS_PHRASE[gestion], (p.categ_id.name or '').lower()) if x)
+            p.ka_type_court = GESTIONS_COURT[gestion]
+            an = p.categ_id.ka_analytic_id
+            p.ka_centre_cout_txt = ('%s%s' % (an.code or an.name, ' (non modif.)' if gestion == 'stock' else '')) if an else ''
 
     @api.onchange('categ_id')
     def _onchange_categ_ka(self):
@@ -198,16 +214,47 @@ class ProductTemplate(models.Model):
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    ka_categorie = fields.Selection(selection_add=[('frais_generaux', 'FG — Frais généraux'),
+    ka_categorie = fields.Selection(selection_add=[('frais_generaux', 'Frais généraux'),
                                                    ('transitaire', 'Transitaire & transporteur')])
     ka_code_frn = fields.Char(string='Fournisseur', copy=False, readonly=True)
     ka_devise_achat_id = fields.Many2one('res.currency', string='Devise')
     ka_subtitle_frn = fields.Char(compute='_compute_ka_subtitle_frn')
+    ka_overline_frn = fields.Char(compute='_compute_ka_subtitle_frn')
+    ka_etat_frn = fields.Selection([('brouillon', 'Brouillon'), ('confirme', 'Confirmé')], string='État fiche fournisseur',
+                                   default='brouillon', copy=False)
+    ka_analytic_frn_id = fields.Many2one('account.analytic.account', string='Compte analytique')
+    ka_compte_courant_txt = fields.Char(compute='_compute_ka_frn_compte', string='Compte courant')
+    ka_avances_campagne = fields.Boolean(compute='_compute_ka_frn_compte', string='Avances de campagne')
+    ka_nb_commandes_frn = fields.Integer(compute='_compute_ka_nb_commandes_frn', string='Commandes')
+    ka_supplierinfo_ids = fields.One2many('product.supplierinfo', 'partner_id', string='Articles référencés')
 
-    @api.depends('ka_code_frn', 'name')
+    @api.depends('ka_code_frn', 'name', 'ka_categorie')
     def _compute_ka_subtitle_frn(self):
+        labels = dict(self._fields['ka_categorie']._description_selection(self.env))
         for p in self:
-            p.ka_subtitle_frn = ' — '.join(x for x in (p.ka_code_frn, p.name) if x)
+            nature = 'Transitaire & transporteur' if p.ka_categorie == 'transitaire' else 'Fournisseur ordinaire'
+            categs = self.env['product.supplierinfo'].search([('partner_id', '=', p._origin.id)]).product_tmpl_id.categ_id \
+                if p._origin.id else self.env['product.category']
+            p.ka_subtitle_frn = ' · '.join([nature] + [(c.name or '').lower() for c in categs[:2]])
+            p.ka_overline_frn = 'Fournisseur — %s' % labels.get(p.ka_categorie, '') if p.ka_categorie else 'Fournisseur'
+
+    @api.depends('ka_categorie')
+    def _compute_ka_frn_compte(self):
+        for p in self:
+            planteur = p.ka_categorie == 'planteur_coop'
+            p.ka_compte_courant_txt = 'Compte courant planteur' if planteur else '— (non applicable)'
+            p.ka_avances_campagne = planteur
+
+    def _compute_ka_nb_commandes_frn(self):
+        for p in self:
+            p.ka_nb_commandes_frn = self.env['ka.commande'].search_count([('partner_id', '=', p.id)]) if p._origin.id else 0
+
+    def action_confirmer_frn(self):
+        self.write({'ka_etat_frn': 'confirme'})
+
+    def action_rejeter_frn(self):
+        """Rejette la fiche : elle repasse en brouillon et est archivée."""
+        self.write({'ka_etat_frn': 'brouillon', 'active': False})
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -267,6 +314,20 @@ class StockWarehouse(models.Model):
     ka_location_ids = fields.One2many('stock.location', 'warehouse_id', string='Emplacements du site')
     ka_subtitle = fields.Char(compute='_compute_ka_subtitle')
     ka_statut = fields.Selection([('actif', 'Actif'), ('archive', 'Archivé')], compute='_compute_ka_subtitle')
+    ka_mto = fields.Boolean(string='Réappro. sur commande (MTO)')
+    ka_nb_emplacements = fields.Integer(compute='_compute_ka_nb', string='Emplacements')
+    ka_nb_routes = fields.Integer(compute='_compute_ka_nb', string='Routes')
+
+    @api.depends('ka_location_ids', 'route_ids')
+    def _compute_ka_nb(self):
+        for w in self:
+            w.ka_nb_emplacements = len(w.ka_location_ids)
+            w.ka_nb_routes = len(w.route_ids)
+
+    def action_routes(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Routes', 'res_model': 'stock.route',
+                'view_mode': 'list,form', 'domain': [('id', 'in', self.route_ids.ids)]}
 
     @api.depends('code', 'name', 'active')
     def _compute_ka_subtitle(self):

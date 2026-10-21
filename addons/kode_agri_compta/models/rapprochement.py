@@ -26,26 +26,49 @@ class KaRapprochement(models.Model):
                                 string='Statut du contrôle')
     tol_qty = fields.Float(string='Tolérance quantité', default=lambda s: ka_param(s.env, 'tolerance_quantite', 0.0))
     tol_prix = fields.Float(string='Tolérance prix (%)', default=lambda s: ka_param(s.env, 'tolerance_prix', 2.0))
-    state = fields.Selection([('a_controler', 'À contrôler'), ('rapprochee', 'Rapprochée'), ('attente', 'En attente de contrôle')],
+    state = fields.Selection([('a_controler', 'À rapprocher'), ('rapprochee', 'Rapprochée'), ('attente', 'En attente de contrôle')],
                              default='a_controler', string='Statut', tracking=True)
+    # barre d'état de l'écran 8.3 : Brouillon › À rapprocher › Comptabilisée › Payée
+    etape = fields.Selection([('brouillon', 'Brouillon'), ('a_rapprocher', 'À rapprocher'), ('attente', 'En attente de contrôle'),
+                              ('comptabilisee', 'Comptabilisée'), ('payee', 'Payée')], compute='_compute_etape', string='Étape')
+    move_state = fields.Selection(related='move_id.state', string='État de la facture')
+    facture_txt = fields.Char(compute='_compute_refs', string='N° facture')
 
     def _ka_subtitle(self):
         self.ensure_one()
-        rec = ' · réception %s' % self.reception_txt if self.reception_txt else ''
-        return '%s — %s%s' % (self.move_id.name or 'Brouillon', self.partner_id.name or '', rec)
+        return '%s · Facture sur réception' % (self.partner_id.name or '')
+
+    @api.depends('move_id.name', 'reception_txt')
+    def _compute_display_name(self):
+        for r in self:
+            nom = r.move_id.name if r.move_id.name and r.move_id.name != '/' else r.name
+            r.display_name = '%s (%s)' % (nom, r.reception_txt) if r.reception_txt else (nom or '')
+
+    @api.depends('state', 'line_ids', 'move_id.state', 'move_id.payment_state')
+    def _compute_etape(self):
+        for r in self:
+            if r.state == 'rapprochee' and r.move_id.state == 'posted':
+                r.etape = 'payee' if r.move_id.payment_state in ('paid', 'in_payment') else 'comptabilisee'
+            elif r.state == 'attente':
+                r.etape = 'attente'
+            elif r.line_ids:
+                r.etape = 'a_rapprocher'
+            else:
+                r.etape = 'brouillon'
 
     @api.depends('move_id.invoice_payment_term_id')
     def _compute_echeance(self):
         for r in self:
             r.echeance = r.move_id.invoice_payment_term_id.name or ''
 
-    @api.depends('move_id')
+    @api.depends('move_id', 'move_id.name')
     def _compute_refs(self):
         for r in self:
             pos = r.move_id.invoice_line_ids.purchase_line_id.order_id
             pickings = pos.picking_ids
             r.commande_txt = ', '.join(pos.mapped('name'))
             r.reception_txt = ', '.join(pickings.mapped('name'))
+            r.facture_txt = r.move_id.name if r.move_id.name and r.move_id.name != '/' else ''
 
     @api.depends('line_ids.ecart_qty', 'line_ids.ecart_prix', 'line_ids.montant', 'line_ids.hors_tolerance')
     def _compute_totaux(self):
@@ -82,6 +105,29 @@ class KaRapprochement(models.Model):
 
     def action_attente(self):
         self.write({'state': 'attente'})
+
+    def action_comptabiliser(self):
+        """Comptabilise la facture rapprochée (contrôle RG-8.1 d'abord si la facture n'est pas encore confirmée)."""
+        for r in self:
+            if r.state != 'rapprochee':
+                r.action_valider()
+            elif r.move_id.state == 'draft':
+                r.move_id.action_post()
+        return True
+
+    def action_ouvrir_commande(self):
+        """Carte « Commande » : commandes d'achat d'origine de la facture."""
+        self.ensure_one()
+        pos = self.move_id.invoice_line_ids.purchase_line_id.order_id
+        return {'type': 'ir.actions.act_window', 'name': 'Commandes', 'res_model': 'purchase.order', 'view_mode': 'list,form',
+                'domain': [('id', 'in', pos.ids)]}
+
+    def action_ouvrir_reception(self):
+        """Carte « Réception » : réceptions rapprochées."""
+        self.ensure_one()
+        pickings = self.move_id.invoice_line_ids.purchase_line_id.order_id.picking_ids
+        return {'type': 'ir.actions.act_window', 'name': 'Réceptions', 'res_model': 'stock.picking', 'view_mode': 'list,form',
+                'domain': [('id', 'in', pickings.ids)]}
 
     def action_valider(self):
         """RG-8.1 : au-delà de la tolérance de prix ou de quantité, la facture reste en attente de contrôle ;

@@ -39,7 +39,11 @@ class KaQcReception(models.Model):
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — ticket %s' % (self.name, self.ticket_name or '')
+        t = self.ticket_id
+        planteur = t.partner_id.ka_code or t.partner_code or t.partner_id.name or ''
+        reception = t.purchase_id.name or t.lot_name or ''
+        return ' · '.join(x for x in ('Ticket de pesée', planteur and 'Planteur %s' % planteur,
+                                      reception and 'Réception %s' % reception) if x)
 
     @api.depends('line_ids.poids', 'poids_net')
     def _compute_total(self):
@@ -93,13 +97,19 @@ class KaDrcEssai(models.Model):
                            default=lambda s: ka_param(s.env, 'drc_reference', 60.0))
     ecart = fields.Float(string='Écart', compute='_compute_drc', store=True, digits=(5, 1))
     drc_lot = fields.Float(related='lot_id.ka_drc', string='Titre du lot après mise à jour', digits=(5, 1))
-    rang = fields.Integer(compute='_compute_rang')
+    rang = fields.Integer(compute='_compute_rang', string='N° essai sur ce lot')
+    rang_label = fields.Char(compute='_compute_rang', string='Rang de l\'essai')
     state = fields.Selection([('brouillon', 'Brouillon'), ('conforme', 'Conforme'), ('ecart', 'Écart à analyser')],
                              default='brouillon', string='Statut')
 
+    @api.depends('name')
+    def _compute_display_name(self):
+        for e in self:
+            e.display_name = 'QC-%s' % e.name if e.name and e.name != 'Nouveau' else (e.name or '')
+
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — lot %s · %de essai sur ce lot' % (self.name, self.lot_id.name or '', self.rang)
+        return 'Lot de fond de tasse %s' % (self.lot_id.name or '')
 
     @api.depends('echantillon_g', 'poids_sec_g', 'drc_ref')
     def _compute_drc(self):
@@ -112,6 +122,7 @@ class KaDrcEssai(models.Model):
         for e in self:
             e.rang = self.search_count([('lot_id', '=', e.lot_id.id), ('id', '<=', e._origin.id or 0)]) or 1 \
                 if e.lot_id else 1
+            e.rang_label = '%d%s essai sur ce lot' % (e.rang, 'er' if e.rang == 1 else 'ᵉ')
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -157,10 +168,20 @@ class KaQcGranul(models.Model):
                                 store=True, string='Résultat')
     controleur_id = fields.Many2one('res.users', string='Contrôleur', default=lambda s: s.env.user)
     tracabilite = fields.Selection(related='of_id.tracabilite', string='Statut de traçabilité')
+    state = fields.Selection([('a_controler', 'À contrôler'), ('conforme', 'Conforme'),
+                              ('non_conforme', 'Non conforme')], default='a_controler', string='Statut')
+    ka_ref = fields.Char(compute='_compute_ka_ref', string='Référence du test')
+
+    @api.depends('name')
+    def _compute_ka_ref(self):
+        for q in self:
+            q.ka_ref = (q.name or '').removeprefix('QC-')
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — poste %s · OF %s' % (self.name, self.poste_id.display_name or '', self.of_id.name or '')
+        poste = ' '.join(x for x in (self.poste_id.code, self.poste_id.name) if x)
+        return ' · '.join(x for x in (poste and 'Poste %s' % poste,
+                                      self.of_id and 'OF de production %s' % self.of_id.name) if x)
 
     @api.depends('homogeneite', 'corps_etrangers')
     def _compute_res(self):
@@ -176,6 +197,8 @@ class KaQcGranul(models.Model):
 
     def action_valider(self):
         """Non bloquant : un résultat non conforme n'interdit pas le passage au séchoir."""
+        for q in self:
+            q.state = q.resultat or 'a_controler'
         return True
 
 
@@ -198,10 +221,19 @@ class KaQcPanier(models.Model):
                                 compute='_compute_res', string='Résultat')
     state = fields.Selection([('brouillon', 'Sans impact stock'), ('valide', 'Validé')], default='brouillon',
                              string='Statut')
+    chrono = fields.Char(related='panier_id.chrono', string='N° chronologique du panier')
+    of_id = fields.Many2one(related='panier_id.of_id', string='OF de production')
+    tracabilite = fields.Selection(related='panier_id.tracabilite', string='Statut de traçabilité')
+
+    @api.depends('panier_id.chrono', 'name')
+    def _compute_display_name(self):
+        for q in self:
+            q.display_name = 'QC-PAN-%s' % q.panier_id.chrono if q.panier_id.chrono else (q.name or '')
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — séchoir %s · OF %s' % (self.name, self.sechoir_id.name or '', self.panier_id.of_id.name or '')
+        return ' · '.join(x for x in (self.sechoir_id.name, self.panier_id.of_id and
+                                      'OF de production %s' % self.panier_id.of_id.name) if x)
 
     @api.depends('p0', 'pri', 'grade_vise')
     def _compute_res(self):
@@ -246,21 +278,38 @@ class KaQcLiberation(models.Model):
     poids = fields.Float(compute='_compute_info', digits=(10, 0))
     nb_bloques = fields.Integer(compute='_compute_info')
     badge_label = fields.Char(compute='_compute_info')
-    state = fields.Selection([('en_cours', 'En cours'), ('libere', 'Libéré')], default='en_cours', string='Statut')
+    state = fields.Selection([('en_cours', 'À contrôler'), ('libere', 'Libéré'), ('expediable', 'Expédiable')],
+                             default='en_cours', string='Statut')
+    nb_label = fields.Char(compute='_compute_info', string='Colis du conteneur')
+    tracabilite = fields.Selection(TRACABILITE, compute='_compute_info', string='Statut de traçabilité')
+    ka_valid_txt = fields.Char(compute='_compute_info', string='Validation')
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — %s colis · %s kg · contrôleur %s' % (
-            self.name, self.nb_colis, ('{:,.0f}'.format(self.poids)).replace(',', ' '), self.controleur_id.name or '')
+        return '%s colis · %s kg · Contrôlé par %s' % (
+            self.nb_label, ('{:,.0f}'.format(self.poids)).replace(',', ' '), self.controleur_id.name or '')
 
-    @api.depends('line_ids.resultat', 'line_ids.lot_id')
+    @api.depends('line_ids.resultat', 'line_ids.lot_id', 'state')
     def _compute_info(self):
+        capacite = int(ka_param(self.env, 'colis_par_conteneur', 17.0))
         for q in self:
             q.nb_colis = len(q.line_ids)
             q.poids = sum(q.line_ids.lot_id.mapped('product_qty'))
             q.nb_bloques = len(q.line_ids.filtered(lambda l: l.resultat == 'bloque'))
             q.badge_label = ('%s colis bloqués' % q.nb_bloques) if q.nb_bloques else (
                 'Libéré' if q.state == 'libere' else 'Conforme')
+            q.nb_label = '%d/%d' % (q.nb_colis, capacite)
+            q.tracabilite = 'non_eudr' if 'non_eudr' in q.line_ids.lot_id.mapped('ka_tracabilite') else 'eudr'
+            if q.nb_bloques:
+                q.ka_valid_txt = ("%d colis sont bloqués et doivent être remplacés par l'agent d'expédition sur "
+                                  "l'équivalent conteneur, puis renvoyés au contrôle qualité pour vérification. La "
+                                  "validation globale du conteneur ne sera possible que lorsque les %s colis seront "
+                                  "conformes. La fiche de contrôle à libération hérite le statut de traçabilité de "
+                                  "l'équivalent conteneur auquel elle est rattachée.") % (q.nb_bloques, q.nb_label)
+            else:
+                q.ka_valid_txt = ("Tous les colis sont conformes : la validation globale fait passer les %s colis du "
+                                  "statut Q au statut A. La fiche de contrôle à libération hérite le statut de "
+                                  "traçabilité de l'équivalent conteneur auquel elle est rattachée.") % q.nb_label
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -287,8 +336,9 @@ class KaQcLiberation(models.Model):
 
     def action_bon(self):
         self.ensure_one()
-        if self.state != 'libere':
+        if self.state not in ('libere', 'expediable'):
             raise UserError(_("Le bon de libération n'est disponible qu'après validation du conteneur."))
+        self.state = 'expediable'
         return {'type': 'ir.actions.client', 'tag': 'display_notification',
                 'params': {'title': _('Bon de libération'), 'type': 'success', 'sticky': False,
                            'message': _('Bon de libération conteneur %s édité.') % self.name}}
@@ -308,14 +358,20 @@ class KaQcLiberationLine(models.Model):
     azote = fields.Float(compute='_compute_vals', string='Azote', digits=(5, 2))
     cendres = fields.Float(compute='_compute_vals', string='Cendres', digits=(5, 2))
     vm = fields.Float(compute='_compute_vals', string='Mat. vol.', digits=(5, 2))
-    resultat = fields.Selection([('a_controler', 'À contrôler'), ('libere', 'Libéré'),
-                                 ('bloque', 'Bloqué — à remplacer')], default='a_controler', string='Résultat')
+    resultat = fields.Selection([('a_controler', 'À contrôler'), ('libere', '✓ Conforme'),
+                                 ('bloque', '✗ Bloqué')], default='a_controler', string='Conforme')
     a_valider = fields.Boolean(string='Sélection')
+    poids = fields.Float(related='lot_id.product_qty', string='Poids', digits=(10, 0))
 
     @api.depends('lot_id.ka_etat', 'lot_id.ka_statut_id', 'lot_id.ka_spec_id.line_ids.resultat')
     def _compute_vals(self):
         for l in self:
-            l.statut = l.lot_id.ka_etat_label()
+            st = l.lot_id.ka_statut_id
+            if st and not st.defaut:
+                code = l.lot_id.product_id.default_code or st.article_code or ''
+                l.statut = st.name if st.name == code else '%s — %s' % (code, st.name)
+            else:
+                l.statut = st.name or l.lot_id.ka_etat_label()
             res = l.lot_id.ka_spec_id.ka_resultats() if l.lot_id.ka_spec_id else {}
             for t in ('p0', 'pri', 'ml', 'imp', 'azote', 'cendres', 'vm'):
                 l[t] = res.get(t, 0.0)
@@ -326,6 +382,24 @@ class KaQcLiberationLine(models.Model):
         for l in lines.filtered(lambda l: l.lot_id.ka_etat == 'Q' and l.lot_id.ka_motif):
             l.resultat = 'bloque'
         return lines
+
+    @api.onchange('lot_id')
+    def _onchange_lot_id(self):
+        """Colis de remplacement fourni par l'agent d'expédition : il repasse au contrôle."""
+        if self.lot_id:
+            self.resultat = 'bloque' if (self.lot_id.ka_etat == 'Q' and self.lot_id.ka_motif) else 'a_controler'
+
+    def action_valider_ligne(self):
+        self._liberer()
+        for q in self.qc_id:
+            if q.line_ids and all(l.resultat == 'libere' for l in q.line_ids):
+                q.state = 'libere'
+
+    def action_remplacer(self):
+        """Remplacement d'un colis bloqué : saisie du nouveau colis puis recontrôle."""
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Remplacer le colis', 'res_model': self._name,
+                'res_id': self.id, 'view_mode': 'form', 'target': 'new'}
 
     def _liberer(self):
         for l in self:

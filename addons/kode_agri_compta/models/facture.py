@@ -12,6 +12,19 @@ class AccountMove(models.Model):
     ka_montant_txt = fields.Char(compute='_compute_ka_facture', string='Montant')
     ka_statut_label = fields.Char(compute='_compute_ka_facture', string='Statut')
     ka_subtitle = fields.Char(compute='_compute_ka_facture')
+    # barre d'état de l'écran 8.1 : Brouillon › Comptabilisée › Payée (état de la pièce et état du paiement)
+    ka_etape = fields.Selection([('brouillon', 'Brouillon'), ('comptabilisee', 'Comptabilisée'), ('payee', 'Payée'), ('annulee', 'Annulée')],
+                                compute='_compute_ka_etape', string='Étape')
+
+    @api.depends('state', 'payment_state')
+    def _compute_ka_etape(self):
+        for m in self:
+            if m.state == 'cancel':
+                m.ka_etape = 'annulee'
+            elif m.state == 'draft':
+                m.ka_etape = 'brouillon'
+            else:
+                m.ka_etape = 'payee' if m.payment_state in ('paid', 'in_payment', 'reversed') else 'comptabilisee'
 
     @api.depends('currency_id', 'amount_total', 'state', 'partner_id', 'name', 'move_type', 'invoice_date')
     def _compute_ka_facture(self):
@@ -21,12 +34,16 @@ class AccountMove(models.Model):
             rate = 1.0
             if cur and comp and cur != comp:
                 rate = cur._get_conversion_rate(cur, comp, m.company_id, m.invoice_date or fields.Date.today())
-            m.ka_cours = ('%s %s / %s' % ('{:,.0f}'.format(rate).replace(',', ' '), comp.symbol or comp.name, cur.name)) if cur != comp else ''
+            unite = 'FCFA' if comp.name in ('XOF', 'XAF') else (comp.name or '')
+            m.ka_cours = ('%s %s/%s' % ('{:,.0f}'.format(rate).replace(',', ' '), unite, cur.name)) if cur != comp else ''
             m.ka_devise_txt = cur.name or ''
-            m.ka_montant_txt = '%s %s' % ('{:,.0f}'.format(m.amount_total).replace(',', ' '), cur.name or '')
+            m.ka_montant_txt = '{:,.0f}'.format(m.amount_total).replace(',', ' ')
             m.ka_statut_label = labels.get(m.state, '')
-            kind = 'vente export' if m.move_type == 'out_invoice' and m.partner_id.ka_cat_client == 'export' else 'vente'
-            m.ka_subtitle = '%s — %s · %s' % (m.name if m.name and m.name != '/' else 'Brouillon', m.partner_id.name or '', kind)
+            if m.move_type in ('in_invoice', 'in_refund'):
+                kind = 'Facture fournisseur'
+            else:
+                kind = 'Vente export' if m.partner_id.ka_cat_client == 'export' else 'Vente'
+            m.ka_subtitle = '%s · %s (%s)' % (m.partner_id.name or '', kind, m.ka_statut_label.lower() or 'provisoire')
 
     def action_valider_ka(self):
         self.filtered(lambda m: m.state == 'draft').action_post()
@@ -38,3 +55,15 @@ class AccountMove(models.Model):
     def action_reglement_ka(self):
         self.ensure_one()
         return self.action_register_payment()
+
+    def action_ka_ouvrir_devise(self):
+        """Carte « Devise » : fiche de la devise et de ses cours."""
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Devise', 'res_model': 'res.currency', 'res_id': self.currency_id.id,
+                'view_mode': 'form'}
+
+    def action_ka_ouvrir_ecritures(self):
+        """Carte « Montant » : écritures comptables de la facture."""
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Écritures', 'res_model': 'account.move.line', 'view_mode': 'list',
+                'domain': [('move_id', '=', self.id)]}

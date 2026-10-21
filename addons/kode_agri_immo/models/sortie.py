@@ -23,11 +23,33 @@ class KaImmoSortie(models.Model):
     plus_value_txt = fields.Char(compute='_compute_resultat')
     partner_id = fields.Many2one('res.partner', string='Acquéreur')
     move_id = fields.Many2one('account.move', readonly=True, copy=False)
-    state = fields.Selection([('a_valider', 'À valider'), ('validee', 'Validée')], default='a_valider', string='Statut', tracking=True)
+    state = fields.Selection([('brouillon', 'Brouillon'), ('a_valider', 'À approuver'), ('approuvee', 'Approuvée'),
+                              ('validee', 'Comptabilisée')], default='a_valider', string='Statut', tracking=True)
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — %s (%s)' % (self.name, self.immo_id.intitule or '', self.immo_id.name or '')
+        return '%s (%s)' % (self.immo_id.intitule or '', self.immo_id.name or '')
+
+    @api.depends('name', 'immo_id.intitule')
+    def _compute_display_name(self):
+        for s in self:
+            s.display_name = '%s — %s' % (s.name, s.immo_id.intitule) if s.immo_id.intitule else (s.name or '')
+
+    def action_approuver(self):
+        """Approbation de la cession : contrôle de l'immobilisation, du prix et de la VNC avant comptabilisation."""
+        for s in self:
+            if s.state not in ('brouillon', 'a_valider'):
+                raise UserError(_('Cette sortie est déjà approuvée.'))
+            if s.immo_id.state != 'en_service':
+                raise UserError(_("Seule une immobilisation en service peut être cédée."))
+            if s.type == 'cession' and not s.prix:
+                raise UserError(_('Indiquez le prix de cession.'))
+            s.state = 'approuvee'
+
+    def action_ecritures(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Écritures', 'res_model': 'account.move',
+                'view_mode': 'list,form', 'domain': [('id', 'in', self.move_id.ids)]}
 
     def _vnc_a(self, immo, date):
         """VNC à la date de sortie : valeur − dotations échues jusqu'à la date (comptabilisées ou non)."""
@@ -39,7 +61,7 @@ class KaImmoSortie(models.Model):
         for s in self:
             s.vnc = s._vnc_a(s.immo_id, s.date) if s.immo_id and s.date else 0.0
             s.plus_value = (s.prix if s.type == 'cession' else 0.0) - s.vnc
-            s.plus_value_txt = ('%s %s' % ('+' if s.plus_value >= 0 else '−', '{:,.0f}'.format(abs(s.plus_value)).replace(',', ' ')))
+            s.plus_value_txt = ('%s%s FCFA' % ('+' if s.plus_value >= 0 else '−', '{:,.0f}'.format(abs(s.plus_value)).replace(',', ' ')))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -50,14 +72,14 @@ class KaImmoSortie(models.Model):
 
     def action_simuler(self):
         self.ensure_one()
-        return self.env['ka.structure']._notif(_('Résultat de cession'), _('VNC %s — plus ou moins-value %s FCFA.') % (
+        return self.env['ka.structure']._notif(_('Résultat de cession'), _('VNC %s FCFA — plus ou moins-value %s.') % (
             '{:,.0f}'.format(self.vnc).replace(',', ' '), self.plus_value_txt))
 
     def action_valider(self):
         """Comptabilise la sortie : reprise de l'amortissement cumulé, VNC en valeur comptable de cession (81),
         produit de cession (82) ; interrompt les dotations ultérieures."""
         for s in self:
-            if s.state != 'a_valider':
+            if s.state not in ('brouillon', 'a_valider', 'approuvee'):
                 continue
             i, f = s.immo_id, s.immo_id.famille_id
             journal = self.env['account.journal'].search([('type', '=', 'general')], limit=1)

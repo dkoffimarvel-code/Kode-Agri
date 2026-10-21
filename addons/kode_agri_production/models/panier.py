@@ -33,10 +33,43 @@ class KaPanier(models.Model):
     qc_ids = fields.One2many('ka.qc.panier', 'panier_id', string='Contrôles qualité')
     qc_label = fields.Char(compute='_compute_qc_label', string='Contrôle qualité')
     notes = fields.Text(string='Notes')
+    of_type = fields.Selection(related='of_id.type', string="Type d'OF")
+    cycle_label = fields.Char(compute='_compute_libelles', string='Cycle séchage')
+    titre_label = fields.Char(compute='_compute_libelles', string='Libellé du titre')
+    controle_valide = fields.Boolean(compute='_compute_controle', string='Contrôle validé')
+    transfert_controle = fields.Boolean(compute='_compute_controle', string='Transfert vers contrôle qualité')
+
+    @api.depends('chrono', 'name')
+    def _compute_display_name(self):
+        for p in self:
+            p.display_name = p.chrono if p.chrono and p.chrono != 'Nouveau' else (p.name or '')
+
+    @api.depends('cycle_min', 'of_id.type', 'of_id.name')
+    def _compute_libelles(self):
+        for p in self:
+            p.cycle_label = '%d min' % p.cycle_min
+            p.titre_label = 'N° chronologique du panier' + (
+                " — OF d'essai %s" % p.of_id.name if p.of_id.type == 'essai' else '')
+
+    @api.depends('state', 'qc_ids.state')
+    def _compute_controle(self):
+        for p in self:
+            p.controle_valide = bool(p.qc_ids.filtered(lambda q: q.state == 'valide'))
+            p.transfert_controle = p.state == 'controle' or bool(p.qc_ids)
+
+    def action_voir_colis(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Colis rattachés', 'res_model': 'ka.colis',
+                'view_mode': 'list,form', 'domain': [('id', 'in', self.colis_line_ids.colis_id.ids)]}
+
+    def action_voir_qc(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Contrôles qualité', 'res_model': 'ka.qc.panier',
+                'view_mode': 'list,form', 'domain': [('panier_id', '=', self.id)]}
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — panier %s · OF %s' % (self.chrono, self.name, self.of_id.name or '')
+        return 'Panier %s · OF %s' % (self.name, self.of_id.name or '')
 
     @api.depends('nb_balles')
     def _compute_poids(self):

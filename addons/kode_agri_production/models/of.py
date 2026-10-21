@@ -15,10 +15,12 @@ class KaOf(models.Model):
     type = fields.Selection([('melange', 'MEL — Mélange'), ('production', 'PRD — Production'),
                              ('essai', 'ESS — Essai'), ('reclassement', 'RCL — Reclassement')],
                             string="Type d'OF", required=True, default='production')
-    state = fields.Selection([('planifie', 'Planifié'), ('lance', 'Lancé'), ('en_essai', 'En essai'),
+    state = fields.Selection([('planifie', 'Brouillon'), ('lance', 'En cours'), ('en_essai', 'En essai'),
                               ('produit', 'Produit'), ('specifie', 'Spécifié'), ('solde', 'Soldé')],
                              default='planifie', string='Statut', tracking=True)
     badge_label = fields.Char(compute='_compute_badge_label')
+    ka_etape_melange = fields.Selection([('brouillon', 'Brouillon'), ('lance', 'Lancé'), ('termine', 'Terminé')],
+                                        string='Étape du mélange', compute='_compute_ka_etape_melange')
     warehouse_id = fields.Many2one('stock.warehouse', string='Site',
                                    default=lambda s: s.env['stock.warehouse'].search(
                                        [('company_id', '=', s.env.company.id)], limit=1))
@@ -41,9 +43,10 @@ class KaOf(models.Model):
     drc_reel = fields.Float(compute='_compute_melange', string='DRC réel moyen', digits=(5, 1), store=True)
     cout_matiere = fields.Monetary(compute='_compute_melange', string='Coût matière', store=True)
     lot_melange = fields.Char(compute='_compute_lot_melange', string='Lot de mélange')
+    drc_reel_label = fields.Char(compute='_compute_libelles', string='DRC réel moyen (carte)')
 
     # production / essai
-    grade_vise = fields.Selection([('TSR10', 'TSR10 (objectif)'), ('TSR20', 'TSR20 (objectif)'),
+    grade_vise = fields.Selection([('TSR10', 'TSR10'), ('TSR20', 'TSR20'),
                                    ('OFFSPECS', 'OFFSPECS')], string='Grade visé')
     poids_colis = fields.Float(string="Poids net d'un colis", default=POIDS_COLIS, digits=(8, 0))
     composition = fields.Char(default='36 balles × 35 kg', readonly=True)
@@ -53,6 +56,8 @@ class KaOf(models.Model):
                            default=lambda s: ka_param(s.env, 'drc_reference', 60.0))
     tsr_estime = fields.Float(compute='_compute_estimation', string='TSR estimé', digits=(12, 0), store=True)
     nb_colis_estime = fields.Integer(compute='_compute_estimation', string='Nombre de colis estimé', store=True)
+    qty_produire_label = fields.Char(compute='_compute_libelles', string='Quantité à produire')
+    melange_consomme_a = fields.Char(compute='_compute_libelles', string='Mélange consommé à')
     bains_par_panier = fields.Integer(string='Bains par panier', default=4)
     melange_source_id = fields.Many2one('ka.of', string='Mélange source', domain=[('type', '=', 'melange')])
     conso_matiere = fields.Char(string='Consommation matière', default='Non — pour mémoire', readonly=True)
@@ -65,14 +70,26 @@ class KaOf(models.Model):
 
     def _ka_subtitle(self):
         self.ensure_one()
-        art = self.product_id.display_name or ''
+        art = self.product_id.name or ''
         if self.type == 'melange':
-            return '%s — article %s (mélange homogène)' % (self.name, self.product_id.default_code or art)
+            return 'Mélange homogène — consommation paramétrable'
         if self.type == 'essai':
-            return "%s — OF d'essai sur échantillon de mélange" % self.name
+            return "OF de production sur échantillon de mélange — article %s" % art
         if self.type == 'reclassement':
             return '%s — reclassement 1 pour 1' % self.name
-        return '%s — production de colis TSR (non spécifié)' % self.name
+        return 'Production sérialisée — article %s' % art
+
+    @api.depends('state')
+    def _compute_ka_etape_melange(self):
+        for of in self:
+            of.ka_etape_melange = {'planifie': 'brouillon', 'solde': 'termine'}.get(of.state, 'lance')
+
+    @api.depends('drc_reel', 'nb_colis_estime', 'type')
+    def _compute_libelles(self):
+        for of in self:
+            of.drc_reel_label = 'DRC %s%%' % ('%.0f' % of.drc_reel)
+            of.qty_produire_label = '≈ %d colis' % of.nb_colis_estime
+            of.melange_consomme_a = "Clôture de l'OF" if of.type == 'essai' else 'Lancement de l\'OF'
 
     @api.model
     def _poids_colis(self):
@@ -81,7 +98,7 @@ class KaOf(models.Model):
     @api.depends('state', 'type')
     def _compute_badge_label(self):
         for of in self:
-            of.badge_label = {'planifie': 'En création', 'lance': 'Lancé', 'en_essai': 'En essai',
+            of.badge_label = {'planifie': 'Brouillon', 'lance': 'Lancé', 'en_essai': 'En essai',
                               'produit': 'Produit', 'specifie': 'Spécifié', 'solde': 'Soldé'}[of.state]
 
     @api.depends('lot_ids.tracabilite', 'melange_ids.melange_of_id.tracabilite', 'melange_source_id.tracabilite')
@@ -269,8 +286,13 @@ class KaOfMelange(models.Model):
     drc_ref = fields.Float(string='DRC de référence', digits=(5, 0),
                            default=lambda s: ka_param(s.env, 'drc_reference', 60.0))
     tsr_estime = fields.Float(string='TSR estimé (kg)', compute='_compute_tsr', store=True, digits=(12, 0))
+    unite = fields.Char(string='Unité', compute='_compute_unite')
 
     @api.depends('qty_humide', 'drc_ref')
     def _compute_tsr(self):
         for m in self:
             m.tsr_estime = m.qty_humide * m.drc_ref / 100.0
+
+    def _compute_unite(self):
+        for m in self:
+            m.unite = 'kg'

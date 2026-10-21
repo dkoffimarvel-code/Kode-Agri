@@ -4,19 +4,43 @@
     <field name="name">ka.regul.ka.form</field>
     <field name="model">ka.regul</field>
     <field name="arch" type="xml">
-        <form string="Régularisations d'arrêté" class="o_ka_form">
+        <form string="Régularisation d'arrêté" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-secondary"/>
+                <button string="Comptabiliser" name="action_comptabiliser" type="object" class="btn-primary" invisible="state != 'brouillon'"/>
+                <button string="Extourner" name="action_extourner" type="object" class="btn-secondary" invisible="state != 'comptabilisee' or not extourne"/>
+                <button string="Reprise de provision" name="action_reprise" type="object" class="btn-secondary" invisible="state != 'comptabilisee' or extourne"/>
+                <field name="state" widget="statusbar" statusbar_visible="brouillon,comptabilisee,extournee"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Arrêtés</span><span class="o_ka_cur">Régularisations</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Régularisations d'arrêté</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-warning="state in ('brouillon')" decoration-success="state in ('comptabilisee','extournee')"/>
-                        </div>
-                        <div class="o_ka_info">Toute charge ou produit constaté d'avance, charge à payer ou produit à recevoir comptabilisé à la clôture est automatiquement contre-passé à l'ouverture suivante, à la même date et pour le même montant (RG-8.5).</div><div class="o_ka_sec">Régularisation</div><div class="o_ka_grid"><div class="o_ka_f"><label for="type" string="Nature" class="o_ka_req"/><field name="type"/></div><div class="o_ka_f"><label for="libelle" string="Libellé" class="o_ka_req"/><field name="libelle"/></div><div class="o_ka_f"><label for="date_cloture" string="Date de clôture" class="o_ka_req"/><field name="date_cloture"/></div><div class="o_ka_f"><label for="date_extourne" string="Date d'extourne"/><field name="date_extourne" readonly="1"/></div><div class="o_ka_f"><label for="compte_charge_id" string="Compte de charge ou de produit" class="o_ka_req"/><field name="compte_charge_id"/></div><div class="o_ka_f"><label for="compte_regul_id" string="Compte de régularisation" class="o_ka_req"/><field name="compte_regul_id"/></div><div class="o_ka_f"><label for="montant" string="Montant" class="o_ka_req"/><field name="montant"/></div><div class="o_ka_f"><label for="journal_id" string="Journal"/><field name="journal_id"/></div></div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Comptabiliser" name="action_comptabiliser" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'brouillon'"/><button string="Extourner" name="action_extourner" type="object" class="o_ka_btn" invisible="state != 'comptabilisee'"/><button string="Reprise de provision" name="action_reprise" type="object" class="o_ka_btn" invisible="state != 'comptabilisee'"/><button string="Consulter les écritures" name="action_ecritures" type="object" class="o_ka_btn"/></aside>
+                <field name="currency_id" invisible="1"/>
+                <field name="extourne" invisible="1"/>
+                <field name="move_id" invisible="1"/>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_ecritures" type="object" class="oe_stat_button" invisible="not move_id">
+                        <div class="o_stat_info"><span class="o_stat_value">Pièces</span><span class="o_stat_text">Consulter les écritures</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
+                </div>
+                <div class="o_ka_info">Toute charge ou produit constaté d'avance, charge à payer ou produit à recevoir comptabilisé à la clôture est automatiquement contre-passé à l'ouverture suivante, à la même date et pour le même montant (RG-8.5).</div>
+                <group>
+                    <group>
+                        <field name="type" string="Nature"/>
+                        <field name="libelle" string="Libellé"/>
+                        <field name="date_cloture" string="Date de clôture"/>
+                        <field name="date_extourne" string="Date d'extourne"/>
+                    </group>
+                    <group>
+                        <field name="compte_charge_id" string="Compte de charge ou de produit"/>
+                        <field name="compte_regul_id" string="Compte de régularisation"/>
+                        <field name="montant" string="Montant"/>
+                        <field name="journal_id" string="Journal"/>
+                        <field name="move_extourne_id" string="Pièce d'extourne ou de reprise" invisible="not move_extourne_id"/>
+                    </group>
+                </group>
             </sheet>
         </form>
     </field>

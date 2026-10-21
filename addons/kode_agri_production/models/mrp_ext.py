@@ -9,6 +9,13 @@ class MrpRoutingWorkcenter(models.Model):
     ka_cadence = fields.Float(string='Cadence (/h)', compute='_compute_ka_cadence', digits=(8, 1))
     ka_centre = fields.Selection(related='workcenter_id.ka_centre', string='Centre de charge')
     ka_code_poste = fields.Char(related='workcenter_id.code', string='Poste de charge')
+    ka_type_poste = fields.Selection(related='workcenter_id.ka_type_poste', string='Type')
+    ka_num_op = fields.Char(string='N° opér.', compute='_compute_ka_num_op')
+
+    @api.depends('sequence')
+    def _compute_ka_num_op(self):
+        for op in self:
+            op.ka_num_op = '%03d' % (op.sequence or 0)
 
     @api.depends('time_cycle_manual')
     def _compute_ka_cadence(self):
@@ -23,6 +30,8 @@ class MrpWorkcenter(models.Model):
     ka_centre = fields.Selection([('CC01', 'CC01 — Prélavage'), ('CC02', 'CC02 — Zone humide'),
                                   ('CC03', 'CC03 — Zone sèche'), ('CC04', 'CC04 — Mise en moule')],
                                  string='Centre de charge')
+    ka_type_poste = fields.Selection([('poste', 'Poste de charge'), ('centre', 'Centre de charge (MO)')],
+                                     string='Type', default='poste')
 
 
 class MrpBom(models.Model):
@@ -52,10 +61,13 @@ class MrpBom(models.Model):
                                default='validee')
     ka_subtitle = fields.Char(compute='_compute_ka_subtitle')
 
+    @api.depends('product_tmpl_id', 'type')
     def _compute_ka_subtitle(self):
+        types = {'normal': 'Fabriqué', 'phantom': 'Kit'}
         for b in self:
-            b.ka_subtitle = '%s — article en attente de spécifications · nomenclature de production' % (
-                b.product_tmpl_id.default_code or b.product_tmpl_id.name or '')
+            article = b.product_tmpl_id
+            nature = 'Article non spécifié' if (article.default_code or '') == 'TSR' else (article.name or '')
+            b.ka_subtitle = '%s · Nomenclature de type %s' % (nature, types.get(b.type, b.type or ''))
 
     def action_copier(self):
         self.ensure_one()

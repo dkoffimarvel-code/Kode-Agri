@@ -9,6 +9,24 @@ from odoo.exceptions import UserError
 from .famille import METHODES
 
 
+def montant_court(x):
+    """32 000 000 → « 32 M » ; 1 840 000 000 → « 1,84 Md »."""
+    x = x or 0
+    if abs(x) >= 1e9:
+        return '%s Md' % ('%.2f' % (x / 1e9)).rstrip('0').rstrip('.').replace('.', ',')
+    if abs(x) >= 1e6:
+        return '%s M' % ('%.1f' % (x / 1e6)).rstrip('0').rstrip('.').replace('.', ',')
+    return '{:,.0f}'.format(x).replace(',', ' ')
+
+
+def libelle_compte(env, code):
+    """« 2154 » → « 2154 — Matériel industriel » (intitulé du plan comptable si le compte existe)."""
+    if not code:
+        return ''
+    acc = env['account.account'].search([('code', '=', code)], limit=1)
+    return '%s — %s' % (code, acc.name) if acc else code
+
+
 def fin_de_mois(d):
     return d.replace(day=calendar.monthrange(d.year, d.month)[1])
 
@@ -76,17 +94,53 @@ class KaImmo(models.Model):
     duree_txt = fields.Char(compute='_compute_duree_txt', string='Durée')
     plan_badge = fields.Char(compute='_compute_plan_badge')
     ligne_facture = fields.Char(string='Ligne de facture', readonly=True)
-    state = fields.Selection([('creation', 'En création'), ('a_confirmer', 'À confirmer'), ('en_service', 'En service'),
-                              ('sortie', 'Sortie')], default='creation', string='Statut', tracking=True)
+    state = fields.Selection([('creation', 'Brouillon'), ('a_confirmer', 'À confirmer'), ('en_service', 'En service'),
+                              ('sortie', 'Cédé')], default='creation', string='Statut', tracking=True)
     sortie_ids = fields.One2many('ka.immo.sortie', 'immo_id')
     ka_statut_label = fields.Char(compute='_compute_statut_label', string='Statut')
+    kpi_duree = fields.Char(compute='_compute_kpi', string='Durée')
+    kpi_vnc = fields.Char(compute='_compute_kpi', string='Valeur nette')
+    ka_subtitle_auto = fields.Char(compute='_compute_kpi')
+    cpt_immo_txt = fields.Char(compute='_compute_comptes_txt', string='Immobilisation')
+    cpt_amort_txt = fields.Char(compute='_compute_comptes_txt', string='Amortissement cumulé')
+    cpt_dotation_txt = fields.Char(compute='_compute_comptes_txt', string='Dotation')
+    facture_ligne_ids = fields.Many2many('account.move.line', compute='_compute_facture_lignes',
+                                         string="Lignes de la facture d'origine")
+    plan_etat = fields.Selection([('previsionnel', 'Non calculé'), ('calcule', 'Calculé'), ('postee', 'Postée')],
+                                 compute='_compute_plan_badge', string='État du tableau')
 
     def _ka_subtitle(self):
         self.ensure_one()
-        if self.state == 'creation' and not self.intitule:
-            return 'Nouvelle immobilisation — bien existant ou apporté'
-        origine = ' (créée depuis la facture %s)' % self.ref_facture if self.move_id else ''
-        return '%s — %s%s' % (self.name, self.intitule or '', origine)
+        if not self._origin.id or (self.state == 'creation' and not self.move_id and self.name in (False, 'Nouveau')):
+            return 'Création manuelle · bien existant ou apporté'
+        origine = 'Créée depuis facture %s' % self.ref_facture if self.move_id else 'Création manuelle'
+        return '%s · %s' % (self.name, origine)
+
+    @api.depends('name', 'intitule')
+    def _compute_display_name(self):
+        for i in self:
+            i.display_name = '%s — %s' % (i.name, i.intitule) if i.intitule and i.name and i.name != 'Nouveau' \
+                else (i.intitule or i.name or '')
+
+    @api.depends('plan_ids', 'duree_txt', 'vnc', 'name')
+    def _compute_kpi(self):
+        for i in self:
+            calcule = bool(i.plan_ids)
+            i.kpi_duree = i.duree_txt if calcule else '—'
+            i.kpi_vnc = ('VNC %s' % montant_court(i.vnc)) if calcule else '—'
+            i.ka_subtitle_auto = '%s · Générée automatiquement' % (i.name or '')
+
+    @api.depends('cpt_immo', 'cpt_amort', 'cpt_dotation')
+    def _compute_comptes_txt(self):
+        for i in self:
+            i.cpt_immo_txt = libelle_compte(self.env, i.cpt_immo)
+            i.cpt_amort_txt = libelle_compte(self.env, i.cpt_amort)
+            i.cpt_dotation_txt = libelle_compte(self.env, i.cpt_dotation)
+
+    @api.depends('move_id')
+    def _compute_facture_lignes(self):
+        for i in self:
+            i.facture_ligne_ids = i.move_id.invoice_line_ids
 
     @api.depends('plan_ids.state', 'plan_ids.dotation', 'valeur')
     def _compute_vnc(self):
@@ -115,7 +169,9 @@ class KaImmo(models.Model):
     def _compute_plan_badge(self):
         for i in self:
             faits = i.plan_ids.filtered(lambda p: p.move_id)
-            i.plan_badge = ('Comptabilisé %s' % max(faits.mapped('date')).strftime('%m/%Y')) if faits else 'Prévisionnel'
+            i.plan_badge = ('Postée (%s)' % max(faits.mapped('date')).strftime('%m/%Y')) if faits else (
+                'Calculé' if i.plan_ids else 'Prévisionnel')
+            i.plan_etat = 'postee' if faits else ('calcule' if i.plan_ids else 'previsionnel')
 
     @api.onchange('famille_id')
     def _onchange_famille(self):
@@ -186,6 +242,33 @@ class KaImmo(models.Model):
         return {'type': 'ir.actions.act_window', 'name': 'Écritures', 'res_model': 'account.move',
                 'view_mode': 'list,form', 'domain': [('id', 'in', self.plan_ids.move_id.ids)]}
 
+    def action_comptabiliser_echeance(self):
+        """Comptabilise les échéances échues non encore passées de cette immobilisation : une pièce de dotation
+        équilibrée par échéance, ventilée sur la section analytique."""
+        from .dotation import compte
+        journal = self.env['account.journal'].search([('type', '=', 'general')], limit=1)
+        if not journal:
+            raise UserError(_("Aucun journal d'opérations diverses n'est configuré."))
+        limite = fin_de_mois(fields.Date.context_today(self))
+        for i in self:
+            if i.state != 'en_service':
+                raise UserError(_("Seule une immobilisation en service peut être amortie."))
+            echeances = i.plan_ids.filtered(lambda p: not p.move_id and p.date <= limite)
+            if not echeances:
+                raise UserError(_('Aucune échéance à comptabiliser à ce jour.'))
+            f = i.famille_id
+            dist = {str(i.analytic_id.id): 100} if i.analytic_id else False
+            for p in echeances:
+                move = self.env['account.move'].create({
+                    'move_type': 'entry', 'journal_id': journal.id, 'date': p.date, 'ref': 'Dotation %s' % i.name,
+                    'line_ids': [
+                        Command.create({'account_id': compte(self.env, f.cpt_dotation).id, 'name': 'Dotation amortissements %s' % i.name,
+                                        'debit': p.dotation, 'credit': 0.0, 'analytic_distribution': dist}),
+                        Command.create({'account_id': compte(self.env, f.cpt_amort).id, 'name': 'Amort. %s %s' % ((f.name or '').lower(), i.name),
+                                        'debit': 0.0, 'credit': p.dotation})]})
+                move.action_post()
+                p.move_id = move
+
     def action_creer(self):
         return {'type': 'ir.actions.act_window', 'res_model': 'ka.immo', 'view_mode': 'form',
                 'views': [(self.env.ref('kode_agri_immo.view_ka_immo_manuelle_form').id, 'form')]}
@@ -204,8 +287,8 @@ class KaImmoPlan(models.Model):
     cumul = fields.Monetary(string='Cumul')
     vnc = fields.Monetary(string='VNC')
     move_id = fields.Many2one('account.move', string='Pièce', readonly=True, copy=False)
-    statut = fields.Selection([('comptabilisee', 'Comptabilisée'), ('a_comptabiliser', 'À comptabiliser'),
-                               ('previsionnelle', 'Prévisionnelle')], compute='_compute_statut', string='Statut')
+    statut = fields.Selection([('comptabilisee', 'Postée'), ('a_comptabiliser', 'À poster'),
+                               ('previsionnelle', 'Brouillon')], compute='_compute_statut', string='Statut')
 
     @api.depends('move_id', 'date')
     def _compute_statut(self):
@@ -230,6 +313,11 @@ class KaImmoParc(models.TransientModel):
     nb_sorties = fields.Integer(compute='_compute_kpi', string="Sorties de l'année")
     brute_txt = fields.Char(compute='_compute_kpi', string='Valeur brute')
     vnc_txt = fields.Char(compute='_compute_kpi', string='Valeur nette comptable')
+    nb_txt = fields.Char(compute='_compute_immos')
+
+    def _compute_display_name(self):
+        for p in self:
+            p.display_name = 'Immobilisations'
 
     @api.depends('statut', 'famille_id', 'site_id', 'regroupement')
     def _compute_immos(self):
@@ -243,12 +331,14 @@ class KaImmoParc(models.TransientModel):
                 dom.append(('site_id', '=', p.site_id.id))
             order = 'famille_id, name' if p.regroupement == 'famille' else 'site_id, name'
             p.immo_ids = self.env['ka.immo'].search(dom, order=order)
+            total = self.env['ka.immo'].search_count([])
+            p.nb_txt = '%s ligne%s affichée%s sur %s' % (len(p.immo_ids), 's' if len(p.immo_ids) > 1 else '',
+                                                          's' if len(p.immo_ids) > 1 else '', total)
 
     def _compute_kpi(self):
         Immo = self.env['ka.immo']
         debut = fields.Date.today().replace(month=1, day=1)
-        def md(x):
-            return '%s Md FCFA' % ('%.2f' % (x / 1e9)).replace('.', ',') if x >= 1e9 else '{:,.0f} FCFA'.format(x).replace(',', ' ')
+        md = montant_court
         for p in self:
             service = Immo.search([('state', '=', 'en_service')])
             p.nb_service = len(service)
@@ -258,6 +348,21 @@ class KaImmoParc(models.TransientModel):
 
     def action_filtrer(self):
         return {'type': 'ir.actions.act_window', 'res_model': self._name, 'res_id': self.id, 'view_mode': 'form'}
+
+    def _voir(self, nom, domaine):
+        return {'type': 'ir.actions.act_window', 'name': nom, 'res_model': 'ka.immo', 'view_mode': 'list,form',
+                'domain': domaine}
+
+    def action_voir_service(self):
+        return self._voir('Immobilisations en service', [('state', '=', 'en_service')])
+
+    def action_voir_cedees(self):
+        debut = fields.Date.today().replace(month=1, day=1)
+        ids = self.env['ka.immo.sortie'].search([('state', '=', 'validee'), ('date', '>=', debut)]).immo_id.ids
+        return self._voir('Cédées cette année', [('id', 'in', ids)])
+
+    def action_creer_immo(self):
+        return self.env['ka.immo'].action_creer()
 
     def action_exporter(self):
         return self.env['ka.structure']._notif(_('Export'), _('État du parc exporté.'))

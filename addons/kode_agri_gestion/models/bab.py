@@ -37,12 +37,15 @@ class KaBab(models.Model):
     state = fields.Selection([('brouillon', 'Brouillon'), ('emis', 'Émis'), ('vise', 'Visé'), ('approuve', 'Approuvé'),
                               ('autorise', 'Autorisé (CA)')], default='brouillon', string='Statut', tracking=True)
     badge_label = fields.Char(compute='_compute_exec')
+    circuit_html = fields.Html(compute='_compute_circuit', sanitize=False, string='Circuit de validation')
+    titre = fields.Char(compute='_compute_exec')
 
     def _ka_subtitle(self):
         self.ensure_one()
         return '%s — %s' % (self.name, self.intitule or '')
 
-    @api.depends('ligne_ids.state', 'ligne_ids.price_subtotal', 'ligne_ids.qty_invoiced', 'ligne_ids.price_unit', 'dotation', 'state')
+    @api.depends('ligne_ids.state', 'ligne_ids.price_subtotal', 'ligne_ids.qty_invoiced', 'ligne_ids.price_unit', 'dotation', 'state',
+                 'budget_id', 'budget_id.date_validation')
     def _compute_exec(self):
         etiquettes = {'brouillon': 'Brouillon', 'emis': 'Émis', 'vise': 'Visé', 'approuve': 'Approuvé', 'autorise': 'Autorisé (CA)'}
         for b in self:
@@ -52,8 +55,46 @@ class KaBab(models.Model):
             b.disponible = b.dotation - b.engage
             b.situation = 'Situation au %s' % fields.Date.today().strftime('%d/%m/%Y')
             b.badge_label = etiquettes[b.state]
-            b.info = 'Budget CAPEX : dotation %s M FCFA, engagé %s, réalisé %s ; l\'exécution et le suivi portent sur les bons.' % (
-                fmt_dec(b.dotation / 1e6), fmt_dec(b.engage / 1e6), fmt_dec(b.realise / 1e6))
+            bud = b.budget_id
+            b.titre = 'Bons à budgétiser CAPEX — planification du %s' % (('budget %s' % bud.name) if bud else 'budget validé')
+            if bud:
+                capex = sum(bud.ligne_ids.filtered(lambda l: (l.account_id.code or '').startswith('2')).mapped('total'))
+                bons = self.search([('budget_id', '=', bud.id)])
+                capex = capex or sum(bons.mapped('dotation'))
+                ca = (' (CA du %s)' % bud.date_validation.strftime('%d/%m/%Y')) if bud.date_validation else ''
+                b.info = "Budget CAPEX validé%s : %s MFCFA — planifié sur %d bon(s) à budgétiser ; l'exécution et le suivi portent sur les bons." % (
+                    ca, fmt_dec(capex / 1e6), len(bons))
+            else:
+                b.info = "Bon non rattaché à un budget validé : « Planifier depuis le budget validé » reprend la dotation de la ligne CAPEX ; l'exécution et le suivi portent sur les bons."
+
+    @api.depends('signature_ids.statut', 'signature_ids.date', 'signature_ids.etape', 'signature_ids.signataire')
+    def _compute_circuit(self):
+        faits = ('Émis', 'Visé', 'Approuvé', 'Autorisé')
+        for b in self:
+            rows = []
+            for sig in b.signature_ids.sorted('id'):
+                fait = sig.statut in faits
+                quand = ('%s le %s' % (sig.statut, sig.date.strftime('%d/%m/%Y'))) if (fait and sig.date) else (sig.statut or 'À venir')
+                rows.append('<div style="display:flex;gap:.6rem;margin:.35rem 0"><span class="o_ka_tag %s" style="padding:0 .45rem">●</span>'
+                            '<div><b>%s (%s)</b><div class="o_ka_hint">%s</div></div></div>' % (
+                                'o_ka_ok' if fait else 'o_ka_grey', sig.etape or '', sig.signataire or '', quand))
+            b.circuit_html = ''.join(rows)
+
+    def action_planifier(self):
+        """« Planifier depuis le budget validé » : rattache le bon au budget validé en vigueur de l'année et reprend la dotation
+        budgétée sur le compte général (et la section) du bon."""
+        for b in self:
+            annee = int(b.periode[:4]) if (b.periode or '')[:4].isdigit() else fields.Date.today().year
+            bud = b.budget_id if b.budget_id.state == 'valide' else self.env['ka.budget'].search(
+                [('annee', '=', annee), ('state', '=', 'valide')], order='revision desc', limit=1)
+            if not bud:
+                raise UserError(_("Aucun budget validé pour %s : le bon ne peut pas être planifié.") % annee)
+            vals = {'budget_id': bud.id}
+            lignes = bud.ligne_ids.filtered(lambda l: l.account_id == b.account_id and (not b.section_id or l.section_id == b.section_id))
+            if lignes and not b.dotation:
+                vals['dotation'] = sum(lignes.mapped('total'))
+            b.write(vals)
+        return True
 
     @api.model_create_multi
     def create(self, vals_list):

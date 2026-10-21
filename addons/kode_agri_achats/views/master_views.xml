@@ -1,106 +1,360 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 2.11 — Fiche article — création -->
 <record id="view_ka_article_form" model="ir.ui.view">
     <field name="name">product.template.ka.form</field>
     <field name="model">product.template</field>
     <field name="arch" type="xml">
         <form string="Article" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Créer" name="action_creer" type="object" class="btn-secondary"/>
+                <button string="Dupliquer" name="action_dupliquer" type="object" class="btn-secondary" invisible="not id"/>
+                <button string="Historique des prix" name="action_historique_prix" type="object" class="btn-secondary" invisible="not id"/>
+                <field name="ka_statut" widget="statusbar" statusbar_visible="brouillon,actif"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Données de base</span><span class="o_ka_c">Articles</span><span class="o_ka_cur">Articles</span><span class="o_ka_fn">Fonction : GESITM</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Article</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="ka_statut" widget="badge" decoration-success="ka_statut in ('actif')"/>
-                        </div>
-                        <div class="o_ka_grid"><div class="o_ka_f"><label for="default_code" string="Article" class="o_ka_req"/><field name="default_code"/></div><div class="o_ka_f"><label for="name" string="Désignation" class="o_ka_req"/><field name="name"/></div><div class="o_ka_f"><label for="categ_id" string="Catégorie" class="o_ka_req"/><field name="categ_id"/></div><div class="o_ka_f"><label for="ka_statut" string="Statut"/><field name="ka_statut" readonly="1"/></div><div class="o_ka_f"><label for="ka_gestion" string="Gestion de stock" class="o_ka_req"/><field name="ka_gestion"/></div><div class="o_ka_f"><label for="tracking" string="Mode de gestion"/><field name="tracking"/></div><div class="o_ka_f"><label for="uom_id" string="Unité de stock" class="o_ka_req"/><field name="uom_id"/></div><div class="o_ka_f"><label for="ka_uom_achat_id" string="Unité d'achat" class="o_ka_req"/><field name="ka_uom_achat_id"/></div></div><notebook><page string="Identification"><div class="o_ka_info">Référence interne, désignation et catégorie de l'article.</div></page><page string="Gestion"><div class="o_ka_sec">Gestion et comptabilisation</div><div class="o_ka_grid"><div class="o_ka_f"><label for="ka_methode" string="Méthode de valorisation" class="o_ka_req"/><field name="ka_methode"/></div><div class="o_ka_f"><label for="ka_code_comptable_id" string="Code comptable" class="o_ka_req"/><field name="ka_code_comptable_id"/></div><div class="o_ka_f"><label for="ka_analytic_id" string="Section analytique"/><field name="ka_analytic_id" readonly="1"/></div><div class="o_ka_f"><label for="ka_niveau_taxe" string="Niveau de taxe"/><field name="ka_niveau_taxe"/></div></div><div class="o_ka_h3">Article-fournisseur</div><field name="seller_ids" nolabel="1"><list editable="bottom"><field name="partner_id" string="Fournisseur"/><field name="product_code" string="Réf. fournisseur"/><field name="price" string="Prix"/><field name="currency_id" string="Devise"/><field name="delay" string="Délai (j)"/></list></field><div class="o_ka_info">Les articles gérés en stock reçoivent la section « Achats stockés » par les règles de ventilation par défaut ; elle n'est pas modifiable en saisie.</div></page><page string="Unités"><div class="o_ka_info">L'unité de stock est celle de la fiche ; l'unité d'achat est reprise sur les commandes.</div></page><page string="Achats"><div class="o_ka_info">Les prix et délais fournisseurs sont saisis dans l'onglet Gestion (article-fournisseur).</div></page><page string="Comptabilité"><div class="o_ka_info">Les comptes (stock, charge, variation) sont hérités du code comptable de la catégorie.</div></page></notebook>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Créer" name="action_creer" type="object" class="o_ka_btn o_ka_primary"/><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Dupliquer" name="action_dupliquer" type="object" class="o_ka_btn"/><button string="Article-site" name="action_stock_par_site" type="object" class="o_ka_btn"/><button string="Article-fournisseur" name="action_historique_prix" type="object" class="o_ka_btn"/><div class="o_ka_side_t">Liens</div><button string="Stock par site" name="action_stock_par_site" type="object" class="o_ka_link"/><button string="Historique des prix" name="action_historique_prix" type="object" class="o_ka_link"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_stock_par_site" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="ka_type_court"/></span><span class="o_stat_text">Type</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <div class="text-uppercase fw-bold small text-primary">Article</div>
+                    <h1><field name="name" placeholder="Désignation de l'article"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
+                </div>
+                <group>
+                    <group>
+                        <field name="default_code" string="Référence interne" required="1"/>
+                        <field name="categ_id" string="Catégorie" required="1" invisible="id"/>
+                        <field name="categ_id" string="Catégorie" widget="badge" invisible="not id"/>
+                        <field name="ka_gestion" string="Type d'article" required="1"/>
+                        <field name="ka_uom_achat_id" string="Unité d'achat" required="1"/>
+                        <field name="uom_id" string="Unité de stock"/>
+                    </group>
+                    <group>
+                        <field name="ka_methode" string="Méthode de valorisation" required="1"/>
+                        <field name="ka_cpt_stock" string="Compte de stock" readonly="1" class="fw-bold"/>
+                        <field name="ka_cpt_charge" string="Compte de charge" readonly="1" class="fw-bold"/>
+                        <field name="ka_centre_cout_txt" string="Centre de coûts" readonly="1" class="text-muted"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Achats" name="achats">
+                        <div class="o_ka_h3">Fournisseurs référencés</div>
+                        <field name="seller_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="partner_id" string="Fournisseur"/>
+                                <field name="product_code" string="Réf. fournisseur"/>
+                                <field name="price" string="Prix"/>
+                                <field name="currency_id" string="Devise" optional="hide"/>
+                                <field name="delay" string="Délai (j)"/>
+                            </list>
+                        </field>
+                        <p class="o_ka_note fst-italic">Les articles de type stock sont obligatoirement affectés à un centre de coûts d'achats stockés non modifiable (paramétrable).</p>
+                    </page>
+                    <page string="Inventaire" name="inventaire">
+                        <group>
+                            <group>
+                                <field name="tracking" string="Mode de gestion"/>
+                            </group>
+                            <group>
+                                <button string="Stock par site" name="action_stock_par_site" type="object" class="btn-link" colspan="2"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Comptabilité" name="comptabilite">
+                        <group>
+                            <group>
+                                <field name="ka_code_comptable_id" string="Code comptable"/>
+                                <field name="ka_cpt_variation" string="Variation de stock" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="ka_analytic_id" string="Section analytique" readonly="1"/>
+                                <field name="ka_niveau_taxe" string="Niveau de taxe"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 2.12 — Fiche catégorie d'articles -->
 <record id="view_ka_categorie_form" model="ir.ui.view">
     <field name="name">product.category.ka.form</field>
     <field name="model">product.category</field>
     <field name="arch" type="xml">
-        <form string="Catégorie article" class="o_ka_form">
+        <form string="Catégorie d'articles" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Créer" name="action_creer" type="object" class="btn-secondary"/>
+                <button string="Dupliquer" name="action_dupliquer" type="object" class="btn-secondary" invisible="not id"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Paramétrage</span><span class="o_ka_c">Stocks</span><span class="o_ka_cur">Catégories article</span><span class="o_ka_fn">Fonction : GESTCS</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Catégorie article</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            
-                        </div>
-                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="product_count" nolabel="1"/><span class="o_ka_kl">Articles rattachés</span></div></div><div class="o_ka_sec">Valeurs par défaut transmises aux articles</div><div class="o_ka_grid"><div class="o_ka_f"><label for="ka_code" string="Catégorie" class="o_ka_req"/><field name="ka_code"/></div><div class="o_ka_f"><label for="name" string="Intitulé" class="o_ka_req"/><field name="name"/></div><div class="o_ka_f"><label for="ka_gestion" string="Gestion de stock"/><field name="ka_gestion"/></div><div class="o_ka_f"><label for="ka_mode" string="Mode de gestion"/><field name="ka_mode"/></div><div class="o_ka_f"><label for="ka_methode" string="Méthode de valorisation" class="o_ka_req"/><field name="ka_methode"/></div><div class="o_ka_f"><label for="ka_code_comptable_id" string="Code comptable" class="o_ka_req"/><field name="ka_code_comptable_id"/></div><div class="o_ka_f"><label for="ka_analytic_id" string="Section analytique"/><field name="ka_analytic_id"/></div><div class="o_ka_f"><label for="ka_compteur_lot" string="Compteur lot"/><field name="ka_compteur_lot"/></div></div><div class="o_ka_h3">Code comptable — comptes associés</div><table class="o_ka_tbl"><thead><tr><th>Type de compte</th><th>Compte</th></tr></thead><tbody><tr><td>Stock</td><td><field name="ka_cpt_stock" nolabel="1" readonly="1"/></td></tr><tr><td>Achat (charge)</td><td><field name="ka_cpt_charge" nolabel="1" readonly="1"/></td></tr><tr><td>Variation de stock</td><td><field name="ka_cpt_variation" nolabel="1" readonly="1"/></td></tr></tbody></table><p class="o_ka_note">Méthode de valorisation, code comptable et section analytique sont proposés sur chaque article créé dans cette catégorie et restent modifiables sur la fiche article (sauf la section « Achats stockés »).</p>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Créer" name="action_creer" type="object" class="o_ka_btn o_ka_primary"/><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Dupliquer" name="action_dupliquer" type="object" class="o_ka_btn"/><button string="Articles rattachés" name="action_articles" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_articles" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="product_count"/></span><span class="o_stat_text">Articles</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <div class="text-uppercase fw-bold small text-primary">Catégorie d'articles</div>
+                    <h1><field name="name" placeholder="Intitulé de la catégorie"/></h1>
+                    <div class="o_ka_sub">Comptes et valorisation hérités par les articles rattachés</div>
+                </div>
+                <group>
+                    <group>
+                        <field name="ka_code" string="Code catégorie" required="1"/>
+                        <field name="parent_id" string="Catégorie parente"/>
+                        <field name="ka_gestion" string="Type d'article par défaut"/>
+                        <field name="ka_methode" string="Méthode de valorisation" required="1"/>
+                        <field name="ka_valorisation" string="Valorisation d'inventaire"/>
+                    </group>
+                    <group>
+                        <field name="ka_cpt_stock" string="Compte de stock" readonly="1" class="fw-bold"/>
+                        <field name="ka_cpt_charge" string="Compte de charge" readonly="1" class="fw-bold"/>
+                        <field name="ka_cpt_variation" string="Écart de valorisation" readonly="1" class="fw-bold"/>
+                        <field name="ka_analytic_id" string="Centre de coûts stockés"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Comptes" name="comptes">
+                        <group>
+                            <group>
+                                <field name="ka_code_comptable_id" string="Code comptable" required="1"/>
+                            </group>
+                        </group>
+                        <div class="o_ka_h3">Comptes hérités par les articles</div>
+                        <table class="o_ka_tbl">
+                            <thead><tr><th>Type de compte</th><th>Compte</th></tr></thead>
+                            <tbody>
+                                <tr><td>Stock</td><td><field name="ka_cpt_stock" nolabel="1" readonly="1"/></td></tr>
+                                <tr><td>Charge (achat)</td><td><field name="ka_cpt_charge" nolabel="1" readonly="1"/></td></tr>
+                                <tr><td>Variation de stock</td><td><field name="ka_cpt_variation" nolabel="1" readonly="1"/></td></tr>
+                            </tbody>
+                        </table>
+                        <p class="o_ka_note fst-italic">Méthode de valorisation, comptes et centre de coûts sont préremplis sur chaque article créé dans cette catégorie ; ils restent modifiables sur la fiche article.</p>
+                    </page>
+                    <page string="Articles rattachés" name="articles">
+                        <group>
+                            <group>
+                                <field name="ka_mode" string="Mode de gestion"/>
+                                <field name="ka_compteur_lot" string="Compteur lot"/>
+                            </group>
+                        </group>
+                        <field name="ka_product_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="default_code" string="Référence interne"/>
+                                <field name="name" string="Désignation"/>
+                                <field name="ka_gestion" string="Type d'article"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 2.13 — Fiche fournisseur — création -->
 <record id="view_ka_fournisseur_form" model="ir.ui.view">
-    <field name="name">res.partner.ka.form</field>
+    <field name="name">res.partner.ka.fournisseur.form</field>
     <field name="model">res.partner</field>
     <field name="arch" type="xml">
         <form string="Fournisseur" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Rejeter" name="action_rejeter_frn" type="object" class="btn-secondary" invisible="not id"/>
+                <button string="Confirmer" name="action_confirmer_frn" type="object" class="btn-secondary" invisible="not id or ka_etat_frn == 'confirme'"/>
+                <button string="Dupliquer" name="action_dupliquer_frn" type="object" class="btn-secondary" invisible="not id"/>
+                <button string="Imprimer" name="action_imprimer_frn" type="object" class="btn-secondary" invisible="not id"/>
+                <field name="ka_etat_frn" widget="statusbar" statusbar_visible="brouillon,confirme"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Données de base</span><span class="o_ka_c">Tiers</span><span class="o_ka_cur">Fournisseurs</span><span class="o_ka_fn">Fonction : GESBPS</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Fournisseur</h1><div class="o_ka_sub"><field name="ka_subtitle_frn" nolabel="1" readonly="1"/></div></div>
-                            <field name="ka_statut" widget="badge" decoration-success="ka_statut in ('actif')"/>
-                        </div>
-                        <div class="o_ka_grid"><div class="o_ka_f"><label for="ka_code_frn" string="Fournisseur" class="o_ka_req"/><field name="ka_code_frn" readonly="1"/></div><div class="o_ka_f"><label for="name" string="Raison sociale" class="o_ka_req"/><field name="name"/></div><div class="o_ka_f"><label for="ka_categorie" string="Catégorie fournisseur" class="o_ka_req"/><field name="ka_categorie"/></div><div class="o_ka_f"><label for="vat" string="N° contribuable"/><field name="vat"/></div><div class="o_ka_f"><label for="ka_devise_achat_id" string="Devise" class="o_ka_req"/><field name="ka_devise_achat_id"/></div><div class="o_ka_f"><label for="property_supplier_payment_term_id" string="Condition de paiement"/><field name="property_supplier_payment_term_id"/></div><div class="o_ka_f"><label for="property_account_payable_id" string="Collectif" class="o_ka_req"/><field name="property_account_payable_id"/></div><div class="o_ka_f"><label for="property_account_position_id" string="Régime de taxe"/><field name="property_account_position_id"/></div></div><notebook><page string="Identité"><div class="o_ka_info">Identité et coordonnées principales du fournisseur.</div></page><page string="Adresses"><div class="o_ka_info">Adresses de livraison et de facturation : voir les contacts rattachés.</div></page><page string="Contacts"><div class="o_ka_h3">Contacts</div><field name="child_ids" nolabel="1"><list><field name="name" string="Nom"/><field name="function" string="Fonction"/><field name="phone" string="Téléphone"/><field name="email" string="E-mail"/></list></field></page><page string="Commande"><div class="o_ka_info">Conditions de commande : délai et incoterm par défaut repris sur les commandes.</div></page><page string="Comptabilité"><div class="o_ka_info">Collectif, régime de taxe et conditions de paiement sont repris sur les factures.</div></page></notebook><div class="o_ka_info">La catégorie « Frais généraux » n'ouvre ni compte d'avances ni règles de récupération, réservés à la catégorie Planteur &amp; coopérative.</div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Créer" name="action_creer_frn" type="object" class="o_ka_btn o_ka_primary"/><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Dupliquer" name="action_dupliquer_frn" type="object" class="o_ka_btn"/><button string="Imprimer" name="action_imprimer_frn" type="object" class="o_ka_btn"/><div class="o_ka_side_t">Liens</div><button string="Commandes" name="action_open_commandes_frn" type="object" class="o_ka_link"/><button string="Factures" name="action_open_factures_frn" type="object" class="o_ka_link"/><button string="Balance âgée" name="action_open_balance_frn" type="object" class="o_ka_link"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_commandes_frn" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="ka_nb_commandes_frn"/></span><span class="o_stat_text">Commandes</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <div class="text-uppercase fw-bold small text-primary"><field name="ka_overline_frn" readonly="1"/></div>
+                    <h1><field name="name" placeholder="Raison sociale"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle_frn" readonly="1"/></div>
+                </div>
+                <group>
+                    <group>
+                        <field name="ka_categorie" string="Type de fournisseur" required="1" invisible="id"/>
+                        <field name="ka_categorie" string="Type de fournisseur" widget="badge" invisible="not id"/>
+                        <field name="name" string="Nom / Raison sociale" required="1"/>
+                        <field name="vat" string="N° contribuable"/>
+                        <field name="ka_devise_achat_id" string="Devise" required="1"/>
+                        <field name="property_supplier_payment_term_id" string="Conditions de paiement"/>
+                    </group>
+                    <group>
+                        <field name="property_account_payable_id" string="Compte fournisseur" required="1"/>
+                        <field name="ka_analytic_frn_id" string="Compte analytique"/>
+                        <field name="ka_compte_courant_txt" string="Compte courant" class="text-muted"/>
+                        <field name="ka_avances_campagne" string="Avances de campagne" widget="boolean_toggle" readonly="1"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Contacts &amp; adresses" name="contacts">
+                        <div class="o_ka_h3">Contact principal</div>
+                        <field name="child_ids" nolabel="1">
+                            <list>
+                                <field name="name" string="Nom"/>
+                                <field name="function" string="Fonction"/>
+                                <field name="phone" string="Téléphone"/>
+                                <field name="email" string="Email"/>
+                            </list>
+                        </field>
+                        <p class="o_ka_note fst-italic">Les fournisseurs « Frais généraux » n'ont ni compte courant ni avances de campagne (réservés aux fournisseurs de matière première).</p>
+                    </page>
+                    <page string="Comptabilité" name="comptabilite">
+                        <group>
+                            <group>
+                                <field name="ka_code_frn" string="Code fournisseur"/>
+                                <field name="property_account_position_id" string="Régime de taxe"/>
+                            </group>
+                            <group>
+                                <button string="Factures" name="action_open_factures_frn" type="object" class="btn-link" colspan="2"/>
+                                <button string="Balance âgée" name="action_open_balance_frn" type="object" class="btn-link" colspan="2"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Achats" name="achats">
+                        <field name="ka_supplierinfo_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="product_tmpl_id" string="Article"/>
+                                <field name="product_code" string="Réf. fournisseur"/>
+                                <field name="price" string="Prix"/>
+                                <field name="delay" string="Délai (j)"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 2.14 — Fiche entrepôt / dépôt -->
 <record id="view_ka_depot_form" model="ir.ui.view">
     <field name="name">stock.warehouse.ka.form</field>
     <field name="model">stock.warehouse</field>
     <field name="arch" type="xml">
-        <form string="Dépôt" class="o_ka_form">
+        <form string="Entrepôt" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+                <button string="Créer" name="action_creer" type="object" class="btn-secondary"/>
+                <button string="Types d'opération" name="action_types_emplacement" type="object" class="btn-secondary" invisible="not id"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Paramétrage</span><span class="o_ka_c">Stocks</span><span class="o_ka_cur">Dépôts</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Dépôt</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="ka_statut" widget="badge" decoration-success="ka_statut in ('actif')"/>
-                        </div>
-                        <div class="o_ka_sec">Identification</div><div class="o_ka_grid"><div class="o_ka_f"><label for="ka_site_id" string="Site" class="o_ka_req"/><field name="ka_site_id"/></div><div class="o_ka_f"><label for="code" string="Dépôt" class="o_ka_req"/><field name="code"/></div><div class="o_ka_f"><label for="name" string="Intitulé" class="o_ka_req"/><field name="name"/></div><div class="o_ka_f"><label for="company_id" string="Société"/><field name="company_id" readonly="1"/></div><div class="o_ka_f"><label for="ka_adresse" string="Adresse"/><field name="ka_adresse"/></div><div class="o_ka_f"><label for="reception_steps" string="Réception"/><field name="reception_steps"/></div><div class="o_ka_f"><label for="ka_reappro" string="Réapprovisionnement"/><field name="ka_reappro"/></div><div class="o_ka_f"><label for="ka_statut_reception" string="Statut à la réception"/><field name="ka_statut_reception"/></div></div><div class="o_ka_h3">Emplacements du site</div><field name="ka_location_ids" nolabel="1" readonly="1"><list><field name="name" string="Emplacement"/><field name="ka_type" string="Type"/><field name="warehouse_id" string="Dépôt"/><field name="ka_statuts" string="Statuts autorisés"/><field name="ka_usage" string="Usage"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Créer" name="action_creer" type="object" class="o_ka_btn o_ka_primary"/><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Emplacements" name="action_emplacements" type="object" class="o_ka_btn"/><button string="Types d'emplacement" name="action_types_emplacement" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_emplacements" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="ka_nb_emplacements"/></span><span class="o_stat_text">Emplacements</span></div>
+                    </button>
+                    <button name="action_routes" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="ka_nb_routes"/></span><span class="o_stat_text">Routes</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <div class="text-uppercase fw-bold small text-primary">Entrepôt / magasin</div>
+                    <h1><field name="name" placeholder="Nom de l'entrepôt"/></h1>
+                    <div class="o_ka_sub">Paramétrage des emplacements, routes et réapprovisionnement</div>
+                </div>
+                <group>
+                    <group>
+                        <field name="code" string="Code entrepôt" required="1"/>
+                        <field name="name" string="Nom" required="1"/>
+                        <field name="company_id" string="Société" required="1"/>
+                        <field name="ka_adresse" string="Adresse"/>
+                    </group>
+                    <group>
+                        <field name="lot_stock_id" string="Emplacement de stock" readonly="1"/>
+                        <field name="wh_input_stock_loc_id" string="Emplacement d'entrée" readonly="1"/>
+                        <field name="reception_steps" string="Livraisons en"/>
+                        <field name="ka_mto" string="Réappro. sur commande (MTO)" widget="boolean_toggle"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Emplacements" name="emplacements">
+                        <div class="o_ka_h3">Emplacements de stockage</div>
+                        <field name="ka_location_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="complete_name" string="Emplacement"/>
+                                <field name="usage" string="Type"/>
+                                <field name="ka_usage" string="Usage"/>
+                            </list>
+                        </field>
+                        <p class="o_ka_note fst-italic">La structure des emplacements distingue le magasin de pièces, les entrepôts de matière et le magasin produit fini.</p>
+                    </page>
+                    <page string="Routes logistiques" name="routes">
+                        <field name="route_ids" nolabel="1" readonly="1">
+                            <list><field name="name" string="Route"/></list>
+                        </field>
+                    </page>
+                    <page string="Règles de réappro." name="reappro">
+                        <group>
+                            <group>
+                                <field name="ka_site_id" string="Site"/>
+                                <field name="ka_reappro" string="Réapprovisionnement"/>
+                            </group>
+                            <group>
+                                <field name="ka_statut_reception" string="Statut à la réception"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 2.15 — Données de structure -->
 <record id="view_ka_structure_form" model="ir.ui.view">
     <field name="name">ka.structure.ka.form</field>
     <field name="model">ka.structure</field>
     <field name="arch" type="xml">
-        <form string="Données de structure — achats et stocks" class="o_ka_form">
+        <form string="Données de structure" class="o_ka_form">
+            <header>
+                <button string="Importer" name="action_importer" type="object" class="btn-secondary"/>
+                <button string="Exporter" name="action_exporter" type="object" class="btn-secondary"/>
+                <button string="Contrôler le paramétrage" name="action_controler" type="object" class="btn-secondary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Paramétrage</span><span class="o_ka_c">Structure</span><span class="o_ka_cur">Sociétés, sites et compteurs</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Données de structure — achats et stocks</h1><div class="o_ka_sub"></div></div>
-                            
-                        </div>
-                        <div class="o_ka_info">Données partagées par tous les modules : elles conditionnent l'imputation analytique et la numérotation des documents d'achat.</div><div class="o_ka_h3">Sociétés et sites</div><field name="site_ids" nolabel="1"><list editable="bottom"><field name="code" string="Code"/><field name="name" string="Intitulé"/><field name="type" string="Type"/><field name="legislation" string="Législation"/></list></field><div class="o_ka_h3">Sections analytiques (axe ACTIVITE)</div><field name="section_ids" nolabel="1"><list editable="bottom"><field name="code" string="Section"/><field name="name" string="Intitulé"/><field name="nature" string="Nature"/><field name="modifiable" string="Modifiable en saisie"/></list></field><div class="o_ka_h3">Compteurs et devise</div><field name="compteur_ids" nolabel="1"><list editable="bottom"><field name="objet" string="Objet"/><field name="compteur" string="Compteur"/><field name="exemple" string="Exemple"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/><button string="Importer" name="action_importer" type="object" class="o_ka_btn"/><button string="Contrôler le paramétrage" name="action_controler" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <div class="text-uppercase fw-bold small text-primary">Données de structure — achats &amp; stocks</div>
+                    <h1>Paramétrage de référence</h1>
+                    <div class="o_ka_sub">Données maîtres partagées par le module Achats, frais généraux et stocks</div>
                 </div>
+                <div class="o_ka_h3">Sociétés &amp; sites</div>
+                <field name="site_ids" nolabel="1">
+                    <list editable="bottom">
+                        <field name="code" string="Code"/>
+                        <field name="name" string="Libellé"/>
+                        <field name="type" string="Type"/>
+                        <field name="statut" string="Statut"/>
+                        <field name="legislation" string="Législation" optional="hide"/>
+                    </list>
+                </field>
+                <div class="o_ka_h3">Centres de coûts (imputation analytique)</div>
+                <field name="section_ids" nolabel="1">
+                    <list editable="bottom">
+                        <field name="code" string="Code"/>
+                        <field name="name" string="Libellé"/>
+                        <field name="nature" string="Nature"/>
+                        <field name="modifiable" string="Modifiable"/>
+                        <field name="analytic_id" string="Compte analytique" optional="hide"/>
+                    </list>
+                </field>
+                <div class="o_ka_h3">Séquences &amp; devises</div>
+                <field name="compteur_ids" nolabel="1">
+                    <list editable="bottom">
+                        <field name="objet" string="Objet"/>
+                        <field name="compteur" string="Séquence / valeur"/>
+                        <field name="exemple" string="Exemple"/>
+                    </list>
+                </field>
+                <p class="o_ka_note fst-italic">Ces données maîtres (sociétés, sites, centres de coûts, séquences, devises) sont partagées avec les autres modules et conditionnent l'imputation analytique et la numérotation des documents d'achat.</p>
             </sheet>
         </form>
     </field>
@@ -108,34 +362,34 @@
 <record id="view_ka_article_tree" model="ir.ui.view">
     <field name="name">product.template.ka.tree</field>
     <field name="model">product.template</field>
-    <field name="arch" type="xml"><list string="ka_article"><field name="default_code"/><field name="name"/><field name="categ_id"/><field name="ka_gestion"/><field name="ka_statut" widget="badge"/></list></field>
+    <field name="arch" type="xml"><list string="Articles"><field name="default_code"/><field name="name"/><field name="categ_id"/><field name="ka_gestion"/><field name="ka_statut" widget="badge"/></list></field>
 </record>
 <record id="view_ka_categorie_tree" model="ir.ui.view">
     <field name="name">product.category.ka.tree</field>
     <field name="model">product.category</field>
-    <field name="arch" type="xml"><list string="ka_categorie"><field name="ka_code"/><field name="name"/><field name="ka_methode"/><field name="ka_code_comptable_id"/><field name="product_count"/></list></field>
+    <field name="arch" type="xml"><list string="Catégories d'articles"><field name="ka_code"/><field name="name"/><field name="ka_methode"/><field name="ka_code_comptable_id"/><field name="product_count"/></list></field>
 </record>
 <record id="view_ka_fournisseur_tree" model="ir.ui.view">
-    <field name="name">res.partner.ka.tree</field>
+    <field name="name">res.partner.ka.fournisseur.tree</field>
     <field name="model">res.partner</field>
-    <field name="arch" type="xml"><list string="ka_fournisseur"><field name="ka_code_frn"/><field name="name"/><field name="ka_categorie"/><field name="vat"/><field name="phone"/></list></field>
+    <field name="arch" type="xml"><list string="Fournisseurs"><field name="ka_code_frn"/><field name="name"/><field name="ka_categorie"/><field name="vat"/><field name="phone"/><field name="ka_etat_frn" widget="badge"/></list></field>
 </record>
 <record id="view_ka_depot_tree" model="ir.ui.view">
     <field name="name">stock.warehouse.ka.tree</field>
     <field name="model">stock.warehouse</field>
-    <field name="arch" type="xml"><list string="ka_depot"><field name="code"/><field name="name"/><field name="ka_site_id"/><field name="ka_statut_reception"/></list></field>
+    <field name="arch" type="xml"><list string="Entrepôts"><field name="code"/><field name="name"/><field name="ka_site_id"/><field name="ka_statut_reception"/></list></field>
 </record>
 <record id="action_ka_article" model="ir.actions.act_window"><field name="name">Articles</field><field name="res_model">product.template</field><field name="view_mode">list,form</field></record>
 <record id="action_ka_article_l" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_article"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_article_tree"/></record>
 <record id="action_ka_article_f" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_article"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_article_form"/></record>
-<record id="action_ka_categorie" model="ir.actions.act_window"><field name="name">Catégories article</field><field name="res_model">product.category</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_categorie" model="ir.actions.act_window"><field name="name">Catégories d'articles</field><field name="res_model">product.category</field><field name="view_mode">list,form</field></record>
 <record id="action_ka_categorie_l" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_categorie"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_categorie_tree"/></record>
 <record id="action_ka_categorie_f" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_categorie"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_categorie_form"/></record>
 <record id="action_ka_fournisseur" model="ir.actions.act_window"><field name="name">Fournisseurs</field><field name="res_model">res.partner</field><field name="view_mode">list,form</field><field name="domain">[('ka_categorie', 'in', ('frais_generaux', 'transitaire'))]</field><field name="context">{'default_ka_categorie': 'frais_generaux', 'default_supplier_rank': 1}</field></record>
 <record id="action_ka_fournisseur_l" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_fournisseur"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_fournisseur_tree"/></record>
 <record id="action_ka_fournisseur_f" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_fournisseur"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_fournisseur_form"/></record>
-<record id="action_ka_depot" model="ir.actions.act_window"><field name="name">Dépôts</field><field name="res_model">stock.warehouse</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_depot" model="ir.actions.act_window"><field name="name">Entrepôts</field><field name="res_model">stock.warehouse</field><field name="view_mode">list,form</field></record>
 <record id="action_ka_depot_l" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_depot"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_depot_tree"/></record>
 <record id="action_ka_depot_f" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_depot"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_depot_form"/></record>
-<record id="action_ka_structure" model="ir.actions.act_window"><field name="name">Sociétés, sites et compteurs</field><field name="res_model">ka.structure</field><field name="view_mode">form</field><field name="res_id" ref="structure_1"/></record>
+<record id="action_ka_structure" model="ir.actions.act_window"><field name="name">Données de structure</field><field name="res_model">ka.structure</field><field name="view_mode">form</field><field name="res_id" ref="structure_1"/></record>
 </odoo>

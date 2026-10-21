@@ -5,10 +5,10 @@ import io
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError
 
-from .common import (MINUS, MOIS, SECTIONS, debut_fin_mois, fmt_dec, fmt_int, fmt_signe, lignes, plan_col, plan_de, section)
+from .common import (MINUS, MOIS, MOIS_LONG, SECTIONS, debut_fin_mois, fmt_dec, fmt_int, fmt_signe, lignes, plan_col, plan_de, section)
 
 MCOLS = ['m%02d' % i for i in range(1, 13)]
-VERSIONS = [('initial', 'Initial'), ('revise', 'Révisé'), ('simulation', 'Simulation')]
+VERSIONS = [('initial', 'Budget initial'), ('revise', 'Révision'), ('simulation', 'Simulation')]
 
 
 class KaBudget(models.Model):
@@ -37,19 +37,42 @@ class KaBudget(models.Model):
     state = fields.Selection([('preparation', 'En préparation'), ('a_valider', 'À valider'), ('valide', 'Validé — verrouillé')],
                              default='preparation', string='Statut', tracking=True)
     date_validation = fields.Date(readonly=True, copy=False)
+    # écrans 9.3, 9.3 bis, 9.3 bis-2, 9.3 ter (v4.5)
+    etape_suivi = fields.Selection([('brouillon', 'Brouillon'), ('confirme', 'Confirmé'), ('suivi', 'En suivi')],
+                                   compute='_compute_etape_suivi', string='Étape')
+    sous_titre_suivi = fields.Char(compute='_compute_titre_vue')
+    titre_consolide = fields.Char(compute='_compute_titre_vue')
+    historique_txt = fields.Char(compute='_compute_historique', string='Historique des versions')
 
     def _ka_subtitle(self):
         self.ensure_one()
-        v = dict(self._fields['version'].selection)[self.version].lower() + (' %s' % self.revision if self.revision else '')
+        v = dict(self._fields['version'].selection)[self.version] + (' %s' % self.revision if self.revision else '')
         if self.state == 'valide':
             d = self.date_validation.strftime('%d/%m/%Y') if self.date_validation else ''
-            return '%s · version %s · validée et verrouillée (CA du %s)' % (self.name, v, d)
-        return '%s · version %s · budget mensualisé par compte et axe analytique' % (self.name, v)
+            return '%s · %s · validé — verrouillé (CA du %s)' % (self.name, v, d)
+        return '%s · %s · budget mensualisé par compte général et axe analytique' % (self.name, v)
 
     @api.depends('state')
+    def _compute_etape_suivi(self):
+        for b in self:
+            b.etape_suivi = {'preparation': 'brouillon', 'a_valider': 'confirme', 'valide': 'suivi'}.get(b.state, 'brouillon')
+
+    @api.depends('state', 'name', 'version', 'annee', 'axe_croise')
     def _compute_titre_vue(self):
         for b in self:
-            b.titre_vue = 'Saisie des budgets — version validée' if b.state == 'valide' else 'Saisie des budgets — génération de la maquette'
+            version = dict(self._fields['version'].selection).get(b.version, '')
+            b.titre_vue = ('Budget %s — %s validé' % (b.annee, version.lower())) if b.state == 'valide' else 'Budget mensualisé — compte général × axe analytique'
+            b.sous_titre_suivi = 'Axe : %s · Campagne %s' % (b.axe_croise or 'toutes sections', b.annee)
+            b.titre_consolide = 'Budget consolidé — Campagne %s (couche de suivi)' % b.annee
+
+    @api.depends('annee', 'state', 'version')
+    def _compute_historique(self):
+        etats = {'preparation': 'brouillon, en préparation', 'a_valider': 'à valider', 'valide': 'validé, verrouillé'}
+        for b in self:
+            versions = self.search([('annee', '=', b.annee)], order='revision, id') if b.annee else b
+            b.historique_txt = 'Historique des versions : ' + ' · '.join(
+                '%s%s (%s)' % (dict(self._fields['version'].selection).get(v.version, ''), (' %s' % v.revision) if v.revision else '',
+                               etats.get(v.state, '')) for v in versions)
 
     @api.depends('ligne_ids.total')
     def _compute_total(self):
@@ -68,7 +91,9 @@ class KaBudget(models.Model):
                 dets = dets.filtered(lambda d: d.date and d.date.month == int(b.mois_sel))
             b.detail_sel_ids = dets
             mont = sum(dets.mapped('montant'))
-            b.detail_titre = 'Détail de %s M FCFA — %s × %s%s' % (fmt_dec(mont / 1e6), l.section_id.name or '', l.account_id.code or '', (' × %s' % MOIS[int(b.mois_sel) - 1].lower()) if b.mois_sel else '')
+            mois = (' × %s %s' % (MOIS_LONG[int(b.mois_sel) - 1].capitalize(), b.annee)) if b.mois_sel else ''
+            b.detail_titre = '▼ Détails du montant consolidé — %s × %s%s : %s MFCFA (drill-down)' % (
+                l.section_id.name or '', l.account_id.code or '', mois, fmt_dec(mont / 1e6))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -168,6 +193,17 @@ class KaBudget(models.Model):
     def action_imprimer(self):
         return self.env['ka.structure']._notif(_('Budget'), _("Budget envoyé à l'impression."))
 
+    def action_modifier(self):
+        """« Modifier » (grisé sur un budget validé) : un budget validé ne se modifie pas, il se révise."""
+        if any(b.state == 'valide' for b in self):
+            raise UserError(_("Ce budget est validé : il n'est plus modifiable. Créez une nouvelle version (révision)."))
+        return True
+
+    def action_supprimer(self):
+        """« Supprimer » : interdit sur un budget validé (contrôle de unlink)."""
+        self.unlink()
+        return {'type': 'ir.actions.act_window', 'res_model': 'ka.budget', 'view_mode': 'list,form', 'target': 'main'}
+
     def action_exporter(self):
         return self.env['ka.structure']._notif(_('Export'), _('Budget exporté.'))
 
@@ -175,6 +211,12 @@ class KaBudget(models.Model):
         self.ensure_one()
         return {'type': 'ir.actions.act_window', 'name': 'Budget consolidé — détail', 'res_model': 'ka.budget', 'res_id': self.id,
                 'view_mode': 'form', 'views': [(self.env.ref('kode_agri_gestion.view_ka_budget_detail_form').id, 'form')]}
+
+    def action_detailler(self):
+        """Drill-down depuis le budget : ouvre l'écran 9.3 ter sur le montant consolidé sélectionné (bouton « Détails » des
+        lignes : voir KaBudgetLigne.action_detailler)."""
+        self.ensure_one()
+        return self.action_ouvrir_detail()
 
     def action_ouvrir_suivi(self):
         self.ensure_one()
@@ -203,7 +245,7 @@ class KaBudget(models.Model):
                 nom, (axes[code] % b.annee) if '%s' in axes[code] else axes[code], fmt_int(bud), fmt_int(real), fmt_signe(bud - real)) for code, nom, bud, real in comp)
             ecart = sum(bud - real for _c, _n, bud, real in comp)
             b.ecart_global_txt = '%s FCFA' % fmt_signe(ecart)
-            b.suivi_html = ('<table class="o_ka_tbl"><thead><tr><th>Section (activité)</th><th>Axe croisé</th><th class="o_ka_num">Budget</th><th class="o_ka_num">Réalisé</th><th class="o_ka_num">Écart</th></tr></thead><tbody>%s</tbody><tfoot><tr><td><b>Écart global</b></td><td></td><td></td><td></td><td class="o_ka_num"><b>%s FCFA</b></td></tr></tfoot></table>' % (rows, fmt_signe(ecart)))
+            b.suivi_html = ('<table class="o_ka_tbl"><thead><tr><th>Activité</th><th>Axe croisé</th><th class="o_ka_num">Budget</th><th class="o_ka_num">Réalisé</th><th class="o_ka_num">Écart</th></tr></thead><tbody>%s</tbody><tfoot><tr><td colspan="2">Écart global</td><td colspan="3" class="o_ka_num">%s FCFA</td></tr></tfoot></table>' % (rows, fmt_signe(ecart)))
 
     # ---- alertes (§ 9.5.3) -------------------------------------------------------------------------------------------------
     @api.model
@@ -243,6 +285,12 @@ class KaBudgetLigne(models.Model):
     total = fields.Float(compute='_compute_total', string='Total', digits=(16, 0), store=True)
     detail_ids = fields.One2many('ka.budget.detail', 'ligne_id', string='Détail')
 
+    def action_detailler(self):
+        """Drill-down (écran 9.3 ter) : un clic sur un montant consolidé affiche ses lignes de détail."""
+        self.ensure_one()
+        self.budget_id.write({'ligne_sel_id': self.id})
+        return self.budget_id.action_ouvrir_detail()
+
     @api.depends(*MCOLS)
     def _compute_total(self):
         for l in self:
@@ -277,8 +325,8 @@ class KaBudgetDetail(models.Model):
 
     budget_id = fields.Many2one('ka.budget', required=True, ondelete='cascade')
     ligne_id = fields.Many2one('ka.budget.ligne', ondelete='cascade')
-    type = fields.Selection([('ligne_article', 'Ligne article'), ('ligne', 'Ligne')], string='Type', default='ligne')
-    reference = fields.Char(string='Ligne')
+    type = fields.Selection([('ligne_article', 'Écriture article'), ('ligne', 'Écriture')], string='Type', default='ligne')
+    reference = fields.Char(string='N° écriture')
     intitule = fields.Char(string='Article / intitulé')
     quantite = fields.Float(string='Quantité (t)', digits=(12, 0))
     pu = fields.Float(string='PU (F/kg)', digits=(10, 0))

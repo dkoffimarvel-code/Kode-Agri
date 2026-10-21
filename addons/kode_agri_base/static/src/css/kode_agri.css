@@ -117,3 +117,8 @@ table.o_ka_tbl tfoot td, table.o_ka_tbl tr.o_ka_total td { background: #f1ebf0; 
 .o_ka_u_ans::after { content: "ans"; } .o_ka_u_h::after { content: "h"; } .o_ka_u_km::after { content: "km"; }
 .o_ka_u_l::after { content: "L"; } .o_ka_u_fcfa::after { content: "FCFA"; }
 .o_ka_u_mois::after { content: "mois"; }
+
+/* --- Ligne de total sous un tableau (« Net à payer », « Coût de l'OT ») --- */
+.o_ka_totalbar { display: flex; justify-content: space-between; align-items: center; background: #f1ebf0; color: #4b2f44;
+                 font-weight: 700; border: 1px solid var(--ka-line); border-top: 0; padding: .5rem .7rem; margin-bottom: 1rem; }
+.o_ka_totalbar .o_field_widget { font-weight: 700; }

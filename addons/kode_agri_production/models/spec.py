@@ -18,12 +18,69 @@ class KaSpec(models.Model):
     grade_label = fields.Char(compute='_compute_grade', store=True)
     product_id = fields.Many2one('product.product', string='Article créé', compute='_compute_grade', store=True)
     tracabilite = fields.Selection(related='lot_id.ka_tracabilite', string='Statut de traçabilité')
-    state = fields.Selection([('a_specifier', 'À spécifier'), ('specifie', 'Spécifié')], default='a_specifier',
+    state = fields.Selection([('a_specifier', 'À spécifier'), ('specifie', 'Validée')], default='a_specifier',
                              string='Statut', tracking=True)
+    # résultats présentés champ par champ (écran 4.5) : lus et écrits dans les lignes de résultats
+    r_p0 = fields.Float(string='P0', compute='_compute_r', inverse='_inverse_r', digits=(8, 0))
+    r_pri = fields.Float(string='PRI', compute='_compute_r', inverse='_inverse_r', digits=(8, 0))
+    r_ml = fields.Float(string='Viscosité Mooney (ML)', compute='_compute_r', inverse='_inverse_r', digits=(8, 0))
+    r_imp = fields.Float(string='Impuretés', compute='_compute_r', inverse='_inverse_r', digits=(8, 2))
+    r_azote = fields.Float(string='Azote', compute='_compute_r', inverse='_inverse_r', digits=(8, 2))
+    r_cendres = fields.Float(string='Cendres', compute='_compute_r', inverse='_inverse_r', digits=(8, 2))
+    r_vm = fields.Float(string='Matière volatile', compute='_compute_r', inverse='_inverse_r', digits=(8, 2))
+    statut_colis = fields.Char(compute='_compute_grade_txt', string='Statut colis')
+    ka_valid_txt = fields.Char(compute='_compute_grade_txt', string='Résultat de la validation')
+
+    @api.depends('lot_id.name')
+    def _compute_display_name(self):
+        for spec in self:
+            spec.display_name = 'SPEC %s' % (spec.lot_id.name or '')
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return 'Lot (colis) %s — fiche technique TSR (7 tests)' % (self.lot_id.name or '')
+        return "À la validation : création de l'article définitif (entrée stock) et sortie du %s à même quantité" % (
+            self.lot_id.product_id.default_code or 'TSR')
+
+    @api.depends('line_ids.resultat', 'line_ids.test')
+    def _compute_r(self):
+        for spec in self:
+            res = spec.ka_resultats()
+            for t, _label in TESTS:
+                spec['r_%s' % t] = res.get(t, 0.0)
+
+    def _inverse_r(self):
+        for spec in self:
+            existants = {l.test: l for l in spec.line_ids}
+            cmds = []
+            for t, _label in TESTS:
+                valeur = spec['r_%s' % t]
+                if t in existants:
+                    if existants[t].resultat != valeur:
+                        cmds.append(Command.update(existants[t].id, {'resultat': valeur}))
+                else:
+                    cmds.append(Command.create({'test': t, 'resultat': valeur}))
+            if cmds:
+                spec.line_ids = cmds
+
+    @api.depends('grade_id', 'product_id', 'lot_id', 'state')
+    def _compute_grade_txt(self):
+        for spec in self:
+            spec.statut_colis = spec.grade_label or ''
+            if spec.product_id:
+                spec.ka_valid_txt = ("Résultat : entrée en stock de l'article %s (série %s), sortie du %s en "
+                                     "contrepartie. Traçabilité conservée.") % (
+                    spec.product_id.default_code or spec.product_id.name, spec.lot_id.name or '',
+                    'TSR non spécifié' if (spec.lot_id.product_id.default_code or 'TSR') == 'TSR'
+                    else spec.lot_id.product_id.display_name)
+            else:
+                spec.ka_valid_txt = ("Résultat : à la validation, l'article définitif entre en stock sous le même "
+                                     "numéro de série et le TSR non spécifié sort en contrepartie.")
+
+    def action_saisir_mesures(self):
+        """Ouvre la grille détaillée des 7 résultats (unité, seuil, conformité)."""
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Mesures laboratoire', 'res_model': 'ka.spec.line',
+                'view_mode': 'list', 'domain': [('spec_id', '=', self.id)], 'context': {'default_spec_id': self.id}}
 
     @api.model
     def _default_lines(self):

@@ -4,19 +4,55 @@
     <field name="name">account.move.ka.form</field>
     <field name="model">account.move</field>
     <field name="arch" type="xml">
-        <form string="Facture de vente — export en devise" class="o_ka_form">
+        <form string="Facture client" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-secondary"/>
+                <button string="Confirmer" name="action_valider_ka" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                <button string="Enregistrer paiement" name="action_reglement_ka" type="object" class="btn-secondary" invisible="state != 'posted' or payment_state in ('paid', 'in_payment', 'reversed')"/>
+                <button string="Imprimer" name="action_imprimer_ka" type="object" class="btn-secondary"/>
+                <field name="ka_etape" widget="statusbar" statusbar_visible="brouillon,comptabilisee,payee"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Ventes</span><span class="o_ka_c">Factures</span><span class="o_ka_cur">Factures</span><span class="o_ka_fn">Fonction : GESSIH</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Facture de vente — export en devise</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="ka_statut_label" widget="badge" decoration-warning="ka_statut_label in ('Provisoire')" decoration-success="ka_statut_label in ('Validée')" decoration-muted="ka_statut_label in ('Annulée')"/>
-                        </div>
-                        <div class="o_ka_kpis"><div class="o_ka_kpi"><field name="ka_devise_txt" nolabel="1"/><span class="o_ka_kl">Devise</span></div><div class="o_ka_kpi"><field name="ka_montant_txt" nolabel="1"/><span class="o_ka_kl">Montant</span></div></div><div class="o_ka_info">Validation : pièce automatique (produit, créance client en devise). L'écart de change est constaté au règlement ou à la réévaluation de fin de période.</div><div class="o_ka_sec">En-tête</div><div class="o_ka_grid"><div class="o_ka_f"><label for="partner_id" string="Client" class="o_ka_req"/><field name="partner_id"/></div><div class="o_ka_f"><label for="ka_contrat_id" string="Commande ouverte"/><field name="ka_contrat_id"/></div><div class="o_ka_f"><label for="invoice_date" string="Date facture" class="o_ka_req"/><field name="invoice_date"/></div><div class="o_ka_f"><label for="invoice_payment_term_id" string="Échéance"/><field name="invoice_payment_term_id"/></div><div class="o_ka_f"><label for="ka_devise_txt" string="Devise"/><field name="ka_devise_txt" readonly="1"/></div><div class="o_ka_f"><label for="ka_cours" string="Cours"/><field name="ka_cours" readonly="1"/></div><div class="o_ka_f"><label for="fiscal_position_id" string="Régime de taxe"/><field name="fiscal_position_id"/></div><div class="o_ka_f"><label for="ka_site_id" string="Site de vente"/><field name="ka_site_id"/></div></div><field name="invoice_line_ids" nolabel="1"><list editable="bottom"><field name="sequence" string="Ligne"/><field name="product_id" string="Article"/><field name="name" string="Désignation"/><field name="quantity" string="Quantité"/><field name="price_unit" string="Prix net"/><field name="price_subtotal" string="Montant" sum="Total facture"/></list></field>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/><button string="Valider la facture" name="action_valider_ka" type="object" class="o_ka_btn o_ka_primary" invisible="state != 'draft'"/><button string="Imprimer" name="action_imprimer_ka" type="object" class="o_ka_btn"/><button string="Saisir le règlement" name="action_reglement_ka" type="object" class="o_ka_btn"/></aside>
+                <field name="move_type" invisible="1"/>
+                <field name="state" invisible="1"/>
+                <field name="payment_state" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_ka_ouvrir_devise" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="ka_devise_txt"/></span><span class="o_stat_text">Devise</span></div>
+                    </button>
+                    <button name="action_ka_ouvrir_ecritures" type="object" class="oe_stat_button">
+                        <div class="o_stat_info"><span class="o_stat_value"><field name="ka_montant_txt"/></span><span class="o_stat_text">Montant</span></div>
+                    </button>
                 </div>
+                <div class="oe_title">
+                    <h1><field name="name" readonly="1" placeholder="Brouillon"/></h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
+                </div>
+                <group>
+                    <group>
+                        <field name="partner_id" string="Client" required="1"/>
+                        <field name="ka_contrat_id" string="Contrat"/>
+                        <field name="ka_devise_txt" string="Devise" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="invoice_date" string="Date facture"/>
+                        <field name="invoice_payment_term_id" string="Échéance"/>
+                        <field name="ka_cours" string="Cours du jour" readonly="1"/>
+                    </group>
+                </group>
+                <field name="invoice_line_ids" nolabel="1">
+                    <list editable="bottom">
+                        <field name="currency_id" column_invisible="1"/>
+                        <field name="product_id" optional="hide"/>
+                        <field name="name" string="Désignation"/>
+                        <field name="quantity" string="Qté"/>
+                        <field name="price_unit" string="PU (devise)"/>
+                        <field name="price_subtotal" string="Montant (devise)" sum="Total facture"/>
+                    </list>
+                </field>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Comptabilisation : produit constaté, créance client en devise. Écart de change suivi entre facturation et encaissement.</div>
             </sheet>
         </form>
     </field>
@@ -26,7 +62,7 @@
     <field name="model">account.move</field>
     <field name="arch" type="xml"><list string="ka_facture_vente"><field name="name"/><field name="partner_id"/><field name="invoice_date"/><field name="amount_total" sum="Total"/><field name="currency_id"/><field name="ka_statut_label" widget="badge"/></list></field>
 </record>
-<record id="action_ka_facture_vente" model="ir.actions.act_window"><field name="name">Factures de vente</field><field name="res_model">account.move</field><field name="view_mode">list,form</field><field name="domain">[('move_type', '=', 'out_invoice')]</field><field name="context">{'default_move_type': 'out_invoice'}</field></record>
+<record id="action_ka_facture_vente" model="ir.actions.act_window"><field name="name">Factures clients</field><field name="res_model">account.move</field><field name="view_mode">list,form</field><field name="domain">[('move_type', '=', 'out_invoice')]</field><field name="context">{'default_move_type': 'out_invoice'}</field></record>
 <record id="action_ka_facture_vente_l" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_facture_vente"/><field name="sequence">1</field><field name="view_mode">list</field><field name="view_id" ref="view_ka_facture_vente_tree"/></record>
 <record id="action_ka_facture_vente_f" model="ir.actions.act_window.view"><field name="act_window_id" ref="action_ka_facture_vente"/><field name="sequence">2</field><field name="view_mode">form</field><field name="view_id" ref="view_ka_facture_vente_form"/></record>
 </odoo>

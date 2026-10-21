@@ -21,10 +21,29 @@ class KaCascade(models.Model):
     complet_txt = fields.Char(compute='_compute_table', string='Coût complet')
     part_fdt_txt = fields.Char(compute='_compute_table', string='Part du FDT')
     titre = fields.Char(compute='_compute_table')
+    # écran 9.1 (v4.5) : statut, carte « Marge nette », devise de vente, axe principal en pastille
+    statut = fields.Selection([('brouillon', 'Brouillon'), ('actif', 'Actif')], string='Statut', default='actif')
+    axe_principal_txt = fields.Char(compute='_compute_table', string='Axe principal (pastille)')
+    cascade_txt = fields.Char(compute='_compute_table', string='Cascade')
+    marge_nette_txt = fields.Char(compute='_compute_table', string='Marge nette')
+    devise_vente_txt = fields.Char(compute='_compute_table', string='Devise vente')
 
     def _ka_subtitle(self):
         self.ensure_one()
         return self.titre
+
+    @api.depends('grade_id', 'campagne_id')
+    def _compute_display_name(self):
+        for c in self:
+            axes = ' / '.join(x for x in ('Campagne %s' % c._annee(), c.grade_id.name) if x)
+            c.display_name = 'Axe activité — %s' % axes
+
+    def _devise_vente(self):
+        """Devise des ventes export (dernière facture client export validée), base FOB."""
+        inv = self.env['account.move'].search([('move_type', '=', 'out_invoice'), ('state', '=', 'posted'),
+                                               ('partner_id.ka_cat_client', '=', 'export')], order='invoice_date desc, id desc', limit=1)
+        cur = inv.currency_id or self.env.company.currency_id
+        return '%s (FOB)' % cur.name
 
     def _annee(self):
         """Année de la campagne choisie (code ou nom du compte, ex. « 2026 »), sinon année en cours."""
@@ -48,12 +67,18 @@ class KaCascade(models.Model):
             for code, nom, etape in SECTIONS:
                 cumul += montants[code]
                 rows.append('<tr><td>%s</td><td class="o_ka_num">%s</td><td class="o_ka_num">%s</td><td>%s</td></tr>' % (nom, fmt_int(montants[code]), fmt_int(cumul), etape))
-            foot = '<tr><td><b>Coût complet</b></td><td></td><td class="o_ka_num"><b>%s</b></td><td><b>Marge nette = prix FOB − coût complet</b></td></tr>' % fmt_int(total)
-            c.table_html = ('<table class="o_ka_tbl"><thead><tr><th>Section (activité)</th><th class="o_ka_num">Montant</th><th class="o_ka_num">Cumul</th><th>Étape de la cascade</th></tr></thead><tbody>%s</tbody><tfoot>%s</tfoot></table>' % (''.join(rows), foot))
+            foot = '<tr><td colspan="2">Coût complet</td><td colspan="2" class="o_ka_num">Marge nette : prix FOB − %s</td></tr>' % fmt_int(total)
+            c.table_html = ('<table class="o_ka_tbl"><thead><tr><th>Activité</th><th class="o_ka_num">Montant</th><th class="o_ka_num">Cumul</th><th>Étape</th></tr></thead><tbody>%s</tbody><tfoot>%s</tfoot></table>' % (''.join(rows), foot))
+            from .pilotage import _chiffre_affaires
+            ca = _chiffre_affaires(self.env, debut, fin)
+            c.marge_nette_txt = '%s %%' % fmt_dec(((ca - total) / ca * 100) if ca else 0, 0)
+            c.cascade_txt = 'FOB'
+            c.axe_principal_txt = 'Par activité'
+            c.devise_vente_txt = c._devise_vente()
             c.complet_txt = '%s M FCFA' % fmt_dec(total / 1e6)
             c.part_fdt_txt = '%s %%' % fmt_dec((montants['ACH_FDT'] / total * 100) if total else 0, 0)
-            autres = ' et '.join('%s = %s' % (x.plan_id.name.upper(), x.name) for x in croises)
-            c.titre = 'Axe ACTIVITE · croisé avec ' + (autres if autres else 'aucun axe')
+            autres = ' · '.join('%s %s' % (x.plan_id.name, x.name) if x != c.campagne_id else 'Campagne %s' % x.name for x in croises)
+            c.titre = 'Croisé : ' + (autres if autres else 'aucun axe')
 
     def action_actualiser(self):
         self.ensure_one()
@@ -62,6 +87,20 @@ class KaCascade(models.Model):
 
     def action_exporter(self):
         return self.env['ka.structure']._notif(_('Export'), _('Consultation exportée.'))
+
+    def action_importer_stock(self):
+        """Routine « Importer écritures stock » : les écritures de valorisation de stock portent leur ventilation analytique ;
+        la routine recalcule la cascade à partir du journal analytique, à tout moment."""
+        self.ensure_one()
+        aml = self.env['account.move.line'].search([('move_id.stock_move_id', '!=', False), ('parent_state', '=', 'posted')]) \
+            if 'stock_move_id' in self.env['account.move']._fields else self.env['account.move.line']
+        nb = len(aml.analytic_line_ids)
+        self._compute_table()
+        return self.env['ka.structure']._notif(_('Écritures de stock'), _('%s ligne(s) analytique(s) issues des écritures de stock prises en compte.') % nb)
+
+    def action_marge(self):
+        """Carte « Marge nette » : tableau de bord de pilotage."""
+        return self.env['ir.actions.act_window']._for_xml_id('kode_agri_gestion.action_ka_kpi')
 
     def action_detail(self):
         self.ensure_one()
@@ -97,6 +136,8 @@ class KaRepartition(models.Model):
     uo_ids = fields.Many2many('ka.uo', compute='_compute_uo', string="Unités d'œuvre saisies")
     cle_ids = fields.One2many('ka.repartition.cle', 'repartition_id', string='Clés de répartition')
     table_html = fields.Html(compute='_compute_table', sanitize=False)
+    titre_uo = fields.Char(compute='_compute_titres')
+    titre_repartition = fields.Char(compute='_compute_titres')
     state = fields.Selection([('saisie', 'Unités saisies'), ('cles', 'Clés calculées'), ('repartie', 'Répartie')], default='saisie',
                              string='Statut', tracking=True)
 
@@ -104,6 +145,12 @@ class KaRepartition(models.Model):
         self.ensure_one()
         mois = '%s %s' % (MOIS_LONG[self.periode.month - 1], self.periode.year) if self.periode else ''
         return 'Charge indirecte %s · %s' % (self.emetteur_id.display_name or '', mois)
+
+    @api.depends('name', 'emetteur_id.code', 'periode')
+    def _compute_display_name(self):
+        for r in self:
+            mois = '%s %s' % (MOIS_LONG[r.periode.month - 1], r.periode.year) if r.periode else ''
+            r.display_name = ' · '.join(x for x in (r.name, r.emetteur_id.code or r.emetteur_id.name, mois) if x)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -151,6 +198,13 @@ class KaRepartition(models.Model):
             out[l.general_account_id] = out.get(l.general_account_id, 0.0) - l.amount
         return out
 
+    @api.depends('emetteur_id')
+    def _compute_titres(self):
+        for r in self:
+            code = r.emetteur_id.display_name or '…'
+            r.titre_uo = "1) Unités d'œuvre saisies quotidiennement sur les centres principaux consommateurs — charge indirecte %s" % code
+            r.titre_repartition = '3) Répartition par compte général imputé à %s (routine)' % (r.emetteur_id.code or r.emetteur_id.name or '…')
+
     @api.depends('cle_ids.pct', 'emetteur_id', 'periode')
     def _compute_table(self):
         for r in self:
@@ -167,9 +221,9 @@ class KaRepartition(models.Model):
                 rows.append('<tr><td>%s</td><td class="o_ka_num">%s</td>%s</tr>' % (
                     '%s %s' % (acc.code, acc.name) if acc else '—', fmt_dec(m / 1e6, 2), ''.join('<td class="o_ka_num">%s</td>' % fmt_dec(p / 1e6, 2) for p in parts)))
             tot = sum(charges.values())
-            foot = '<tr><td><b>Total %s</b></td><td class="o_ka_num"><b>%s</b></td>%s</tr>' % (
-                r.emetteur_id.code or r.emetteur_id.name, fmt_dec(tot / 1e6, 2), ''.join('<td class="o_ka_num"><b>%s</b></td>' % fmt_dec(t / 1e6, 2) for t in tot_recep))
-            r.table_html = ('<table class="o_ka_tbl"><thead><tr><th>Compte réparti</th><th class="o_ka_num">Montant</th>%s</tr></thead><tbody>%s</tbody><tfoot>%s</tfoot></table>' % (tete, ''.join(rows), foot))
+            foot = '<tr><td>Total %s</td><td class="o_ka_num">%s</td>%s</tr>' % (
+                r.emetteur_id.code or r.emetteur_id.name, fmt_dec(tot / 1e6, 2), ''.join('<td class="o_ka_num">%s</td>' % fmt_dec(t / 1e6, 2) for t in tot_recep))
+            r.table_html = ('<table class="o_ka_tbl"><thead><tr><th>Compte imputé</th><th class="o_ka_num">Montant</th>%s</tr></thead><tbody>%s</tbody><tfoot>%s</tfoot></table>' % (tete, ''.join(rows), foot))
 
     def action_repartir(self):
         """Reventile chaque compte général imputé à la charge indirecte avec la clé du mois : une ligne analytique d'extourne

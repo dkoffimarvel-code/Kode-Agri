@@ -1,85 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!-- Écran 9.4 -->
 <record id="view_ka_ecart_form" model="ir.ui.view">
     <field name="name">ka.ecart.ka.form</field>
     <field name="model">ka.ecart</field>
     <field name="arch" type="xml">
-        <form string="Analyse des écarts budget / réalisé" class="o_ka_form">
+        <form string="Budget vs Réalisé — Cumul campagne" class="o_ka_form">
+            <header>
+                <button string="Exporter" name="action_exporter" type="object" class="btn-primary"/>
+                <button string="Actualiser" name="action_actualiser" type="object" class="btn-secondary"/>
+                <button string="Saisir une note d'analyse" name="action_note" type="object" class="btn-secondary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Budgets</span><span class="o_ka_c">Consultations</span><span class="o_ka_cur">Budget / réalisé</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Analyse des écarts budget / réalisé</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            
-                        </div>
-                        <field name="table_html" nolabel="1" readonly="1"/><p class="o_ka_note"><field name="decomposition" nolabel="1" readonly="1"/></p>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Actualiser" name="action_actualiser" type="object" class="o_ka_btn o_ka_primary"/><button string="Saisir une note d'analyse" name="action_note" type="object" class="o_ka_btn"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <h1>Budget vs Réalisé — Cumul campagne</h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <group>
+                    <group>
+                        <field name="annee" string="Période (campagne)" options="{'format': false}"/>
+                    </group>
+                    <group/>
+                </group>
+                <field name="table_html" nolabel="1" readonly="1"/>
+                <p class="o_ka_note"><field name="decomposition_usinage" readonly="1"/></p>
+                <p class="o_ka_note"><field name="decomposition" readonly="1"/></p>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 9.5 -->
 <record id="view_ka_kpi_form" model="ir.ui.view">
     <field name="name">ka.kpi.ka.form</field>
     <field name="model">ka.kpi</field>
     <field name="arch" type="xml">
-        <form string="Tableau de bord de pilotage — KPI" class="o_ka_form">
+        <form string="Pilotage de la performance — Temps réel" class="o_ka_form">
+            <header>
+                <button string="Actualiser" name="action_actualiser" type="object" class="btn-primary"/>
+                <button string="Exporter" name="action_exporter" type="object" class="btn-secondary"/>
+                <button string="Paramétrer les indicateurs" name="action_parametrer" type="object" class="btn-secondary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Tableaux de bord</span><span class="o_ka_cur">Pilotage industriel et financier</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Tableau de bord de pilotage — KPI</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            
-                        </div>
-                        <div class="o_ka_kpigrid"><div class="o_ka_kpi"><field name="cout_fob" nolabel="1" readonly="1"/><span class="o_ka_kl">Coût de revient FOB</span></div><div class="o_ka_kpi"><field name="marge_nette" nolabel="1" readonly="1"/><span class="o_ka_kl">Marge nette export</span></div><div class="o_ka_kpi"><field name="tonnage" nolabel="1" readonly="1"/><span class="o_ka_kl">Tonnage usiné (mois)</span></div><div class="o_ka_kpi"><field name="rendement" nolabel="1" readonly="1"/><span class="o_ka_kl">Rendement usinage</span></div><div class="o_ka_kpi"><field name="ecart_budget" nolabel="1" readonly="1"/><span class="o_ka_kl">Écart budget global</span></div><div class="o_ka_kpi"><field name="tresorerie" nolabel="1" readonly="1"/><span class="o_ka_kl">Trésorerie nette</span></div></div><p class="o_ka_note"><field name="commentaire" nolabel="1" readonly="1"/></p><div class="o_ka_sec">Marge par grade (FCFA / kg)</div><field name="grades_html" nolabel="1" readonly="1"/><div class="o_ka_h3">Coût standard / réel — usinage (F/kg)</div><field name="couts_html" nolabel="1" readonly="1"/>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Actualiser" name="action_actualiser" type="object" class="o_ka_btn o_ka_primary"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/><button string="Paramétrer les indicateurs" name="action_parametrer" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <h1>Pilotage de la performance — Temps réel</h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <group>
+                    <group>
+                        <field name="mois" string="Mois (campagne)"/>
+                    </group>
+                    <group/>
+                </group>
+                <field name="cartes_html" nolabel="1" readonly="1"/>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="o_ka_h3">Marge par grade (FCFA/kg)</div>
+                        <field name="grades_html" nolabel="1" readonly="1"/>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="o_ka_h3">Coût standard vs réel — usinage (F/kg)</div>
+                        <field name="couts_html" nolabel="1" readonly="1"/>
+                    </div>
+                </div>
+                <p class="o_ka_note"><field name="commentaire" readonly="1"/></p>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 9.6 -->
 <record id="view_ka_pnl_form" model="ir.ui.view">
     <field name="name">ka.pnl.ka.form</field>
     <field name="model">ka.pnl</field>
     <field name="arch" type="xml">
-        <form string="Compte de résultat de gestion" class="o_ka_form">
+        <form string="Compte de résultat de gestion (P&amp;L) — Mensuel / Cumul" class="o_ka_form">
+            <header>
+                <button string="Imprimer" name="action_imprimer" type="object" class="btn-primary"/>
+                <button string="Comparer N-1" name="action_comparer" type="object" class="btn-secondary"/>
+                <button string="Exporter" name="action_exporter" type="object" class="btn-secondary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">États</span><span class="o_ka_cur">Générateur d'états financiers</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Compte de résultat de gestion</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            
-                        </div>
-                        <field name="table_html" nolabel="1" readonly="1"/>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Imprimer" name="action_imprimer" type="object" class="o_ka_btn o_ka_primary"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/><button string="Comparer à N-1" name="action_comparer" type="object" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <h1>Compte de résultat de gestion (P&amp;L) — Mensuel / Cumul</h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <group>
+                    <group>
+                        <field name="mois" string="Mensuel"/>
+                    </group>
+                    <group/>
+                </group>
+                <field name="table_html" nolabel="1" readonly="1"/>
             </sheet>
         </form>
     </field>
 </record>
+<!-- Écran 9.7 -->
 <record id="view_ka_treso_glissant_form" model="ir.ui.view">
     <field name="name">ka.treso.glissant.ka.form</field>
     <field name="model">ka.treso.glissant</field>
     <field name="arch" type="xml">
-        <form string="Tableau de trésorerie glissant" class="o_ka_form">
+        <form string="Tableau de trésorerie — Réalisé et prévisionnel glissant" class="o_ka_form">
+            <header>
+                <button string="Imprimer" name="action_imprimer" type="object" class="btn-primary"/>
+                <button string="Actualiser" name="action_actualiser" type="object" class="btn-secondary"/>
+                <button string="Exporter" name="action_exporter" type="object" class="btn-secondary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Trésorerie</span><span class="o_ka_cur">Réalisé et prévisionnel</span><span class="o_ka_fn">Fonction : YTRESO · état spécifique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Tableau de trésorerie glissant</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            
-                        </div>
-                        <div class="o_ka_info o_ka_warn_banner">⚠ <field name="alerte" nolabel="1" readonly="1"/></div><field name="table_html" nolabel="1" readonly="1"/>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Actualiser" name="action_actualiser" type="object" class="o_ka_btn o_ka_primary"/><button string="Exporter" name="action_exporter" type="object" class="o_ka_btn"/></aside>
+                <field name="sous_seuil" invisible="1"/>
+                <div class="oe_title">
+                    <h1>Tableau de trésorerie — Réalisé et prévisionnel glissant</h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <group>
+                    <group>
+                        <field name="date_ref" string="Situation au"/>
+                    </group>
+                    <group/>
+                </group>
+                <div class="o_ka_warn_banner" invisible="not sous_seuil">⚠ <field name="alerte" readonly="1"/></div>
+                <field name="table_html" nolabel="1" readonly="1"/>
+                <p class="o_ka_note">Montants en MFCFA. Alerte automatique si la trésorerie prévisionnelle passe sous le seuil de sécurité (<field name="seuil_txt" readonly="1"/> MFCFA).</p>
             </sheet>
         </form>
     </field>
@@ -89,27 +129,35 @@
     <field name="model">ka.gestion.param</field>
     <field name="arch" type="xml">
         <form string="Paramétrage des indicateurs" class="o_ka_form">
+            <header>
+                <button string="Enregistrer" special="save" class="btn-primary"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Paramétrage</span><span class="o_ka_c">Contrôle de gestion</span><span class="o_ka_cur">Indicateurs</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Paramétrage des indicateurs</h1><div class="o_ka_sub"></div></div>
-                            
-                        </div>
-                        <div class="o_ka_grid"><div class="o_ka_f"><label for="cible_fob" string="Objectif coût de revient FOB (F/kg)"/><field name="cible_fob"/></div><div class="o_ka_f"><label for="cible_rendement" string="Rendement cible (%)"/><field name="cible_rendement"/></div><div class="o_ka_f"><label for="seuil_ecart" string="Seuil d'alerte écart budgétaire (%)"/><field name="seuil_ecart"/></div><div class="o_ka_f"><label for="seuil_tresorerie" string="Seuil de sécurité de trésorerie (FCFA)"/><field name="seuil_tresorerie"/></div><div class="o_ka_f"><label for="standard_usinage" string="Coût standard d'usinage (F/kg)"/><field name="standard_usinage"/></div><div class="o_ka_f"><label for="campagne" string="Campagne"/><field name="campagne"/></div></div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Enregistrer" special="save" class="o_ka_btn"/></aside>
+                <div class="oe_title">
+                    <h1>Paramétrage des indicateurs</h1>
+                    <div class="o_ka_sub">Objectifs et seuils d'alerte du tableau de bord de pilotage, de l'analyse des écarts et de la trésorerie glissante</div>
                 </div>
+                <group>
+                    <group>
+                        <field name="campagne" string="Campagne" options="{'format': false}"/>
+                        <field name="cible_fob" string="Objectif coût de revient FOB (F/kg)"/>
+                        <field name="cible_rendement" string="Rendement cible (%)"/>
+                    </group>
+                    <group>
+                        <field name="seuil_ecart" string="Seuil d'alerte écart budgétaire (%)"/>
+                        <field name="seuil_tresorerie" string="Seuil de sécurité de trésorerie (FCFA)"/>
+                        <field name="standard_usinage" string="Coût standard d'usinage (F/kg)"/>
+                    </group>
+                </group>
             </sheet>
         </form>
     </field>
 </record>
 <record id="view_ka_ecart_note_form" model="ir.ui.view"><field name="name">ka.ecart.note.form</field><field name="model">ka.ecart.note</field><field name="arch" type="xml"><form string="Note d'analyse"><group><field name="annee"/><field name="section_code"/><field name="texte"/><field name="plan_action"/></group><footer><button string="Enregistrer" special="save" class="btn-primary"/><button string="Fermer" special="cancel"/></footer></form></field></record>
-<record id="action_ka_ecart" model="ir.actions.act_window"><field name="name">Budget / réalisé</field><field name="res_model">ka.ecart</field><field name="res_id" ref="ecart_1"/><field name="view_mode">form</field><field name="view_id" ref="view_ka_ecart_form"/></record>
-<record id="action_ka_kpi" model="ir.actions.act_window"><field name="name">Pilotage industriel et financier</field><field name="res_model">ka.kpi</field><field name="res_id" ref="kpi_1"/><field name="view_mode">form</field><field name="view_id" ref="view_ka_kpi_form"/></record>
+<record id="action_ka_ecart" model="ir.actions.act_window"><field name="name">Budget vs réalisé</field><field name="res_model">ka.ecart</field><field name="res_id" ref="ecart_1"/><field name="view_mode">form</field><field name="view_id" ref="view_ka_ecart_form"/></record>
+<record id="action_ka_kpi" model="ir.actions.act_window"><field name="name">Pilotage de la performance</field><field name="res_model">ka.kpi</field><field name="res_id" ref="kpi_1"/><field name="view_mode">form</field><field name="view_id" ref="view_ka_kpi_form"/></record>
 <record id="action_ka_pnl" model="ir.actions.act_window"><field name="name">Compte de résultat de gestion</field><field name="res_model">ka.pnl</field><field name="res_id" ref="pnl_1"/><field name="view_mode">form</field><field name="view_id" ref="view_ka_pnl_form"/></record>
-<record id="action_ka_treso_glissant" model="ir.actions.act_window"><field name="name">Trésorerie glissante</field><field name="res_model">ka.treso.glissant</field><field name="res_id" ref="treso_gl_1"/><field name="view_mode">form</field><field name="view_id" ref="view_ka_treso_glissant_form"/></record>
+<record id="action_ka_treso_glissant" model="ir.actions.act_window"><field name="name">Tableau de trésorerie</field><field name="res_model">ka.treso.glissant</field><field name="res_id" ref="treso_gl_1"/><field name="view_mode">form</field><field name="view_id" ref="view_ka_treso_glissant_form"/></record>
 <record id="action_ka_param" model="ir.actions.act_window"><field name="name">Paramétrage des indicateurs</field><field name="res_model">ka.gestion.param</field><field name="res_id" ref="param_1"/><field name="view_mode">form</field><field name="view_id" ref="view_ka_param_form"/></record>
 <record id="action_ka_ecart_note" model="ir.actions.act_window"><field name="name">Notes d'analyse</field><field name="res_model">ka.ecart.note</field><field name="view_mode">list,form</field></record>
 <record id="view_ka_ecart_note_tree" model="ir.ui.view"><field name="name">ka.ecart.note.tree</field><field name="model">ka.ecart.note</field><field name="arch" type="xml"><list string="Notes d'analyse" editable="bottom"><field name="annee"/><field name="section_code"/><field name="texte"/><field name="plan_action"/></list></field></record>

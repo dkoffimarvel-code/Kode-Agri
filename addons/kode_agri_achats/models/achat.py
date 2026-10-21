@@ -1,3 +1,5 @@
+from markupsafe import escape
+
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -28,8 +30,9 @@ class KaDa(models.Model):
     line_ids = fields.One2many('ka.da.ligne', 'da_id', string='Lignes')
     currency_id = fields.Many2one('res.currency', default=lambda s: s.env.company.currency_id)
     total = fields.Monetary(compute='_compute_section')
-    state = fields.Selection([('en_cours', 'En cours'), ('a_signer', 'À signer'), ('signee', 'Signée'),
-                              ('soldee', 'Soldée')], default='en_cours', string='Statut', tracking=True)
+    state = fields.Selection([('en_cours', 'Brouillon'), ('a_signer', 'À signer'), ('signee', 'Signée'),
+                              ('appel_offres', "En appel d'offres"), ('soldee', 'Commandée')],
+                             default='en_cours', string='Statut', tracking=True)
     ao_ids = fields.One2many('ka.ao', 'da_id', string="Appels d'offres")
 
     def _ka_subtitle(self):
@@ -41,7 +44,7 @@ class KaDa(models.Model):
         for d in self:
             d.total = sum(d.line_ids.mapped('montant'))
             sec = section_stockee(self.env, d.line_ids.product_id) if d.line_ids else self.env['ka.section']
-            d.section_txt = '%s (auto)' % sec.code if sec else ''
+            d.section_txt = '%s (auto)' % (sec.name or sec.code).split(' — ')[0] if sec else ''
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -62,20 +65,23 @@ class KaDa(models.Model):
     def action_demande_prix(self):
         """Appel d'offres : une offre vierge par fournisseur connu des articles (ou fournisseurs récents)."""
         self.ensure_one()
-        if self.state not in ('signee', 'a_signer'):
-            raise UserError(_("Soumettez la demande d'achat avant de lancer un appel d'offres."))
+        if self.state not in ('en_cours', 'a_signer', 'signee'):
+            raise UserError(_("Un appel d'offres est déjà lancé ou la demande est commandée."))
+        if not self.line_ids:
+            raise UserError(_("La demande ne contient aucune ligne."))
         partners = self.line_ids.product_id.seller_ids.partner_id[:3] or self.env['res.partner'].search(
             [('supplier_rank', '>', 0), ('ka_categorie', '=', 'frais_generaux')], limit=3)
         ao = self.env['ka.ao'].create({'da_id': self.id, 'offre_ids': [Command.create({
             'partner_id': p.id, 'ligne_ids': [Command.create({'da_ligne_id': l.id, 'prix': (
                 l.product_id.seller_ids.filtered(lambda s: s.partner_id == p)[:1].price or 0.0)})
                 for l in self.line_ids]}) for p in partners]})
+        self.state = 'appel_offres'
         return {'type': 'ir.actions.act_window', 'res_model': 'ka.ao', 'res_id': ao.id, 'view_mode': 'form'}
 
     def action_transformer(self):
         """Transforme la demande d'achat en commande d'achat (prix estimés)."""
         self.ensure_one()
-        if self.state != 'signee':
+        if self.state not in ('signee', 'appel_offres'):
             raise UserError(_("La demande doit être signée avant d'être transformée en commande."))
         cmd = self.env['ka.commande'].create({
             'site_id': self.site_id.id, 'partner_id': (self.partner_id or self.env.ref('kode_agri_achats.partner_divers')).id,
@@ -119,12 +125,45 @@ class KaAo(models.Model):
     da_id = fields.Many2one('ka.da', string="Demande d'achat", required=True)
     offre_ids = fields.One2many('ka.ao.offre', 'ao_id', string='Réponses fournisseurs')
     commande_id = fields.Many2one('ka.commande', readonly=True, copy=False)
-    state = fields.Selection([('ouverte', 'Ouverte'), ('retenue', 'Fournisseur retenu'), ('commandee', 'Commandée')],
-                             default='ouverte', string='Statut', tracking=True)
+    state = fields.Selection([('ouverte', 'Ouvert'), ('comparee', 'Comparé'), ('retenue', 'Attribué'),
+                              ('commandee', 'Commandé')], default='ouverte', string='Statut', tracking=True)
+    comparatif_html = fields.Html(compute='_compute_comparatif', string='Comparatif des offres', sanitize=False)
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return "%s — issue de la demande d'achat %s" % (self.name, self.da_id.name or '')
+        return "Tableau comparatif obtenu depuis la demande d'achat %s" % (self.da_id.name or '')
+
+    @api.depends('name', 'da_id.name')
+    def _compute_display_name(self):
+        for ao in self:
+            ao.display_name = '%s (issu de %s)' % (ao.name, ao.da_id.name) if ao.da_id else (ao.name or '')
+
+    @api.depends('offre_ids.total', 'offre_ids.choix', 'offre_ids.delai', 'offre_ids.ligne_ids.prix', 'da_id.line_ids')
+    def _compute_comparatif(self):
+        """Tableau comparatif : une colonne de prix unitaire par article de la demande d'achat."""
+        def fmt(x):
+            return '{:,.0f}'.format(x or 0).replace(',', ' ')
+        for ao in self:
+            lignes = ao.da_id.line_ids
+            tete = ''.join('<th class="o_ka_num">%s</th>' % escape(l.designation or l.product_id.name or '') for l in lignes)
+            corps = ''
+            for o in ao.offre_ids:
+                prix = {ol.da_ligne_id.id: ol.prix for ol in o.ligne_ids}
+                corps += '<tr><td>%s</td><td>%s j</td>%s<td class="o_ka_num">%s</td><td>%s</td></tr>' % (
+                    escape(o.partner_id.name or ''), o.delai,
+                    ''.join('<td class="o_ka_num">%s</td>' % fmt(prix.get(l.id)) for l in lignes),
+                    fmt(o.total), '◉ Retenu' if o.choix else '○')
+            ao.comparatif_html = ('<table class="o_ka_tbl"><thead><tr><th>Fournisseur</th><th>Délai</th>%s'
+                                  '<th class="o_ka_num">Total HT</th><th>Choix</th></tr></thead><tbody>%s</tbody></table>'
+                                  % (tete, corps))
+
+    def action_comparer(self):
+        """Compare les réponses reçues : le mieux-disant est mis en évidence dans le tableau comparatif."""
+        for ao in self:
+            if not ao.offre_ids.filtered(lambda o: o.total > 0):
+                raise UserError(_("Saisissez les prix des fournisseurs avant de comparer les offres."))
+            if ao.state == 'ouverte':
+                ao.state = 'comparee'
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -214,20 +253,45 @@ class KaCommande(models.Model):
     po_id = fields.Many2one('purchase.order', string='Commande Odoo', readonly=True, copy=False)
     reception_ids = fields.One2many('ka.reception', 'commande_id', string='Réceptions')
     facture_ids = fields.One2many('ka.facture', 'commande_id', string='Factures')
-    state = fields.Selection([('en_cours', 'En cours'), ('a_signer', 'À signer'), ('signee', 'Signée'),
-                              ('recue', 'Reçue'), ('facturee', 'Facturée')], default='en_cours', string='Statut',
-                             tracking=True)
+    state = fields.Selection([('en_cours', 'Brouillon'), ('a_signer', 'À confirmer'), ('signee', 'Confirmée'),
+                              ('recue', 'Reçue'), ('facturee', 'Facturée'), ('annulee', 'Annulée')],
+                             default='en_cours', string='Statut', tracking=True)
+    nb_receptions = fields.Integer(compute='_compute_nb_docs', string='Réception')
+    nb_factures = fields.Integer(compute='_compute_nb_docs', string='Facture')
+    type_lignes_txt = fields.Char(compute='_compute_nb_docs', string='Type ligne')
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — %s' % (self.name, self.partner_id.name or '')
+        return self.partner_id.name or ''
+
+    @api.depends('reception_ids', 'facture_ids', 'line_ids.type')
+    def _compute_nb_docs(self):
+        labels = dict(self.env['ka.commande.ligne']._fields['type'].selection)
+        for c in self:
+            c.nb_receptions = len(c.reception_ids)
+            c.nb_factures = len(c.facture_ids)
+            types = []
+            for t in c.line_ids.mapped('type'):
+                if t and labels[t] not in types:
+                    types.append(labels[t])
+            c.type_lignes_txt = ' + '.join(types)
+
+    def action_annuler(self):
+        """Annule la commande tant qu'elle n'est ni reçue ni facturée (la commande Odoo liée est annulée)."""
+        for c in self:
+            if c.state in ('recue', 'facturee'):
+                raise UserError(_('Une commande reçue ou facturée ne peut plus être annulée.'))
+            if c.po_id and c.po_id.state not in ('cancel',):
+                c.po_id.button_cancel()
+            c.state = 'annulee'
 
     @api.depends('line_ids.montant', 'line_ids.product_id')
     def _compute_total(self):
         for c in self:
             c.total = sum(c.line_ids.mapped('montant'))
             sec = section_stockee(self.env, c.line_ids.product_id) if c.line_ids else self.env['ka.section']
-            c.section_txt = ('%s (non modifiable)' % sec.code) if sec and not sec.modifiable else (sec.code or '')
+            nom = (sec.name or sec.code or '').split(' — ')[0]
+            c.section_txt = ('%s (auto, non modif.)' % nom) if sec and not sec.modifiable else ('%s (auto)' % nom if sec else '')
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -242,6 +306,8 @@ class KaCommande(models.Model):
     def action_signer(self):
         """Signature : génère la commande Odoo confirmée, donc la réception adaptée (stockés en dépôt)."""
         for c in self:
+            if c.state == 'annulee':
+                raise UserError(_('La commande est annulée.'))
             if not c.line_ids:
                 raise UserError(_('La commande ne contient aucune ligne.'))
             po = self.env['purchase.order'].create({
@@ -290,7 +356,7 @@ class KaCommandeLigne(models.Model):
     sequence = fields.Integer(string='Ligne', default=1000)
     product_id = fields.Many2one('product.product', string='Article / service', required=True)
     designation = fields.Char(string='Désignation')
-    type = fields.Selection([('stocke', 'Stocké'), ('service', 'Service'), ('conso', 'Consommable')],
+    type = fields.Selection([('stocke', 'Stockable'), ('service', 'Travaux'), ('conso', 'Consommable')],
                             compute='_compute_type', string='Type')
     qty = fields.Float(string='Quantité', default=1.0, digits=(10, 0))
     prix = fields.Float(string='Prix net', digits=(12, 0))

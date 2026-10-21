@@ -18,12 +18,18 @@ class KaReception(models.Model):
     line_ids = fields.One2many('ka.reception.ligne', 'reception_id', string='Lignes')
     reliquat_total = fields.Float(compute='_compute_reliquat', digits=(10, 0))
     info = fields.Char(compute='_compute_reliquat')
-    state = fields.Selection([('brouillon', 'À recevoir'), ('partielle', 'Partielle'), ('complete', 'Complète')],
+    state = fields.Selection([('brouillon', 'À recevoir'), ('partielle', 'Partiellement reçu'), ('complete', 'Terminé')],
                              default='brouillon', string='Statut', tracking=True)
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — commande %s, %s' % (self.name, self.commande_id.name or '', (self.depot_txt or '').lower())
+        suivi = 'Réception partielle suivie' if self.reliquat_total else 'Réception complète'
+        return 'Réception %s · %s' % ((self.depot_txt or '').lower(), suivi)
+
+    @api.depends('name', 'commande_id.name')
+    def _compute_display_name(self):
+        for r in self:
+            r.display_name = '%s (%s)' % (r.name, r.commande_id.name) if r.commande_id else (r.name or '')
 
     @api.depends('commande_id.depot_id')
     def _compute_depot(self):
@@ -35,9 +41,9 @@ class KaReception(models.Model):
         for r in self:
             r.reliquat_total = sum(r.line_ids.mapped('reliquat'))
             restes = r.line_ids.filtered(lambda l: l.reliquat > 0)
-            r.info = ('Réception partielle : %s restent à recevoir ; le reliquat reste ouvert sur la commande %s.' % (
+            r.info = ('Réception partielle : %s %s à recevoir (réception complémentaire générée automatiquement).' % (
                 ', '.join('%d %s' % (l.reliquat, (l.product_id.name or '').lower()) for l in restes),
-                r.commande_id.name)) if restes else 'Réception complète : aucun reliquat.'
+                'restent' if r.reliquat_total > 1 else 'reste')) if restes else 'Réception complète : aucun reliquat.'
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -104,8 +110,8 @@ class KaFacture(models.Model):
     doc_ids = fields.One2many('ka.facture.doc', 'facture_id', string='Documents')
     nb_docs = fields.Integer(compute='_compute_docs', string='Documents attachés')
     requis_txt = fields.Char(compute='_compute_docs', string='Documents requis')
-    state = fields.Selection([('provisoire', 'Provisoire'), ('validee', 'Validée')], default='provisoire',
-                             string='Statut', tracking=True)
+    state = fields.Selection([('brouillon', 'Brouillon'), ('provisoire', 'À contrôler'), ('validee', 'Comptabilisée')],
+                             default='provisoire', string='Statut', tracking=True)
 
     def _ka_subtitle(self):
         self.ensure_one()
@@ -130,6 +136,17 @@ class KaFacture(models.Model):
         return {'type': 'ir.actions.act_window', 'name': 'Joindre un document', 'res_model': 'ir.attachment',
                 'view_mode': 'form', 'target': 'new',
                 'context': {'default_res_model': 'ka.facture', 'default_res_id': self.id}}
+
+    def action_open_docs(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Pièces jointes', 'res_model': 'ka.facture.doc',
+                'view_mode': 'list', 'domain': [('facture_id', '=', self.id)]}
+
+    def action_telecharger(self):
+        """Télécharge les fichiers joints à la facture (liste des pièces jointes enregistrées)."""
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'name': 'Télécharger les pièces', 'res_model': 'ir.attachment',
+                'view_mode': 'list,form', 'domain': [('res_model', '=', 'ka.facture'), ('res_id', '=', self.id)]}
 
     def action_controle(self):
         """Contrôle à trois voies : facture ↔ commande ↔ réceptions (quantités reçues)."""
@@ -189,13 +206,12 @@ class KaTransfert(models.Model):
     date_prevue = fields.Date(string='Date prévue')
     responsable = fields.Char(string='Responsable', default='Magasinier')
     line_ids = fields.One2many('ka.transfert.ligne', 'transfert_id', string='Lignes')
-    state = fields.Selection([('a_valider', 'À valider'), ('valide', 'Validé')], default='a_valider',
-                             string='Statut', tracking=True)
+    state = fields.Selection([('brouillon', 'Brouillon'), ('a_valider', 'Prêt'), ('valide', 'Transféré')],
+                             default='a_valider', string='Statut', tracking=True)
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — %s → %s' % (self.name, (self.emetteur_id.name or '').lower().capitalize() if self.emetteur_id else '',
-                                 (self.destinataire_id.name or '').lower() if self.destinataire_id else '')
+        return '%s → %s' % (self.emetteur_id.name or '', self.destinataire_id.name or '')
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -240,12 +256,12 @@ class KaInventaire(models.Model):
     libelle = fields.Char(string='Libellé', default='Inventaire tournant')
     depot_id = fields.Many2one('stock.warehouse', string='Dépôt', required=True)
     line_ids = fields.One2many('ka.inventaire.ligne', 'inventaire_id', string='Comptages')
-    state = fields.Selection([('session', 'Session créée'), ('comptage', 'En comptage'), ('validee', 'Validée')],
+    state = fields.Selection([('session', 'Brouillon'), ('comptage', 'En comptage'), ('validee', 'Validé')],
                              default='session', string='Statut', tracking=True)
 
     def _ka_subtitle(self):
         self.ensure_one()
-        return '%s — %s, %s' % (self.name, self.libelle or '', (self.depot_id.name or '').lower())
+        return '%s — %s' % (self.libelle or '', self.depot_id.name or '')
 
     @api.model_create_multi
     def create(self, vals_list):

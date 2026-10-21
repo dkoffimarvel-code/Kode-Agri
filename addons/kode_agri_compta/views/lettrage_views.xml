@@ -4,19 +4,49 @@
     <field name="name">ka.lettrage.ka.form</field>
     <field name="model">ka.lettrage</field>
     <field name="arch" type="xml">
-        <form string="Lettrage — compte d'avances planteur" class="o_ka_form">
+        <form string="Lettrage — compte courant planteur" class="o_ka_form">
+            <header>
+                <button string="Proposer lettrage" name="action_proposer" type="object" class="btn-secondary"/>
+                <button string="Lettrer automatiquement" name="action_lettrer" type="object" class="btn-primary"/>
+                <button string="Valider" name="action_valider" type="object" class="btn-secondary"/>
+                <button string="Consulter la balance âgée" name="action_balance_agee" type="object" class="btn-secondary"/>
+                <field name="state" widget="statusbar" statusbar_visible="non_lettre,lettre"/>
+            </header>
             <sheet>
-                <div class="o_ka_crumbs"><span class="o_ka_c">Accueil</span><span class="o_ka_c">Comptabilité</span><span class="o_ka_c">Lettrage</span><span class="o_ka_cur">Lettrage automatique</span></div>
-                <div class="o_ka_layout">
-                    <div class="o_ka_main">
-                        <div class="o_ka_head">
-                            <div><h1>Lettrage — compte d'avances planteur</h1><div class="o_ka_sub"><field name="ka_subtitle" nolabel="1" readonly="1"/></div></div>
-                            <field name="state" widget="badge" decoration-warning="state in ('partiel','non_lettre')" decoration-success="state in ('lettre')"/>
-                        </div>
-                        <div class="o_ka_info">Chaque décompte impute la récupération d'avance par lettrage ; le grand livre auxiliaire donne le solde par planteur.</div><div class="o_ka_sec">Critères</div><div class="o_ka_grid"><div class="o_ka_f"><label for="company_id" string="Société"/><field name="company_id"/></div><div class="o_ka_f"><label for="account_id" string="Collectif" class="o_ka_req"/><field name="account_id"/></div><div class="o_ka_f"><label for="partner_id" string="Tiers"/><field name="partner_id"/></div><div class="o_ka_f"><label for="critere" string="Critère de lettrage"/><field name="critere"/></div></div><field name="line_ids" nolabel="1" readonly="1"><list><field name="date" string="Date"/><field name="piece" string="Pièce"/><field name="intitule" string="Intitulé"/><field name="debit" string="Débit" sum="Solde dû après lettrage"/><field name="credit" string="Crédit" sum="Total"/><field name="lettre" string="Lettre"/></list></field><div class="o_ka_grid"><div class="o_ka_f"><label for="solde" string="Solde dû après lettrage"/><field name="solde" readonly="1"/></div></div>
-                    </div>
-                    <aside class="o_ka_side"><div class="o_ka_side_t">Actions</div><button string="Proposer le lettrage" name="action_proposer" type="object" class="o_ka_btn"/><button string="Lettrer automatiquement" name="action_lettrer" type="object" class="o_ka_btn o_ka_primary"/><button string="Consulter la balance âgée" name="action_balance_agee" type="object" class="o_ka_btn"/></aside>
+                <field name="currency_id" invisible="1"/>
+                <div class="oe_title">
+                    <h1>Lettrage — compte courant planteur</h1>
+                    <div class="o_ka_sub"><field name="ka_subtitle" readonly="1"/></div>
                 </div>
+                <div class="o_ka_info">Chaque décompte impute la récupération d'avance par lettrage. Le grand livre auxiliaire fournit le solde par planteur.</div>
+                <group>
+                    <group>
+                        <field name="partner_id" string="Tiers"/>
+                        <field name="account_id" string="Collectif"/>
+                    </group>
+                    <group>
+                        <field name="critere" string="Critère de lettrage"/>
+                        <field name="company_id" string="Société"/>
+                    </group>
+                </group>
+                <div class="o_ka_h3">Écritures à lettrer</div>
+                <field name="line_ids" nolabel="1" readonly="1">
+                    <list>
+                        <field name="date" string="Date"/>
+                        <field name="piece" string="Pièce"/>
+                        <field name="intitule" string="Intitulé" optional="hide"/>
+                        <field name="debit" string="Débit"/>
+                        <field name="credit" string="Crédit"/>
+                        <field name="lettre" string="Lettre"/>
+                    </list>
+                </field>
+                <group>
+                    <group/>
+                    <group>
+                        <field name="solde" string="Solde dû après lettrage" class="fw-bold"/>
+                    </group>
+                </group>
+                <div class="o_ka_valid"><span class="o_ka_valid_t">Validation / Approbation</span>Lettrage automatique des avances et récupérations ; balance âgée mise à jour pour le pilotage du risque crédit.</div>
             </sheet>
         </form>
     </field>
@@ -26,5 +56,12 @@
     <field name="model">ka.lettrage</field>
     <field name="arch" type="xml"><list string="ka_lettrage"><field name="partner_id"/><field name="account_id"/><field name="solde"/><field name="state" widget="badge"/></list></field>
 </record>
-<record id="action_ka_lettrage" model="ir.actions.act_window"><field name="name">Lettrage automatique</field><field name="res_model">ka.lettrage</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_lettrage" model="ir.actions.act_window"><field name="name">Lettrage</field><field name="res_model">ka.lettrage</field><field name="view_mode">list,form</field></record>
+<record id="action_ka_balance_agee" model="ir.actions.act_window">
+    <field name="name">Balance âgée</field>
+    <field name="res_model">account.move.line</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('parent_state', '=', 'posted'), ('reconciled', '=', False), ('account_id.account_type', 'in', ('asset_receivable', 'liability_payable'))]</field>
+    <field name="context">{'group_by': ['partner_id']}</field>
+</record>
 </odoo>

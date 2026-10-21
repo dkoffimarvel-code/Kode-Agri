@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+<!-- Application « Contrôle de gestion » des maquettes 9.x : Analytique · Budgets · Tableaux de bord · Reporting · Configuration -->
 <menuitem id="menu_ka_cg_root" name="Contrôle de gestion" sequence="48"/>
 <menuitem id="menu_ka_cg_an" name="Analytique" parent="menu_ka_cg_root" sequence="10"/>
-<menuitem id="menu_ka_cg_casc" name="Balance analytique" parent="menu_ka_cg_an" action="action_ka_cascade" sequence="10"/>
-<menuitem id="menu_ka_cg_uo" name="Unités d'œuvre" parent="menu_ka_cg_an" action="action_ka_uo" sequence="20"/>
-<menuitem id="menu_ka_cg_rep" name="Clés par unités d'œuvre" parent="menu_ka_cg_an" action="action_ka_repartition" sequence="30"/>
+<menuitem id="menu_ka_cg_casc" name="Comptes analytiques" parent="menu_ka_cg_an" action="action_ka_cascade" sequence="10"/>
+<menuitem id="menu_ka_cg_rep" name="Affectation des coûts" parent="menu_ka_cg_an" action="action_ka_repartition" sequence="20"/>
+<menuitem id="menu_ka_cg_uo" name="Unités d'œuvre" parent="menu_ka_cg_an" action="action_ka_uo" sequence="30"/>
 <menuitem id="menu_ka_cg_bud" name="Budgets" parent="menu_ka_cg_root" sequence="20"/>
-<menuitem id="menu_ka_cg_bud_s" name="Saisie des budgets" parent="menu_ka_cg_bud" action="action_ka_budget" sequence="10"/>
-<menuitem id="menu_ka_cg_bud_c" name="Consultation des budgets" parent="menu_ka_cg_bud" action="action_ka_budget_detail" sequence="20"/>
-<menuitem id="menu_ka_cg_bud_u" name="Suivi par activité" parent="menu_ka_cg_bud" action="action_ka_budget_suivi" sequence="30"/>
-<menuitem id="menu_ka_cg_bud_e" name="Budget / réalisé" parent="menu_ka_cg_bud" action="action_ka_ecart" sequence="40"/>
-<menuitem id="menu_ka_cg_bud_n" name="Notes d'analyse" parent="menu_ka_cg_bud" action="action_ka_ecart_note" sequence="50"/>
-<menuitem id="menu_ka_cg_eng" name="Engagements" parent="menu_ka_cg_root" sequence="30"/>
-<menuitem id="menu_ka_cg_bab" name="Budgets d'investissement" parent="menu_ka_cg_eng" action="action_ka_bab" sequence="10"/>
-<menuitem id="menu_ka_cg_pil" name="Tableaux de bord" parent="menu_ka_cg_root" sequence="40"/>
-<menuitem id="menu_ka_cg_kpi" name="Pilotage industriel et financier" parent="menu_ka_cg_pil" action="action_ka_kpi" sequence="10"/>
-<menuitem id="menu_ka_cg_etats" name="États" parent="menu_ka_cg_root" sequence="50"/>
-<menuitem id="menu_ka_cg_pnl" name="Compte de résultat de gestion" parent="menu_ka_cg_etats" action="action_ka_pnl" sequence="10"/>
-<menuitem id="menu_ka_cg_tre" name="Trésorerie glissante" parent="menu_ka_cg_etats" action="action_ka_treso_glissant" sequence="20"/>
-<menuitem id="menu_ka_cg_param" name="Paramétrage des indicateurs" parent="menu_ka_cg_root" action="action_ka_param" sequence="90"/>
+<menuitem id="menu_ka_cg_bud_u" name="Budget (prévu / réalisé)" parent="menu_ka_cg_bud" action="action_ka_budget_suivi" sequence="10"/>
+<menuitem id="menu_ka_cg_bud_s" name="Budget mensualisé" parent="menu_ka_cg_bud" action="action_ka_budget" sequence="20"/>
+<menuitem id="menu_ka_cg_bud_c" name="Budget consolidé" parent="menu_ka_cg_bud" action="action_ka_budget_detail" sequence="30"/>
+<menuitem id="menu_ka_cg_eng" name="Investissements (CAPEX)" parent="menu_ka_cg_bud" sequence="40"/>
+<menuitem id="menu_ka_cg_bab" name="Bons à budgétiser CAPEX" parent="menu_ka_cg_eng" action="action_ka_bab" sequence="10"/>
+<menuitem id="menu_ka_cg_bud_e" name="Budget vs réalisé" parent="menu_ka_cg_bud" action="action_ka_ecart" sequence="50"/>
+<menuitem id="menu_ka_cg_bud_n" name="Notes d'analyse" parent="menu_ka_cg_bud" action="action_ka_ecart_note" sequence="60"/>
+<menuitem id="menu_ka_cg_pil" name="Tableaux de bord" parent="menu_ka_cg_root" sequence="30"/>
+<menuitem id="menu_ka_cg_kpi" name="Pilotage de la performance" parent="menu_ka_cg_pil" action="action_ka_kpi" sequence="10"/>
+<menuitem id="menu_ka_cg_etats" name="Reporting" parent="menu_ka_cg_root" sequence="40"/>
+<menuitem id="menu_ka_cg_pnl" name="Compte de résultat de gestion (P&amp;L)" parent="menu_ka_cg_etats" action="action_ka_pnl" sequence="10"/>
+<menuitem id="menu_ka_cg_tre" name="Tableau de trésorerie glissant" parent="menu_ka_cg_etats" action="action_ka_treso_glissant" sequence="20"/>
+<menuitem id="menu_ka_cg_config" name="Configuration" parent="menu_ka_cg_root" sequence="90"/>
+<menuitem id="menu_ka_cg_param" name="Paramétrage des indicateurs" parent="menu_ka_cg_config" action="action_ka_param" sequence="10"/>
 
 </odoo>
