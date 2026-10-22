@@ -41,8 +41,10 @@ les identifiants externes, les `env.ref()`, les définitions de champs et les pi
 
 ## Limites connues
 
-- Les addons n'ont pas été chargés dans une instance Odoo 19 depuis cet environnement : la première installation peut révéler
-  des erreurs que l'analyse statique ne voit pas (signatures d'API, comportements propres à la version 19).
+- Vérifié sur Odoo 19.0 Community (sources officielles, PostgreSQL 16, plan comptable `l10n_ci`) : installation complète,
+  mise à niveau depuis la version précédente, démonstration (14 étapes « OK »), 22 tests automatisés, et ouverture dans le
+  navigateur des 161 actions Kode Agri sans erreur. Une instance différente (Enterprise, autres modules installés) peut
+  encore révéler des écarts.
 - Paie : les taux CNPS, le barème ITS et la réduction pour charges de famille sont des **paramètres** (tables datées) chargés avec
   des valeurs indicatives ; ils doivent être validés par le service paie avant usage. Les déclarations CNPS / ITS sont des
   états d'analyse, pas les formulaires officiels.

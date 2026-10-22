@@ -1,7 +1,7 @@
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError
 
-from .common import BALLES_COLIS, POIDS_COLIS, TEXTURES, TRACABILITE
+from .common import BALLES_COLIS, POIDS_BALLE, POIDS_COLIS, TEXTURES, TRACABILITE
 
 
 class KaColis(models.Model):

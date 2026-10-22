@@ -271,6 +271,27 @@ if __name__ == '__main__':
     verifier_definitions()
     for py in glob.glob('kode_agri_*/**/*.py', recursive=True):
         compile(open(py).read(), py, 'exec')
+    try:   # noms non définis (constante non importée…) : pyflakes s'il est installé
+        from pyflakes.api import check as pf_check
+        from pyflakes.reporter import Reporter
+
+        class _Rep(Reporter):
+            def __init__(self):
+                pass
+
+            def flake(self, msg):
+                if type(msg).__name__ in ('UndefinedName', 'UndefinedLocal'):
+                    erreurs.append('NOM NON DÉFINI %s:%s %s' % (msg.filename, msg.lineno, msg.message % msg.message_args))
+
+            def syntaxError(self, *a):
+                pass
+
+            def unexpectedError(self, *a):
+                pass
+        for py in glob.glob('kode_agri_*/**/*.py', recursive=True):
+            pf_check(open(py).read(), py, _Rep())
+    except ImportError:
+        print('(pyflakes absent : noms non définis non vérifiés — pip install pyflakes)')
     print("Ordre d'installation :", ' → '.join(ordre))
     print('%d addons, %d modèles' % (len(ordre), len(champs)))
     for e in sorted(set(erreurs)):

@@ -160,7 +160,7 @@ class KaRecond(models.Model):
                         break
                 grade = grade or grades.filtered('hors_specs')[:1]
             r.grade_id = grade
-            r.grade_label = ('%s — Standard' % grade.code) if grade and not grade.hors_specs else (grade.code or '')
+            r.grade_label = ('%s — Standard' % grade.code) if grade and not grade.hors_specs else (grade.code if grade else '')
             r.nouvel_article_id = grade.product_id if grade else False
 
     @api.model_create_multi
