@@ -80,6 +80,7 @@ class StockLot(models.Model):
             vals['name'] = product.display_name
         move = Move.create(vals)
         move._action_confirm()
+        move.picked = True   # Odoo 17+ : seuls les mouvements « prélevés » sont réalisés par _action_done
         move._action_done()
         return move
 

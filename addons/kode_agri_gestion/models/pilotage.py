@@ -217,7 +217,7 @@ class KaPnl(models.Model):
             res = [tot(cur, i, ['ca'] + [c for c, *_x in SECTIONS]) for i in (0, 1)]
             res_n1 = tot(n1, 1, ['ca'] + [c for c, *_x in SECTIONS])
             rows.append(ligne('Résultat de gestion', res[0], res[1], res_n1, True))
-            p.table_html = '<table class="o_ka_tbl"><thead><tr><th>Rubrique</th><th class="o_ka_num">Mois (MFCFA)</th><th class="o_ka_num">Cumul (MFCFA)</th><th class="o_ka_num">% CA</th><th class="o_ka_num">N-1 cumul</th><th class="o_ka_num">Var.</th></tr></thead><tbody>%s</tbody></table>' % ''.join(rows)
+            p.table_html = '<table class="o_ka_tbl"><thead><tr><th>Rubrique</th><th class="o_ka_num">Mois (MFCFA)</th><th class="o_ka_num">Cumul (MFCFA)</th><th class="o_ka_num">%% CA</th><th class="o_ka_num">N-1 cumul</th><th class="o_ka_num">Var.</th></tr></thead><tbody>%s</tbody></table>' % ''.join(rows)
 
     def action_imprimer(self):
         return self.env['ka.structure']._notif(_('P&L'), _("Compte de résultat de gestion envoyé à l'impression."))

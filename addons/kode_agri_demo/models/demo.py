@@ -80,6 +80,26 @@ class KaDemo(models.AbstractModel):
         self.env['ir.config_parameter'].sudo().set_param('kode_agri.demo_rapport', texte)
         return texte
 
+    # ---- tiers de référence (Odoo 19 interdit d'ajouter des attributs aux enregistrements : on les retrouve par leur nom)
+    def _par_nom(self, nom):
+        return self.env['res.partner'].search([('name', '=', nom)], limit=1)
+
+    @property
+    def coop(self):
+        return self._par_nom('Coopérative COOPAGRI Dabou')
+
+    @property
+    def planteurs(self):
+        return [self._par_nom(n) for n in ("Kouassi N'Guessan", 'Aya Koffi', 'Traoré Issa')]
+
+    @property
+    def tyre(self):
+        return self._par_nom('TyreCorp Ltd')
+
+    @property
+    def agent(self):
+        return self._par_nom('Agent collecte (EMP-0142)')
+
     # ---- utilitaires -------------------------------------------------------------------------------------------------
     def _ref(self, xmlid):
         return self.env.ref(xmlid)
@@ -136,11 +156,11 @@ class KaDemo(models.AbstractModel):
     # ---- tiers et articles --------------------------------------------------------------------------------------------------
     def _base(self):
         P = self.env['res.partner']
-        self.coop = self._partner('Coopérative COOPAGRI Dabou', is_company=True, ka_categorie='planteur_coop', ka_mode_reglement='vir', supplier_rank=1)
-        self.planteurs = [self._partner(n, ka_categorie='planteur_coop', ka_cooperative_id=self.coop.id if i == 0 else False,
+        coop = self._partner('Coopérative COOPAGRI Dabou', is_company=True, ka_categorie='planteur_coop', ka_mode_reglement='vir', supplier_rank=1)
+        planteurs = [self._partner(n, ka_categorie='planteur_coop', ka_cooperative_id=coop.id if i == 0 else False,
                                         ka_mode_reglement='vir' if i < 2 else 'chq', supplier_rank=1)
                           for i, n in enumerate(["Kouassi N'Guessan", 'Aya Koffi', 'Traoré Issa'])]
-        for p in self.planteurs[:2]:
+        for p in planteurs[:2]:
             if not p.ka_parcelle_ids:
                 p.ka_parcelle_ids = [Command.create({'name': 'PARC-%s-%d' % (p.ka_code, k), 'surface': 4.5 + k, 'latitude': 5.3 + k / 100, 'longitude': -4.0 - k / 100,
                                                      'clone': 'GT1', 'statut_eudr': 'conforme' if k == 0 else 'a_verifier'}) for k in range(2)]
@@ -148,20 +168,20 @@ class KaDemo(models.AbstractModel):
                        ('Tech Supply', 'frais_generaux'), ('Vatscan Trading Ltd (NL)', 'frais_generaux'), ('Bolloré Logistics CI', 'transitaire'),
                        ('Ivoire Transit & Douane', 'transitaire'), ('Sahel Log', 'transitaire')):
             self._partner(n, is_company=True, ka_categorie=cat, supplier_rank=1)
-        self.tyre = self._partner('TyreCorp Ltd', is_company=True, ka_client=True, customer_rank=1, ka_cat_client='export', ka_incoterm='FOB Abidjan', ka_paiement='remise_doc')
-        if not self.tyre.ka_spec_ids:
+        tyre = self._partner('TyreCorp Ltd', is_company=True, ka_client=True, customer_rank=1, ka_cat_client='export', ka_incoterm='FOB Abidjan', ka_paiement='remise_doc')
+        if not tyre.ka_spec_ids:
             specs = {'p0': ('30', None), 'pri': ('50', None), 'ml': ('65', '85'), 'vm': (None, '0,80'), 'azote': (None, '0,60'), 'cendres': (None, '0,75'), 'imp': (None, '0,10')}
-            self.tyre.ka_spec_ids = [Command.create({'test': t, 'vmin': a, 'vmax': b}) for t, (a, b) in specs.items()]
+            tyre.ka_spec_ids = [Command.create({'test': t, 'vmin': a, 'vmax': b}) for t, (a, b) in specs.items()]
         self._partner('RubberTrade SA', is_company=True, ka_client=True, customer_rank=1, ka_cat_client='export')
         self._partner('Pneus du Sahel SARL', is_company=True, ka_client=True, customer_rank=1, ka_cat_client='local')
         self._partner('CLI-0412 Acquéreur de matériel', is_company=True, customer_rank=1)
-        self.agent = self._partner('Agent collecte (EMP-0142)', ka_salarie=True, ka_matricule='EMP-0142')
+        self._partner('Agent collecte (EMP-0142)', ka_salarie=True, ka_matricule='EMP-0142')
         categ = self.env.ref('kode_agri_achats.categ_intrants')
         for code, nom, ptype in (('INT-CHM-0042', 'Coagulant acide formique', 'consu'), ('INT-FILM', 'Film polyéthylène emballage', 'consu'),
                                  ('P-0231', 'Roulement 9120', 'consu'), ('P-0244', 'Courroie transporteur', 'consu'), ('P-0250', 'Filtre', 'consu')):
             self._product(code, nom, type='consu', is_storable=True, categ_id=categ.id, standard_price=1000 if code.startswith('P') else 765)
         self._product('SRV-POSE', 'Pose et réglage séchoir', type='service', standard_price=150000)
-        return '%d planteurs, clients, fournisseurs et articles' % (len(self.planteurs) + 1)
+        return '%d planteurs, clients, fournisseurs et articles' % (len(planteurs) + 1)
 
     # ---- M1 ---------------------------------------------------------------------------------------------------------------
     def _m1_parametres(self):

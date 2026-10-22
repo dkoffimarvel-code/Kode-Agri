@@ -142,7 +142,7 @@ class KaImmo(models.Model):
         for i in self:
             i.facture_ligne_ids = i.move_id.invoice_line_ids
 
-    @api.depends('plan_ids.state', 'plan_ids.dotation', 'valeur')
+    @api.depends('plan_ids.move_id', 'plan_ids.dotation', 'valeur')
     def _compute_vnc(self):
         for i in self:
             cumul = sum(i.plan_ids.filtered(lambda p: p.move_id).mapped('dotation'))
