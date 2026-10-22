@@ -247,6 +247,20 @@ def verifier_definitions():
             for d in deps:
                 if d.split('.')[0] not in mes_champs and d.split('.')[0] not in COMMUNS and modele in champs and modele.startswith('ka.'):
                     erreurs.append('DEPENDS INCONNU %s.%s : %s' % (modele, nom, d))
+                # chemin complet « a.b.c » : chaque maillon doit exister sur le modèle lié (modèles ka.* seulement)
+                cur, table = modele, mes_champs
+                for seg in d.split('.')[:-1]:
+                    info = table.get(seg)
+                    if not info or info[0] not in ('Many2one', 'One2many', 'Many2many') or not info[1]:
+                        break
+                    cur = info[1][0]
+                    if not cur.startswith('ka.') or cur not in champs:
+                        break
+                    table = tous(cur, champs)
+                    suivant = d.split('.')[d.split('.').index(seg) + 1]
+                    if suivant not in table and suivant not in COMMUNS:
+                        erreurs.append('DEPENDS INCONNU %s.%s : %s (%s absent de %s)' % (modele, nom, d, suivant, cur))
+                        break
 
 
 if __name__ == '__main__':
